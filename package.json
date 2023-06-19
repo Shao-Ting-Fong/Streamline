@@ -1,0 +1,49 @@
+{
+  "name": "slackalendar",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=8.3.0"
+  },
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc --build --verbose",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"node --watch dist/index.js\"",
+    "watch": "watchify public/index.js -o public/bundle.js -v"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.59.11",
+    "concurrently": "^8.2.0",
+    "eslint": "^8.43.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^2.8.8",
+    "typescript": "^5.1.3"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http": "^0.0.1-security",
+    "mediasoup": "^3.12.3",
+    "mediasoup-client": "^3.6.84",
+    "socket.io": "^4.6.2",
+    "socket.io-client": "^4.6.2",
+    "watchify": "^4.0.0"
+  }
+}
