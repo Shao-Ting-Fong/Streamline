@@ -1,7 +1,7 @@
 const io = require("socket.io-client");
 const mediasoupClient = require("mediasoup-client");
 
-const roomName = window.location.pathname.split("/")[2];
+const roomName = ROOM_ID;
 
 const socket = io("/mediasoup");
 
@@ -16,8 +16,6 @@ let producerTransport;
 let consumerTransports = [];
 let audioProducer;
 let videoProducer;
-let consumer;
-let isProducer = false;
 
 let params = {
   // mediasoup params
@@ -53,6 +51,47 @@ const streamSuccess = (stream) => {
 
   audioParams = { track: stream.getAudioTracks()[0], ...audioParams };
   videoParams = { track: stream.getVideoTracks()[0], ...videoParams };
+
+  const muteUnmute = () => {
+    const { enabled } = stream.getAudioTracks()[0];
+    if (enabled) {
+      audioParams.enabled = false;
+      stream.getAudioTracks()[0].enabled = false;
+      btnAudioControl.innerHTML = `
+    <i class="text-[#EB534B] fa-solid fa-microphone-slash text-[24px]"></i>
+    <span class="text-[#EB534B]">Unmute</span>
+    `;
+    } else {
+      audioParams.enabled = true;
+      stream.getAudioTracks()[0].enabled = true;
+      btnAudioControl.innerHTML = `
+    <i class="fa-solid fa-microphone text-[24px]"></i>
+    <span>Mute</span>
+    `;
+    }
+  };
+
+  const playStop = () => {
+    const { enabled } = videoParams;
+    if (enabled) {
+      videoParams.enabled = false;
+      stream.getVideoTracks()[0].enabled = false;
+      btnVideoControl.innerHTML = `
+    <i class="text-[#EB534B] fas fa-video-slash text-[24px]"></i>
+    <span class="text-[#EB534B]">Play Video</span>
+    `;
+    } else {
+      videoParams.enabled = true;
+      stream.getVideoTracks()[0].enabled = true;
+      btnVideoControl.innerHTML = `
+    <i class="fas fa-video text-[24px]"></i>
+    <span>Stop Video</span>
+    `;
+    }
+  };
+
+  btnAudioControl.addEventListener("click", muteUnmute);
+  btnVideoControl.addEventListener("click", playStop);
 
   joinRoom();
 };
@@ -327,19 +366,15 @@ const connectRecvTransport = async (
 
       // create a new div element for the new consumer media
       const newElem = document.createElement("div");
-      newElem.setAttribute("id", `td-${remoteProducerId}`);
+      newElem.setAttribute("id", `video-${remoteProducerId}`);
 
-      if (params.kind == "audio") {
+      if (params.kind === "audio") {
         //append to the audio container
-        newElem.innerHTML =
-          '<audio id="' + remoteProducerId + '" autoplay></audio>';
+        newElem.innerHTML = `<audio id = "${remoteProducerId}" autoplay></audio>`;
+        '<audio id="' + remoteProducerId + '" autoplay></audio>';
       } else {
         //append to the video container
-        newElem.setAttribute("class", "remoteVideo");
-        newElem.innerHTML =
-          '<video id="' +
-          remoteProducerId +
-          '" autoplay class="video" ></video>';
+        newElem.innerHTML = `<video id = "${remoteProducerId}" autoplay></video>`;
       }
 
       videoContainer.appendChild(newElem);
@@ -375,5 +410,7 @@ socket.on("producer-closed", ({ remoteProducerId }) => {
   );
 
   // remove the video div element
-  videoContainer.removeChild(document.getElementById(`td-${remoteProducerId}`));
+  videoContainer.removeChild(
+    document.getElementById(`video-${remoteProducerId}`)
+  );
 });

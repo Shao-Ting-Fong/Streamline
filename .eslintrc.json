@@ -11,6 +11,7 @@
   "plugins": ["prettier"],
   "ignorePatterns": [
     "/public/*.js",
+    "/public/**/*.js",
     "/views/**/*.ejs",
     "/views/*.ejs",
     "/dist/*.js"

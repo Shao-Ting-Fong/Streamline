@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatroom</title>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script src="https://kit.fontawesome.com/aec1c0db78.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <main class="h-screen flex">
+      <div id="main_left" class="basis-4/5 flex flex-col">
+        <div id="main_videos" class="grow bg-black flex justify-center items-center">
+          <video id="localVideo" autoplay class="video" muted></video>
+          <div id="videoContainer" class="flex justify-center"></div>
+        </div>
+        <div id="main_controls" class="flex justify-between bg-[#1C1E20] text-[#D2D2D2] p-[5px]">
+          <div id="main_controls_block" class="flex">
+            <div id="btnAudioControl" class="main_controls_btn main_mute_btn">
+              <i class="fa-solid fa-microphone text-[24px]"></i>
+              <span>Mute</span>
+            </div>
+            <div id="btnVideoControl" class="main_controls_btn main_video_stop_btn">
+              <i class="fa-solid fa-video text-[24px]"></i>
+              <span>Stop Video</span>
+            </div>
+          </div>
+          <div id="main_controls" class="flex">
+            <div class="main_controls_btn">
+              <i class="fa-solid fa-shield-halved text-[24px]"></i>
+              <span>Security</span>
+            </div>
+            <div class="main_controls_btn">
+              <i class="fa-solid fa-user-group text-[24px]"></i>
+              <span>Participants</span>
+            </div>
+            <div class="main_controls_btn">
+              <i class="fa-solid fa-comment text-[24px]"></i>
+              <span>Chat</span>
+            </div>
+          </div>
+          <div id="main_controls_block" class="flex">
+            <div class="main_controls_btn">
+              <span class="text-[#EB534B]">Leave Meeting</span>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="main_right" class="basis-1/5 flex flex-col bg-[#242324] border-l border-l-[#3D3D42]">
+        <div class="main_header pt-[5px] text-[#F5F5F5] text-center">
+          <h6>Chat</h6>
+        </div>
+        <div class="main_chat_window grow  overflow-y-auto">
+          <ul class="messages pl-3"></ul>
+        </div>
+        <div class="main_message_container py-[22px] pl-3 mr-auto flex">
+          <input class="grow bg-transparent border-none text-[#F5F5F5] focus:outline-0" type="text" name="" id="chat_message" placeholder="Type message here...">
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+<script>
+  const ROOM_ID = "<%= roomId %>";
+</script>
+<script src="/js/bundle.js"></script>

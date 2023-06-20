@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 import { Server, Socket } from "socket.io";
 import mediasoup, { types as mediasoupTypes } from "mediasoup";
 
@@ -8,18 +9,17 @@ const app = express();
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const __dirname = path.resolve();
 
-app.get("*", (req, res, next) => {
-  const route = "/sfu/";
+app.set("view engine", "ejs");
+app.use(express.static(path.join(__dirname, "public")));
 
-  if (req.path.indexOf(route) === 0 && req.path.length > route.length)
-    return next();
-
-  return res.send(
-    `You need to specify a room name in the path e.g. 'http://127.0.0.1/sfu/room'`
-  );
+app.get("/", (req, res) => {
+  res.redirect(`/${uuidv4()}`);
 });
 
-app.use("/sfu/:room", express.static(path.join(__dirname, "public")));
+app.get("/:roomId", (req, res) => {
+  const { roomId } = req.params;
+  res.render("room", { roomId });
+});
 
 const httpServer = http.createServer(app);
 httpServer.listen(3000, () => {
