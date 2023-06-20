@@ -1,7 +1,8 @@
 import express from "express";
 import http from "http";
 import path from "path";
-import { v4 as uuidv4 } from "uuid";
+import "dotenv/config";
+import { nanoid } from "nanoid";
 import { Server, Socket } from "socket.io";
 import mediasoup, { types as mediasoupTypes } from "mediasoup";
 
@@ -12,8 +13,12 @@ const __dirname = path.resolve();
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 
+const HOST_IP = process.env.HOST_IP || "127.0.0.1";
+const rtcMinPort: number = Number(process.env.MEDIASOUP_RTCMINPORT) ?? 2000;
+const rtcMaxPort: number = Number(process.env.MEDIASOUP_RTCMAXPORT) || 2100;
+
 app.get("/", (req, res) => {
-  res.redirect(`/${uuidv4()}`);
+  res.redirect(`/${nanoid(6)}`);
 });
 
 app.get("/:roomId", (req, res) => {
@@ -35,8 +40,8 @@ const connections = io.of("/mediasoup");
 
 const createWorker = async () => {
   const worker = await mediasoup.createWorker({
-    rtcMinPort: 2000,
-    rtcMaxPort: 2020,
+    rtcMinPort,
+    rtcMaxPort,
   });
   console.log(`worker pid ${worker.pid}`);
 
@@ -227,7 +232,7 @@ connections.on("connection", async (socket) => {
               listenIps: [
                 {
                   ip: "0.0.0.0", // replace with relevant IP address
-                  announcedIp: "127.0.0.1",
+                  announcedIp: HOST_IP,
                 },
               ],
               enableUdp: true,
