@@ -1,27 +1,28 @@
-{
-  "extends": [
+module.exports = {
+  extends: [
     "airbnb",
     "airbnb-typescript",
-    "prettier"
+    "prettier",
     // "plugin:node/recommended"
   ],
-  "parserOptions": {
-    "project": "./tsconfig.json"
+  parserOptions: {
+    project: "./tsconfig.json",
+    tsconfigRootDir: __dirname,
   },
-  "plugins": ["prettier"],
-  "ignorePatterns": [
+  plugins: ["prettier"],
+  ignorePatterns: [
     "/public/*.js",
     "/public/**/*.js",
     "/views/**/*.ejs",
     "/views/*.ejs",
-    "/dist/*.js"
+    "/dist/*.js",
   ],
-  "rules": {
+  rules: {
     // "prettier/prettier": "error",
     "no-console": "off",
     "func-names": "off",
     "class-methods-use-this": "off",
-    "radix": "off",
-    "no-underscore-dangle": "off"
-  }
-}
+    radix: "off",
+    "no-underscore-dangle": "off",
+  },
+};
