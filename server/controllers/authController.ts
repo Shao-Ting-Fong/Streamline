@@ -2,17 +2,12 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import signJWT, { EXPIRE_TIME } from "../utils/signJWT.js";
+import verifyJWT from "../utils/verifyJWT.js";
+
 import ExpressError from "../utils/ExpressError.js";
 import { User } from "../models/index.js";
-// import User from "../models/user.js";
 
 const saltRounds = 10;
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  path: "/",
-  secure: true,
-  sameSite: "strict",
-} as const;
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -94,5 +89,33 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
     res.status(500).json({ errors: "sign up failed" });
+  }
+};
+
+export const getUserProfile = async (req: Request, res: Response) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+      throw new ExpressError("You need to sign in first.", 400);
+    }
+    const { userId } = await verifyJWT(token);
+    const foundUser = await User.findById(userId).select(
+      "_id username email avatarURL"
+    );
+    if (!foundUser) {
+      throw new ExpressError("User not found", 404);
+    }
+    console.log(foundUser);
+
+    res.status(200).json(foundUser);
+  } catch (err) {
+    if (err instanceof ExpressError) {
+      res.status(err.statusCode).json({ errors: err.message });
+      return;
+    } else if (err instanceof Error) {
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    res.status(500).json({ errors: "get profile failed" });
   }
 };

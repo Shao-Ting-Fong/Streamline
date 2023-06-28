@@ -1,7 +1,6 @@
 import { Socket, Server } from "socket.io";
 import formatMessage from "../utils/messages.js";
 import verifyJWT from "../utils/verifyJWT.js";
-// import User from "../models/user.js";
 import { User } from "../models/index.js";
 
 const chatroom = function () {
