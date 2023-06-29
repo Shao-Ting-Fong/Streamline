@@ -1,6 +1,6 @@
 import { Schema, Types, model } from "mongoose";
 
-interface IWorkspaceManager {
+interface IWorkspaceMember {
   userIds: Types.ObjectId[];
   role: string;
   power: Number;
@@ -11,20 +11,20 @@ interface IWorkspace {
   title: string;
   ownerId: Types.ObjectId;
   avatarURL: string;
-  managers?: Types.DocumentArray<IWorkspaceManager>;
+  members: Types.DocumentArray<IWorkspaceMember>;
 }
 
-const WorkspaceManagerSchema = new Schema<IWorkspaceManager>({
+const WorkspaceMembersSchema = new Schema<IWorkspaceMember>({
   userIds: { type: [Schema.Types.ObjectId], ref: "User", required: true },
-  role: { type: String, default: "staff", required: true },
-  power: { type: Number, default: 3, required: true },
+  role: { type: String, default: "member", required: true },
+  power: { type: Number, default: 1, required: true },
 });
 
 const WorkspaceSchema = new Schema<IWorkspace>({
   title: { type: String, required: true },
   ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   avatarURL: String,
-  managers: [WorkspaceManagerSchema],
+  members: [WorkspaceMembersSchema],
 });
 
 export interface IUser {

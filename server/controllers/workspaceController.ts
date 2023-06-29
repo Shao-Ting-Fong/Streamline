@@ -25,3 +25,23 @@ export const getWorkspacesById = async (req: Request, res: Response) => {
     res.status(500).json({ errors: "Get workspace failed" });
   }
 };
+
+// export const getWorkspaceByChannelId = async (
+//   req: Request,
+//   res: Response
+// ) => {
+//   try {
+//     const foundChannels = await Channel.findById();
+//     res.status(200).json(foundChannels);
+//   } catch (err) {
+//     if (err instanceof ExpressError) {
+//       res.status(err.statusCode).json({ errors: err.message });
+//       return;
+//     } else if (err instanceof Error) {
+//       console.log(err);
+//       res.status(400).json({ errors: err.message });
+//       return;
+//     }
+//     res.status(500).json({ errors: "Get channels failed" });
+//   }
+// };

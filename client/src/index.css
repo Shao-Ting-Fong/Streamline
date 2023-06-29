@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+video {
+  @apply max-h-[300px] max-w-[400px] object-cover m-2;
+}
+
+.main_controls_btn {
+  @apply p-4 mr-3 my-2 rounded-full cursor-pointer;
+}

@@ -100,12 +100,11 @@ export const getUserProfile = async (req: Request, res: Response) => {
     }
     const { userId } = await verifyJWT(token);
     const foundUser = await User.findById(userId).select(
-      "_id username email avatarURL"
+      "_id username email avatarURL workspaces"
     );
     if (!foundUser) {
       throw new ExpressError("User not found", 404);
     }
-    console.log(foundUser);
 
     res.status(200).json(foundUser);
   } catch (err) {

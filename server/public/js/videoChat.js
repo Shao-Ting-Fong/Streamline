@@ -92,6 +92,9 @@ const streamSuccess = (stream) => {
 
   btnAudioControl.addEventListener("click", muteUnmute);
   btnVideoControl.addEventListener("click", playStop);
+  btnLeaveMeeting.addEventListener("click", () => {
+    window.close();
+  });
 
   joinRoom();
 };

@@ -1,7 +1,7 @@
-dist/
+server/dist/
 node_modules/
 .vscode/
-src/
+server/src/
 
 .env
 schemas.js

@@ -106,7 +106,7 @@ const videoChat = function () {
     ];
 
     connections.on("connection", async (socket: Socket) => {
-      console.log(socket.id);
+      console.log("Video Chat connection", socket.id);
       socket.emit("connection-success", {
         socketId: socket.id,
       });
@@ -132,6 +132,7 @@ const videoChat = function () {
       socket.on("disconnect", () => {
         // do some cleanup
         console.log("peer disconnected");
+        console.log(socket.id);
         consumers = removeItems(consumers, socket.id);
         producers = removeItems(producers, socket.id);
         transports = removeItems(transports, socket.id);
@@ -151,6 +152,7 @@ const videoChat = function () {
       socket.on(
         "joinRoom",
         async ({ roomName }: { roomName: string }, callback: Function) => {
+          console.log(roomName);
           const createRoom = async (socketId: string) => {
             let router1;
             let currentPeers: string[] = [];
@@ -186,6 +188,8 @@ const videoChat = function () {
               isAdmin: false, // Is this Peer the Admin?
             },
           };
+
+          console.log("peers", peers);
 
           // get Router RTP Capabilities
           const { rtpCapabilities } = router1;
@@ -272,6 +276,7 @@ const videoChat = function () {
         ) => {
           // get Room Name from Peer's properties
           const { roomName } = peers[socket.id];
+          console.log("roomName", roomName);
 
           // get Router (Room) object this peer is in based on RoomName
           const { router: mediasoupRouter } = rooms[roomName];
