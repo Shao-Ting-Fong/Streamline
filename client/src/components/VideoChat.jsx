@@ -56,7 +56,7 @@ let params = {
   },
 };
 
-const VideoChat = () => {
+const VideoChat = ({ setStreaming }) => {
   const [videoSocket] = useState(() => {
     return io(`${API_ROUTE}/mediasoup`);
   });
@@ -69,7 +69,7 @@ const VideoChat = () => {
   const videoParams = useRef({ params });
 
   const { cid } = useParams();
-  const [localStream, setLocalStream] = useState(undefined);
+  const [localStream, setLocalStream] = useState();
   const [remoteStreams, setRemoteStreams] = useState({});
   const [isMute, setMute] = useState(false);
   const [isStopPlaying, setStopPlaying] = useState(false);
@@ -77,6 +77,7 @@ const VideoChat = () => {
   useEffect(() => {
     let consumerTransports = [];
     let consumingTransports = [];
+    let onClose;
 
     const connectRecvTransport = async (
       consumerTransport,
@@ -293,7 +294,11 @@ const VideoChat = () => {
     };
 
     const streamSuccess = (stream) => {
+      console.log("Set Stream");
       setLocalStream(stream);
+      onClose = () => {
+        stream.getTracks().forEach((track) => track.stop());
+      };
 
       audioParams.current.track = stream.getAudioTracks()[0];
       videoParams.current.track = stream.getVideoTracks()[0];
@@ -339,6 +344,9 @@ const VideoChat = () => {
     return () => {
       videoSocket.off("connection-success");
       videoSocket.off("producer-closed");
+      videoSocket.disconnect();
+      console.log("First useEffect cleanup");
+      onClose();
     };
   }, []);
 
@@ -351,8 +359,6 @@ const VideoChat = () => {
     localStream.getVideoTracks()[0].enabled = isStopPlaying;
     setStopPlaying((prev) => !prev);
   };
-
-  console.log(remoteStreams);
 
   return (
     <main className="h-full w-full flex">
@@ -386,18 +392,19 @@ const VideoChat = () => {
                 className="main_controls_btn hover:bg-[#343434] text-[#EB534B]"
                 onClick={toggleAudio}>
                 <MicOffIcon fontSize="large" />
-                {/* <span>UnMute</span> */}
               </div>
             ) : (
               <div
                 className="main_controls_btn hover:bg-[#343434]"
                 onClick={toggleAudio}>
                 <KeyboardVoiceIcon fontSize="large" />
-                {/* <span>Mute</span> */}
               </div>
             )}
             <div className="main_controls_btn  bg-[#EB534B]">
-              <CallEndIcon fontSize="large" />
+              <CallEndIcon
+                fontSize="large"
+                onClick={() => setStreaming(false)}
+              />
             </div>
 
             {isStopPlaying ? (
@@ -405,14 +412,12 @@ const VideoChat = () => {
                 className="main_controls_btn hover:bg-[#343434] text-[#EB534B]"
                 onClick={toggleVideo}>
                 <VideocamOffIcon fontSize="large" />
-                {/* <span>Play Video</span> */}
               </div>
             ) : (
               <div
                 className="main_controls_btn hover:bg-[#343434]"
                 onClick={toggleVideo}>
                 <VideocamIcon fontSize="large" />
-                {/* <span>Stop Video</span> */}
               </div>
             )}
           </div>

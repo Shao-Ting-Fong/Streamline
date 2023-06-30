@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import { BadgeAvatar } from "./";
 import LogoutIcon from "../assets/logout.png";
 import Cookies from "universal-cookie";
@@ -14,6 +14,7 @@ const authString = `Bearer ${authToken}`;
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
+  const { wid } = useParams();
   const [workspaces, setWorkspaces] = useState([]);
 
   useEffect(() => {
@@ -39,8 +40,12 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
     window.location.href = "/";
   };
 
-  const hasUnread = (wid) =>
-    Object.values(channelUnread).some((ele) => ele.workspaceId === wid);
+  const hasUnread = (wid) => {
+    // console.log(Object.values(channelUnread));
+    return Object.values(channelUnread).some(
+      (ele) => ele.workspaceId !== wid && ele.unread
+    );
+  };
 
   return (
     <>
@@ -52,8 +57,8 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
                 <BadgeAvatar
                   imgUrl={API_ROUTE + workspace.avatarURL}
                   position={{ vertical: "top", horizontal: "right" }}
-                  showState={() => hasUnread(workspace._id)}
-                  stateColor={"#44b700"}
+                  showState={hasUnread(wid)}
+                  stateColor={"#CC3333"}
                 />
               </div>
             </div>

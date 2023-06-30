@@ -58,17 +58,21 @@ const Conversation = () => {
       }
     );
     updateMessages([...messages, data.msg]);
-    evt.target.value = "";
+    setNewMsg("");
   };
 
   return (
     <>
       <div className="h-screen">
-        {isStreaming && (
-          <div className="h-1/2 w-full resize-y">
-            <VideoChat />
-          </div>
-        )}
+        <div
+          className={`w-full ${
+            isStreaming ? "h-1/2" : "h-0 translate-y-0"
+          } ease-in-out duration-500`}>
+          {isStreaming && (
+            <VideoChat isStreaming={isStreaming} setStreaming={setStreaming} />
+          )}
+        </div>
+
         <div
           className={`${
             isStreaming ? "h-1/2" : "h-full"
@@ -79,10 +83,7 @@ const Conversation = () => {
             <h3 className="text-lg">{currChannel.title}</h3>
             <button
               className="ml-auto"
-              onClick={
-                () => setStreaming((prev) => !prev)
-                // () => window.open(`${API_ROUTE}/video/${cid}`, "_blank")
-              }>
+              onClick={() => setStreaming((prev) => !prev)}>
               <VideocamIcon color={isStreaming ? "primary" : ""} />
             </button>
           </div>
@@ -95,6 +96,7 @@ const Conversation = () => {
               onSubmit={sendMessage}>
               <input
                 className="bg-gray-200 w-full h-1/2 ps-5 rounded-full focus:outline-none"
+                value={newMsg}
                 onChange={(e) => setNewMsg(e.target.value)}
               />
               <button className="ms-3">Submit</button>

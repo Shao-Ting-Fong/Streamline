@@ -132,21 +132,26 @@ const videoChat = function () {
       socket.on("disconnect", () => {
         // do some cleanup
         console.log("peer disconnected");
-        console.log(socket.id);
-        consumers = removeItems(consumers, socket.id);
-        producers = removeItems(producers, socket.id);
-        transports = removeItems(transports, socket.id);
 
-        const { roomName } = peers[socket.id];
-        delete peers[socket.id];
+        try {
+          consumers = removeItems(consumers, socket.id);
+          producers = removeItems(producers, socket.id);
+          transports = removeItems(transports, socket.id);
 
-        // remove socket from room
-        rooms[roomName] = {
-          router: rooms[roomName].router,
-          peers: rooms[roomName].peers?.filter(
-            (socketId) => socketId !== socket.id
-          ),
-        };
+          const { roomName } = peers[socket.id];
+          delete peers[socket.id];
+
+          // remove socket from room
+          rooms[roomName] = {
+            router: rooms[roomName].router,
+            peers: rooms[roomName].peers?.filter(
+              (socketId) => socketId !== socket.id
+            ),
+          };
+        } catch (err) {
+          console.log("Disconnect Error.");
+          console.log(err);
+        }
       });
 
       socket.on(
@@ -188,8 +193,6 @@ const videoChat = function () {
               isAdmin: false, // Is this Peer the Admin?
             },
           };
-
-          console.log("peers", peers);
 
           // get Router RTP Capabilities
           const { rtpCapabilities } = router1;

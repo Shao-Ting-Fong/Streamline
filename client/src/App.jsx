@@ -24,7 +24,6 @@ const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 function App() {
   const [userProfile, setUserProfile] = useState({});
   const [channelUnread, setChannelUnread] = useState({});
-  const [workspaceUnread, setWorkspaceUnread] = useState({});
 
   useEffect(() => {
     function onConnect() {
@@ -66,17 +65,16 @@ function App() {
             };
             return { ...status };
           });
-
-          // setWorkspaceUnread((status) => {
-          //   status[data.workspaceId] = true;
-          //   return { ...status };
-          // });
         });
         setUserProfile(data);
       }
     };
 
     getUserProfile();
+
+    return () => {
+      socket.off("notification");
+    };
   }, [authToken]);
 
   if (!authToken) return <Auth />;
