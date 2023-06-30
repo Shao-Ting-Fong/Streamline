@@ -13,7 +13,7 @@ const authString = `Bearer ${authToken}`;
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
-const Sidebar = ({ userProfile, setUserProfile }) => {
+const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
   const [workspaces, setWorkspaces] = useState([]);
 
   useEffect(() => {
@@ -39,6 +39,9 @@ const Sidebar = ({ userProfile, setUserProfile }) => {
     window.location.href = "/";
   };
 
+  const hasUnread = (wid) =>
+    Object.values(channelUnread).some((ele) => ele.workspaceId === wid);
+
   return (
     <>
       <div className="channel-list__sidebar">
@@ -49,7 +52,7 @@ const Sidebar = ({ userProfile, setUserProfile }) => {
                 <BadgeAvatar
                   imgUrl={API_ROUTE + workspace.avatarURL}
                   position={{ vertical: "top", horizontal: "right" }}
-                  showState={false}
+                  showState={() => hasUnread(workspace._id)}
                   stateColor={"#44b700"}
                 />
               </div>

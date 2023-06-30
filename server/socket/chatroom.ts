@@ -11,13 +11,13 @@ const chatroom = function () {
       console.log("Chatroom socket connected");
 
       socket.on("joinRoom", ({ roomId }: { roomId: string }) => {
-        console.log(`socket: ${socket.id} has joined room:${roomId}`);
-        socket.join(`roomId:${roomId}`);
+        console.log(`socket: ${socket.id} has joined ${roomId}`);
+        socket.join(roomId);
       });
 
       socket.on("leaveRoom", ({ roomId }: { roomId: string }) => {
-        console.log(`socket: ${socket.id} has left room:${roomId}`);
-        socket.leave(`roomId:${roomId}`);
+        console.log(`socket: ${socket.id} has left ${roomId}`);
+        socket.leave(roomId);
       });
 
       socket.on(

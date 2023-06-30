@@ -91,12 +91,32 @@ export const addMessage = async (req: Request, res: Response) => {
     // ! Bug to Fix: Time recorded in DB may be slightly different.
 
     foundChannel.members.forEach((member) => {
-      connections.to(`userId:${member.userId}`).emit("message", replyMessage);
+      connections
+        .to(`userId:${member.userId}`)
+        .emit("notification", replyMessage);
     });
 
     connections.to(`roomId:${to}`).emit("message", replyMessage);
     // });
     res.status(200).json(replyMessage);
+  } catch (err) {
+    if (err instanceof ExpressError) {
+      res.status(err.statusCode).json({ errors: err.message });
+      return;
+    } else if (err instanceof Error) {
+      console.log(err);
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    res.status(500).json({ errors: "Get channels failed" });
+  }
+};
+
+export const getWorkspaceByChannelId = async (req: Request, res: Response) => {
+  try {
+    const { cid } = req.params;
+    const foundChannels = await Channel.findById(cid);
+    res.status(200).json(foundChannels);
   } catch (err) {
     if (err instanceof ExpressError) {
       res.status(err.statusCode).json({ errors: err.message });

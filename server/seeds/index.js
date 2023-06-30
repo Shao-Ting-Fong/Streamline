@@ -28,10 +28,10 @@ const workspace = Workspace({
   title: "Test Org.",
   ownerId: owner._id,
   avatarURL: "/img/company.png",
-  managers: [
-    {
-      userIds: staff._id,
-    },
+  members: [
+    { userId: [owner._id], role: "owner", power: 99 },
+    { userIds: [staff._id], role: "staff", power: 3 },
+    { userIds: [member._id] },
   ],
 });
 

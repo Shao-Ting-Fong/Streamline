@@ -19,7 +19,11 @@ const CompanyHeader = () => (
   </div>
 );
 
-const ChannelListContainer = ({ userProfile }) => {
+const ChannelListContainer = ({
+  userProfile,
+  channelUnread,
+  setChannelUnread,
+}) => {
   const { wid, cid } = useParams();
   const [teamChannels, setTeamChannels] = useState([]);
   const [directMessages, setDirectMessages] = useState([]);
@@ -42,12 +46,6 @@ const ChannelListContainer = ({ userProfile }) => {
     getChannels(wid);
   }, []);
 
-  // useEffect(() => {
-  //   socket.on(`userId:${userProfile._id}`, ({ from, to, msg }) => {
-
-  //   });
-  // });
-
   return (
     <>
       <div className="channel-list__container">
@@ -57,7 +55,12 @@ const ChannelListContainer = ({ userProfile }) => {
           <TeamChannelList type="team" />
           <div className="mt-2">
             {teamChannels.map((channel) => (
-              <TeamChannelPreview key={channel._id} channel={channel} />
+              <TeamChannelPreview
+                key={channel._id}
+                channel={channel}
+                channelUnread={channelUnread}
+                setChannelUnread={setChannelUnread}
+              />
             ))}
           </div>
 

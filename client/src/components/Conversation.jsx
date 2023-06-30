@@ -42,9 +42,9 @@ const Conversation = () => {
         }))
       );
     };
-    socket.emit("leaveRoom", { roomId: currChannel._id });
+    socket.emit("leaveRoom", { roomId: `roomId:${currChannel._id}` });
     getChannelById(wid, cid);
-    socket.emit("joinRoom", { roomId: cid });
+    socket.emit("joinRoom", { roomId: `roomId:${cid}` });
   }, [cid]);
 
   const sendMessage = async (evt) => {

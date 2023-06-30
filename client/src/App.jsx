@@ -23,7 +23,8 @@ const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 function App() {
   const [userProfile, setUserProfile] = useState({});
-  const [notifications, setNotification] = useState({});
+  const [channelUnread, setChannelUnread] = useState({});
+  const [workspaceUnread, setWorkspaceUnread] = useState({});
 
   useEffect(() => {
     function onConnect() {
@@ -52,27 +53,31 @@ function App() {
           },
         });
 
-        // socket.on(`userId:${userProfile._id}`, ({ from, to, msg }) => {
-        //   setNotification((notes) => {
-        //     notes[to] = true;
-        //     return;
-        //   });
-        // });
+        socket.emit("joinRoom", { roomId: `userId:${data._id}` });
+
+        socket.on("notification", async ({ from, to, msg }) => {
+          console.log(`Get Unread meassage to ${to}`);
+          const { data } = await axios.get(`${API_ROUTE}/chat/channel/${to}`);
+
+          setChannelUnread((status) => {
+            status[to] = {
+              workspaceId: data.workspaceId,
+              unread: true,
+            };
+            return { ...status };
+          });
+
+          // setWorkspaceUnread((status) => {
+          //   status[data.workspaceId] = true;
+          //   return { ...status };
+          // });
+        });
         setUserProfile(data);
       }
     };
 
     getUserProfile();
   }, [authToken]);
-
-  useEffect(() => {
-    socket.on(`userId:${userProfile._id}`, ({ from, to, msg }) => {
-      setNotification((notes) => {
-        notes[to] = true;
-        return;
-      });
-    });
-  }, []);
 
   if (!authToken) return <Auth />;
 
@@ -87,11 +92,18 @@ function App() {
               <Sidebar
                 userProfile={userProfile}
                 setUserProfile={setUserProfile}
+                channelUnread={channelUnread}
               />
             }>
             <Route
               path=":wid/channel"
-              element={<ChannelListContainer userProfile={userProfile} />}>
+              element={
+                <ChannelListContainer
+                  userProfile={userProfile}
+                  channelUnread={channelUnread}
+                  setChannelUnread={setChannelUnread}
+                />
+              }>
               <Route
                 path=":cid/room"
                 element={<ChannelContainer userProfile={userProfile} />}
