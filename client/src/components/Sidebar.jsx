@@ -37,7 +37,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
   const logout = () => {
     cookies.remove("jwtToken");
     setUserProfile({});
-    window.location.href = "/";
+    window.location.href = "/workspace";
   };
 
   const hasUnread = (wid) => {
@@ -69,7 +69,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
             <img
               src={API_ROUTE + userProfile.avatarURL}
               alt="Profile"
-              width="30"
+              width="35"
             />
           </div>
         </div>

@@ -1,4 +1,5 @@
 server/dist/
+avatar/
 node_modules/
 .vscode/
 server/src/

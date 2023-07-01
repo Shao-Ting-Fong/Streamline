@@ -9,9 +9,11 @@ const TeamChannelList = ({ type }) => {
         <p className="team-channel-list__header__title">
           {type === "team" ? "Channels" : "Direct Messages"}
         </p>
-        <Link to="new">
-          <AddChannel type={type} />
-        </Link>
+        {type === "team" && (
+          <Link to="new">
+            <AddChannel type={type} />
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import VideocamIcon from "@mui/icons-material/Videocam";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import SendIcon from "@mui/icons-material/Send";
 import { socket } from "../socket";
 import Cookies from "universal-cookie";
 import axios from "axios";
@@ -10,42 +12,29 @@ const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const cookies = new Cookies();
 
-const Conversation = () => {
+const Conversation = ({
+  currChannel,
+  messages,
+  updateMessages,
+  setShowMembers,
+  userProfile,
+}) => {
   const { wid, cid } = useParams();
   const token = cookies.get("jwtToken");
-  const [currChannel, setCurrChannel] = useState({});
   const [newMsg, setNewMsg] = useState("");
-  const [messages, updateMessages] = useState([]);
   const [isStreaming, setStreaming] = useState(false);
 
   useEffect(() => {
     socket.on("message", (data) => {
-      // console data
+      console.log("message", data);
+      // if (data.msg.username !== userProfile.username) {
       updateMessages((prev) => [...prev, data.msg]);
+      // }
     });
     return () => {
       socket.off("message");
     };
   }, []);
-
-  useEffect(() => {
-    const getChannelById = async (wid, cid) => {
-      const { data } = await axios.get(
-        `${API_ROUTE}/chat/workspace/${wid}/channel/${cid}`
-      );
-      setCurrChannel(data);
-      updateMessages(
-        data.messages.map((msg) => ({
-          username: msg.from.username,
-          time: msg.createdAt,
-          text: msg.content,
-        }))
-      );
-    };
-    socket.emit("leaveRoom", { roomId: `roomId:${currChannel._id}` });
-    getChannelById(wid, cid);
-    socket.emit("joinRoom", { roomId: `roomId:${cid}` });
-  }, [cid]);
 
   const sendMessage = async (evt) => {
     evt.preventDefault();
@@ -53,13 +42,22 @@ const Conversation = () => {
       `${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`,
       {
         from: token,
-        to: currChannel._id,
+        to: { workspace: wid, type: "team", id: currChannel._id },
         msg: newMsg,
       }
     );
-    updateMessages([...messages, data.msg]);
+    console.log("Send Message", data);
+    // updateMessages((prev) => [...prev, data.msg]);
     setNewMsg("");
   };
+
+  const channelTitle =
+    Object.keys(currChannel).length > 0
+      ? currChannel.members
+          .filter((member) => member.username !== userProfile.username)
+          .map((member) => member.username)
+          .join()
+      : "";
 
   return (
     <>
@@ -78,14 +76,23 @@ const Conversation = () => {
             isStreaming ? "h-1/2" : "h-full"
           } w-auto flex flex-col`}>
           <div
-            className="h-[62px] w-full bg-[#F8FAFF] flex items-center pl-3 pr-6"
+            className="h-[62px] shrink-0 w-full bg-[#F8FAFF] flex items-center pl-3 pr-6"
             style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
-            <h3 className="text-lg">{currChannel.title}</h3>
-            <button
-              className="ml-auto"
-              onClick={() => setStreaming((prev) => !prev)}>
-              <VideocamIcon color={isStreaming ? "primary" : ""} />
-            </button>
+            <h3 className="text-lg">
+              {currChannel.category === "team"
+                ? currChannel.title
+                : channelTitle}
+            </h3>
+            <div className="ml-auto">
+              <button onClick={() => setStreaming((prev) => !prev)}>
+                <VideocamIcon color={isStreaming ? "primary" : ""} />
+              </button>
+              <button
+                className="ml-4"
+                onClick={() => setShowMembers((prev) => !prev)}>
+                <PeopleAltIcon />
+              </button>
+            </div>
           </div>
           <ChatBody messages={messages} />
           <div
@@ -99,7 +106,9 @@ const Conversation = () => {
                 value={newMsg}
                 onChange={(e) => setNewMsg(e.target.value)}
               />
-              <button className="ms-3">Submit</button>
+              <button className="ms-3 hover:text-primary">
+                <SendIcon />
+              </button>
             </form>
           </div>
         </div>

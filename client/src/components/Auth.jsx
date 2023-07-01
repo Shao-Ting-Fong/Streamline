@@ -75,17 +75,6 @@ const Auth = () => {
             </div>
             {isSignup && (
               <div className="auth__form-container_fields-content_input">
-                <label htmlFor="avatarURL">Avatar URL</label>
-                <input
-                  type="text"
-                  name="avatarURL"
-                  placeholder="Avatar URL"
-                  onChange={handleChange}
-                />
-              </div>
-            )}
-            {isSignup && (
-              <div className="auth__form-container_fields-content_input">
                 <label htmlFor="email">Email</label>
                 <input
                   type="email"
@@ -106,18 +95,6 @@ const Auth = () => {
                 required
               />
             </div>
-            {isSignup && (
-              <div className="auth__form-container_fields-content_input">
-                <label htmlFor="confirmPassword">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            )}
             <div className="auth__form-container_fields-content_button">
               <button> {isSignup ? "Sign Up" : "Sign In"}</button>
             </div>

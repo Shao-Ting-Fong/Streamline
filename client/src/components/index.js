@@ -14,3 +14,4 @@ export { default as ChatBody } from "./ChatBody";
 export { default as Sidebar } from "./Sidebar";
 export { default as BadgeAvatar } from "./BadgeAvatar";
 export { default as VideoChat } from "./VideoChat";
+export { default as MemberList } from "./MemberList";

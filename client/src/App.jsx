@@ -97,9 +97,9 @@ function App() {
               path=":wid/channel"
               element={
                 <ChannelListContainer
-                  userProfile={userProfile}
                   channelUnread={channelUnread}
                   setChannelUnread={setChannelUnread}
+                  userProfile={userProfile}
                 />
               }>
               <Route

@@ -2,7 +2,7 @@ import { TeamChannelList, TeamChannelPreview, DirectMessagePreview } from "./";
 import { useEffect } from "react";
 import axios from "axios";
 import Cookies from "universal-cookie";
-import { Outlet, useParams } from "react-router-dom";
+import { Outlet, useOutletContext, useParams } from "react-router-dom";
 
 import { useState } from "react";
 import { socket } from "../socket";
@@ -20,14 +20,13 @@ const CompanyHeader = () => (
 );
 
 const ChannelListContainer = ({
-  userProfile,
   channelUnread,
   setChannelUnread,
+  userProfile,
 }) => {
-  const { wid, cid } = useParams();
+  const { wid } = useParams();
   const [teamChannels, setTeamChannels] = useState([]);
   const [directMessages, setDirectMessages] = useState([]);
-  // const [hasUnread, setUnread] = useState({});
 
   useEffect(() => {
     const authString = `Bearer ${authToken}`;
@@ -66,9 +65,17 @@ const ChannelListContainer = ({
 
           <div className="mt-4">
             <TeamChannelList type="messaging" />
-            {directMessages.map((member) => (
-              <DirectMessagePreview key={member._id} member={member} />
-            ))}
+            <div className="mt-2">
+              {directMessages.map((channel) => (
+                <DirectMessagePreview
+                  key={channel._id}
+                  channel={channel}
+                  channelUnread={channelUnread}
+                  setChannelUnread={setChannelUnread}
+                  userProfile={userProfile}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
