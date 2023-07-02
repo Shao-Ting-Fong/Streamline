@@ -24,7 +24,6 @@ const Conversation = ({
   const token = cookies.get("jwtToken");
   const [newMsg, setNewMsg] = useState("");
   const [isStreaming, setStreaming] = useState(false);
-  // const [uploadFile, setUploadFile] = useState(false);
   const [fileDataURL, setFileDataURL] = useState(null);
 
   useEffect(() => {
@@ -51,7 +50,7 @@ const Conversation = ({
 
   const cancelUpload = (e) => {
     console.log(e.target);
-    // setFileDataURL(null);
+    setFileDataURL(null);
   };
 
   const sendMessage = async (evt) => {
@@ -76,6 +75,7 @@ const Conversation = ({
       // console.log("Send Message", data);
       // updateMessages((prev) => [...prev, data.msg]);
       setNewMsg("");
+      evt.target.reset();
       setFileDataURL(null);
     } else {
       console.log("Don't send empty message!");
@@ -163,7 +163,6 @@ const Conversation = ({
                   id="fileInput"
                   name="file"
                   accept="image/*"
-                  // value={uploadFile}
                   onChange={handlePreview}
                 />
                 <label htmlFor="fileInput">
