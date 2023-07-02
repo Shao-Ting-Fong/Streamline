@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Conversation, MemberList } from "./";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { socket } from "../socket";
 
 import axios from "axios";
@@ -22,8 +22,10 @@ const ChannelContainer = ({ userProfile }) => {
       updateMessages(
         data.messages.map((msg) => ({
           username: msg.from.username,
+          avatarURL: msg.from.avatarURL,
           time: msg.createdAt,
           text: msg.content,
+          type: msg.type,
         }))
       );
     };
@@ -40,6 +42,7 @@ const ChannelContainer = ({ userProfile }) => {
             currChannel={currChannel}
             messages={messages}
             updateMessages={updateMessages}
+            showMembers={showMembers}
             setShowMembers={setShowMembers}
             userProfile={userProfile}
           />

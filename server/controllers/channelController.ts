@@ -37,66 +37,10 @@ export const getChannelById = async (req: Request, res: Response) => {
     const { cid } = req.params;
 
     const foundChannels = await Channel.findById(cid)
-      .populate("messages.from", "username")
+      .populate("messages.from", "username avatarURL")
       .populate("members", "username avatarURL");
     if (!foundChannels) throw new ExpressError("Channel not found", 404);
     res.status(200).json(foundChannels);
-  } catch (err) {
-    if (err instanceof ExpressError) {
-      res.status(err.statusCode).json({ errors: err.message });
-      return;
-    } else if (err instanceof Error) {
-      console.log(err);
-      res.status(400).json({ errors: err.message });
-      return;
-    }
-    res.status(500).json({ errors: "Get channels failed" });
-  }
-};
-
-export const addTeamMessage = async (req: Request, res: Response) => {
-  try {
-    const { from, to, msg } = req.body;
-    const { io } = res.locals;
-
-    const connections = io.of("/chatroom");
-    const { userId } = await verifyJWT(from);
-    const foundUser = await User.findById(userId);
-    const CURR_TIME = dayjs();
-
-    // Save messages to DB
-    const foundChannel = await Channel.findByIdAndUpdate(
-      to,
-      {
-        $push: {
-          messages: {
-            $each: [{ from: userId, content: msg }],
-            $sort: { createdAt: 1 },
-          },
-        },
-      },
-      { new: true }
-    );
-    if (!foundChannel) throw new ExpressError("Channel not found", 404);
-    await foundChannel.save();
-
-    const replyMessage = {
-      from: userId,
-      to,
-      msg: { username: foundUser?.username, time: CURR_TIME, text: msg },
-    };
-
-    // connections.on("connection", (socket: Socket) => {
-    //   console.log("aaa");
-    // ! Bug to Fix: Time recorded in DB may be slightly different.
-
-    foundChannel.members.forEach((member) => {
-      connections.to(`userId:${member}`).emit("notification", replyMessage);
-    });
-
-    connections.to(`roomId:${to}`).emit("message", replyMessage);
-    // });
-    res.status(200).json(replyMessage);
   } catch (err) {
     if (err instanceof ExpressError) {
       res.status(err.statusCode).json({ errors: err.message });
@@ -169,7 +113,9 @@ const findOrAddChannel = async (userId: string, to: MessageTo) => {
 
 export const addMessage = async (req: Request, res: Response) => {
   try {
-    const { from, to, msg } = req.body;
+    const { from, message } = req.body;
+    const to = JSON.parse(req.body.to);
+    const location = req.file?.location;
     const { io } = res.locals;
 
     const connections = io.of("/chatroom");
@@ -180,35 +126,51 @@ export const addMessage = async (req: Request, res: Response) => {
     const foundChannel = await findOrAddChannel(userId, to);
     if (!foundChannel) throw new ExpressError("Channel not found", 404);
 
-    await foundChannel.updateOne({
-      $push: {
-        messages: {
-          $each: [{ from: userId, content: msg }],
-          $sort: { createdAt: 1 },
+    const insertData = [];
+
+    if (message)
+      insertData.push({ from: userId, content: message, type: "text" });
+
+    if (location)
+      insertData.push({ from: userId, content: location, type: "image" });
+
+    await foundChannel.updateOne(
+      {
+        $push: {
+          messages: {
+            $each: insertData,
+            $sort: { createdAt: 1 },
+          },
         },
       },
-    });
+      { runValidators: true }
+    );
 
     await foundChannel.save();
-
-    const replyMessage = {
-      to: foundChannel._id,
-      msg: {
-        username: foundUser?.username,
-        time: CURR_TIME,
-        text: msg,
-      },
-    };
 
     // ! Bug to Fix: Time recorded in DB may be slightly different.
 
     foundChannel.members.forEach((member) => {
-      connections.to(`userId:${member}`).emit("notification", replyMessage);
+      connections
+        .to(`userId:${member}`)
+        .emit("notification", { to: foundChannel._id });
     });
 
-    connections.to(`roomId:${foundChannel._id}`).emit("message", replyMessage);
+    insertData.forEach((data) => {
+      const response = {
+        to: foundChannel._id,
+        message: {
+          username: foundUser?.username,
+          avatarURL: foundUser?.avatarURL,
+          time: CURR_TIME,
+          text: data.content,
+          type: data.type,
+        },
+      };
+      connections.to(`roomId:${foundChannel._id}`).emit("message", response);
+    });
 
-    res.status(200).json(replyMessage);
+    res.status(200).json("Messages are sent successfully.");
   } catch (err) {
     if (err instanceof ExpressError) {
       res.status(err.statusCode).json({ errors: err.message });

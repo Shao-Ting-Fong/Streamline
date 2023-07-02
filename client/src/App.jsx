@@ -54,7 +54,7 @@ function App() {
 
         socket.emit("joinRoom", { roomId: `userId:${data._id}` });
 
-        socket.on("notification", async ({ from, to, msg }) => {
+        socket.on("notification", async ({ to }) => {
           console.log(`Get Unread meassage to ${to}`);
           const { data } = await axios.get(`${API_ROUTE}/chat/channel/${to}`);
 

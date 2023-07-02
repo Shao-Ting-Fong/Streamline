@@ -32,7 +32,7 @@ const MemberProfileCard = ({ member, setMemberClicked }) => {
         <div className="w-[300px] h-[400px] rounded-lg flex flex-col items-center bg-light-color-purple">
           <div className="h-1/5 w-full relative bg-dark-color-purple-b shrink-0 mb-5">
             <img
-              className="w-1/4 absolute bottom-0 left-1/4 -translate-x-1/2 translate-y-1/2 border-4 bg-white rounded-full"
+              className="w-1/4 absolute bottom-0 left-1/4 -translate-x-1/2 translate-y-1/2 border-4 rounded-full"
               src={API_ROUTE + member.avatarURL}
               alt=""
             />

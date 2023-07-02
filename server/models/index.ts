@@ -59,7 +59,7 @@ interface IMessage {
   from: Types.ObjectId; //userId
   // to: Types.ObjectId; //roomId
   content: string;
-  type: "text" | "file";
+  type: "text" | "image" | "file";
 }
 
 // interface IChannelMember {
@@ -81,12 +81,7 @@ const messageSchema = new Schema<IMessage>(
   {
     from: { type: Schema.Types.ObjectId, ref: "User", required: true },
     content: { type: String, required: true },
-    type: {
-      type: String,
-      enum: ["text", "file"],
-      default: "text",
-      required: true,
-    },
+    type: { type: String, enum: ["text", "image", "file"], required: true },
   },
   { timestamps: true }
 );
