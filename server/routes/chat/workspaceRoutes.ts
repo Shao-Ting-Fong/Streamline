@@ -1,8 +1,13 @@
 import { Router } from "express";
-import { getWorkspacesById } from "../../controllers/workspaceController.js";
+import {
+  getWorkspacesByUserId,
+  getWorkspaceMembers,
+} from "../../controllers/workspaceController.js";
 
 const router = Router();
 
-router.get("/", getWorkspacesById);
+router.get("/", getWorkspacesByUserId);
+
+router.get("/:wid/members", getWorkspaceMembers);
 
 export default router;

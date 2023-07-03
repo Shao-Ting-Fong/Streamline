@@ -18,8 +18,8 @@ const MemberProfileCard = ({ member, setMemberClicked }) => {
       `${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`,
       {
         from: token,
-        to: { workspace: wid, type: "direct", id: member._id },
-        msg: newMsg,
+        to: JSON.stringify({ workspace: wid, type: "direct", id: member._id }),
+        message: newMsg,
       }
     );
     setMemberClicked({ anchorEl: null, member: null });

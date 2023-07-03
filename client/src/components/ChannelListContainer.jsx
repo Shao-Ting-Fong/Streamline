@@ -43,7 +43,7 @@ const ChannelListContainer = ({
       setDirectMessages(data.filter((ele) => ele.category === "direct"));
     };
     getChannels(wid);
-  }, []);
+  }, [teamChannels]);
 
   return (
     <>
@@ -51,7 +51,11 @@ const ChannelListContainer = ({
         <div className="channel-list__list__wrapper">
           <CompanyHeader />
           {/* <ChannelSearch /> */}
-          <TeamChannelList type="team" />
+          <TeamChannelList
+            type="team"
+            userProfile={userProfile}
+            setTeamChannels={setTeamChannels}
+          />
           <div className="mt-2">
             {teamChannels.map((channel) => (
               <TeamChannelPreview
@@ -64,7 +68,7 @@ const ChannelListContainer = ({
           </div>
 
           <div className="mt-4">
-            <TeamChannelList type="messaging" />
+            <TeamChannelList type="messaging" userProfile={userProfile} />
             <div className="mt-2">
               {directMessages.map((channel) => (
                 <DirectMessagePreview

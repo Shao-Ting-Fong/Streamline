@@ -170,7 +170,7 @@ export const addMessage = async (req: Request, res: Response) => {
       connections.to(`roomId:${foundChannel._id}`).emit("message", response);
     });
 
-    res.status(200).json("Messages are sent successfully.");
+    res.status(200).json({ to: foundChannel._id });
   } catch (err) {
     if (err instanceof ExpressError) {
       res.status(err.statusCode).json({ errors: err.message });
@@ -181,5 +181,33 @@ export const addMessage = async (req: Request, res: Response) => {
       return;
     }
     res.status(500).json({ errors: "Get channels failed" });
+  }
+};
+
+export const createNewChannel = async (req: Request, res: Response) => {
+  try {
+    const { channelName, ...member } = req.body;
+    if (!member) {
+      throw new ExpressError("At least one member is required!", 400);
+    }
+    const newChannel = new Channel({
+      workspaceId: req.wid,
+      title: channelName,
+      category: "team",
+      members: Object.keys(member),
+      messages: [],
+    });
+    await newChannel.save();
+    res.status(200).json(newChannel);
+  } catch (err) {
+    if (err instanceof ExpressError) {
+      res.status(err.statusCode).json({ errors: err.message });
+      return;
+    } else if (err instanceof Error) {
+      console.log(err);
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    res.status(500).json({ errors: "Create new channel failed" });
   }
 };

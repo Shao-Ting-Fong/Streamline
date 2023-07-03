@@ -4,7 +4,7 @@ import { User } from "../models/index.js";
 // import User from "../models/user.js";
 import verifyJWT from "../utils/verifyJWT.js";
 
-export const getWorkspacesById = async (req: Request, res: Response) => {
+export const getWorkspacesByUserId = async (req: Request, res: Response) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
@@ -23,5 +23,26 @@ export const getWorkspacesById = async (req: Request, res: Response) => {
       return;
     }
     res.status(500).json({ errors: "Get workspace failed" });
+  }
+};
+
+export const getWorkspaceMembers = async (req: Request, res: Response) => {
+  try {
+    const { wid } = req.params;
+
+    const foundUsers = await User.find({ workspaces: wid }).select(
+      "_id username avatarURL"
+    );
+    res.status(200).json(foundUsers);
+  } catch (err) {
+    if (err instanceof ExpressError) {
+      res.status(err.statusCode).json({ errors: err.message });
+      return;
+    } else if (err instanceof Error) {
+      console.log(err);
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    res.status(500).json({ errors: "Get workspace members failed" });
   }
 };
