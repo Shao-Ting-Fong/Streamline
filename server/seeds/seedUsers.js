@@ -4,11 +4,17 @@ import { createAvatar } from "@dicebear/core";
 import { thumbs } from "@dicebear/collection";
 import { nanoid } from "nanoid";
 import bcrypt from "bcrypt";
+import path from "path";
+import dotenv from "dotenv";
 
-// await User.deleteMany({});
+const __dirname = path.resolve();
+dotenv.config({ path: path.join(__dirname, "/../.env") });
+// import Workspace from "../dist/models/workspace.js";
+// import Channel from "../dist/models/channel.js";
+// import User from "../dist/models/user.js";
 
 const names = [
-  // "Daisy",
+  "Daisy",
   "Deborah",
   "Isabel",
   "Stella",
@@ -58,20 +64,8 @@ const names = [
   "Antonio",
 ];
 
-const managers = [];
-
-// const avatar = createAvatar(thumbs, {
-//   seed: "name",
-//   radius: 50,
-// });
-
-// const png = await avatar.png({
-// });
-
-// png.toFile("../public/avatar/avatar.png");
-
-const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
-
+const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/slackalendar";
+console.log(dbUrl);
 try {
   await mongoose.connect(dbUrl, {
     useNewUrlParser: true,
@@ -83,58 +77,49 @@ try {
   console.log(err);
 }
 
-const workspace = await Workspace.findOne({});
-const managersChannel = await Channel.findOne({
-  workspaceId: workspace._id,
-  title: "Managers",
-});
-const announcementChannel = await Channel.findOne({
-  workspaceId: workspace._id,
-  title: "Announcement",
-});
-const publicChannel = await Channel.findOne({
-  workspaceId: workspace._id,
-  title: "Public",
+// const seedDB = async () => {
+await Workspace.deleteMany({});
+await User.deleteMany({ username: { $nin: ["Tom", "Irene", "linhuhu"] } });
+
+const owner = await User.findOne({ username: "Tom" });
+
+const workspace = Workspace({
+  title: "Test Org.",
+  ownerId: owner._id,
+  avatarURL: "/img/company.png",
 });
 
-// names.forEach(async (name, idx) => {
-//   const username = name.toLowerCase();
-//   const hashPassword = await bcrypt.hash(username, 10);
+await workspace.save();
 
-//   const avatar = await createAvatar(thumbs, {
-//     seed: name,
-//     radius: 50,
-//   });
+console.log("Before for-each loop");
+names.forEach(async (name) => {
+  console.log("Inside for-each loop", name);
+  const hashPassword = await bcrypt.hash(name.toLowerCase(), 10);
 
-//   const png = await avatar.png();
+  const avatar = await createAvatar(thumbs, {
+    seed: name,
+    radius: 50,
+  });
 
-//   const avatarURL = `/avatar/${nanoid()}.png`;
-//   await png.toFile(`../public${avatarURL}`);
+  const png = await avatar.png();
 
-//   const newUser = new User({
-//     username,
-//     email: `${username}@gmail.com`,
-//     password: hashPassword,
-//     avatarURL,
-//     provider: "native",
-//     workspaces: [workspace._id],
-//   });
+  const avatarURL = `/avatar/${name}.png`;
+  await png.toFile(`../public${avatarURL}`);
 
-//   await newUser.save();
+  const newUser = new User({
+    username: name,
+    email: `${name}@gmail.com`,
+    password: hashPassword,
+    avatarURL,
+    provider: "native",
+    workspaces: [],
+  });
+
+  await newUser.save();
+});
+
+await User.updateMany({}, { workspaces: [workspace._id] });
+
+// seedDB().then(() => {
+//   mongoose.connection.close();
 // });
-
-const foundUsers = await User.find({
-  username: { $nin: ["Tom", "Irene", "linhuhu"] },
-}).select("_id");
-
-const userIds = foundUsers.map((ele) => ele._id);
-
-console.log(userIds);
-
-for (let channel of [announcementChannel, publicChannel]) {
-  await channel.updateOne({ $push: { members: { $each: userIds } } });
-  await channel.save();
-}
-
-// await managersChannel.updateOne({ $push: { members: { $each: managers } } });
-// await managersChannel.save();
