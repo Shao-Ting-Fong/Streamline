@@ -17,7 +17,9 @@ export const getUserChannels = async (req: Request, res: Response) => {
     const foundChannels = await Channel.find({
       workspaceId: req.wid,
       members: userId,
-    }).populate("members", "username avatarURL");
+    })
+      .populate("members", "username avatarURL")
+      .populate("workspaceId", "title");
     res.status(200).json(foundChannels);
   } catch (err) {
     if (err instanceof ExpressError) {

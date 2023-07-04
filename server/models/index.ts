@@ -24,7 +24,6 @@ const WorkspaceSchema = new Schema<IWorkspace>({
   title: { type: String, required: true },
   ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   avatarURL: String,
-  members: { type: [Schema.Types.ObjectId], ref: "User", required: true },
 });
 
 export interface IUser {

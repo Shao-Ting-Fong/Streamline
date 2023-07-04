@@ -29,7 +29,7 @@ const ChatBody = ({ messages }) => {
                     {msg.time}
                   </span>
                 </p>
-                {msg.type === "text" && <p>{msg.text}</p>}
+                {msg.type === "text" && <p className="break-all">{msg.text}</p>}
                 {msg.type === "image" && (
                   <img src={msg.text} alt="" className="h-[200px] mt-2" />
                 )}

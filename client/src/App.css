@@ -356,9 +356,7 @@ body {
   margin-right: 10px;
 }
 
-.str-chat__list--thread
-  .str-chat__message-simple__actions__action--options
-  .str-chat__message-actions-box {
+.str-chat__list--thread .str-chat__message-simple__actions__action--options .str-chat__message-actions-box {
   left: initial;
   right: 100%;
   border-radius: var(--border-radius-md);
@@ -374,8 +372,7 @@ body {
 .channel-list__sidebar {
   width: 72px;
   max-height: 100%;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-    var(--primary-color);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), var(--primary-color);
   box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.25);
   /* border-top-left-radius: 16px; */
   /* border-bottom-left-radius: 16px; */
@@ -388,12 +385,7 @@ body {
   width: 44px;
   height: 44px;
   margin: 14px;
-  background: linear-gradient(
-      150.64deg,
-      rgba(0, 0, 0, 0.1) 12.73%,
-      rgba(0, 0, 0, 0) 89.32%
-    ),
-    #ffffff;
+  background: linear-gradient(150.64deg, rgba(0, 0, 0, 0.1) 12.73%, rgba(0, 0, 0, 0) 89.32%), #ffffff;
   border-radius: 9999px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.33);
   cursor: pointer;
@@ -412,22 +404,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.channel-list__header {
-  padding-left: 16px;
-  height: 62px;
-  display: flex;
-  align-items: center;
-}
-
-.channel-list__header__text {
-  font-family: Helvetica Neue, sans-serif;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 18px;
-  line-height: 28px;
-  color: #ffffff;
 }
 
 .channel-search__container {
@@ -1226,8 +1202,8 @@ ul.str-chat__simple-reactions-list:hover {
 
 .str-chat__message-team--editing {
   background: #e9e9ea;
-  box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 0 var(--primary-color), inset 0 -1px 0 0 var(--primary-color);
+  box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.06), inset 0 1px 0 0 var(--primary-color),
+    inset 0 -1px 0 0 var(--primary-color);
   padding: 15px 20px;
 }
 
@@ -1235,9 +1211,7 @@ ul.str-chat__simple-reactions-list:hover {
   padding: 10px 0 0;
 }
 
-.str-chat__edit-message-form
-  .str-chat__message-team-form-footer
-  button[type="submit"] {
+.str-chat__edit-message-form .str-chat__message-team-form-footer button[type="submit"] {
   color: var(--primary-color);
 }
 
@@ -1314,9 +1288,7 @@ ul.str-chat__simple-reactions-list:hover {
   width: 24px !important;
 }
 
-.str-chat__message-team-content--single:not(
-    .str-chat__message-team-content--image
-  )::before {
+.str-chat__message-team-content--single:not(.str-chat__message-team-content--image)::before {
   display: none;
 }
 

@@ -5,23 +5,15 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 import "./App.css";
 
-import {
-  Sidebar,
-  ChannelContainer,
-  ChannelListContainer,
-  Home,
-  Auth,
-  CreateChannel,
-} from "./components";
+import { Sidebar, ChannelContainer, ChannelListContainer, Home, Auth, CreateChannel } from "./components";
 
 const cookies = new Cookies();
-
-const authToken = cookies.get("jwtToken");
-const authString = `Bearer ${authToken}`;
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 function App() {
+  const authToken = cookies.get("jwtToken");
+  const authString = `Bearer ${authToken}`;
   const [userProfile, setUserProfile] = useState({});
   const [channelUnread, setChannelUnread] = useState({});
 
@@ -77,22 +69,20 @@ function App() {
     };
   }, [authToken]);
 
-  if (!authToken) return <Auth />;
+  // if (!authToken) return <Auth />;
 
   return (
     <>
       <div className="app__wrapper">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<Auth />} />
           <Route
             path="workspace"
             element={
-              <Sidebar
-                userProfile={userProfile}
-                setUserProfile={setUserProfile}
-                channelUnread={channelUnread}
-              />
+              <Sidebar userProfile={userProfile} setUserProfile={setUserProfile} channelUnread={channelUnread} />
             }>
+            {/* <Route path=":wid/invite" element={<WorkspaceInvitation />} /> */}
             <Route
               path=":wid/channel"
               element={
@@ -102,10 +92,7 @@ function App() {
                   userProfile={userProfile}
                 />
               }>
-              <Route
-                path=":cid/room"
-                element={<ChannelContainer userProfile={userProfile} />}
-              />
+              <Route path=":cid/room" element={<ChannelContainer userProfile={userProfile} />} />
               <Route path="new" element={<CreateChannel />} />
             </Route>
           </Route>

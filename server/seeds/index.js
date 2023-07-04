@@ -84,7 +84,7 @@ const workspace = Workspace({
   title: "Test Org.",
   ownerId: owner._id,
   avatarURL: "/img/company.png",
-  members: [owner._id, staff._id, member._id],
+  // members: [owner._id, staff._id, member._id],
 });
 
 await workspace.save();
@@ -116,7 +116,7 @@ await workspace.save();
 //   await newUser.save();
 // });
 
-// console.log("After for-each loop");
+// // console.log("After for-each loop");
 
 await User.updateMany({}, { workspaces: [workspace._id] });
 

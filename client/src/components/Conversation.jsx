@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BiSolidVideo } from "react-icons/bi";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { IoIosAddCircle, IoMdSend, IoIosCloseCircle } from "react-icons/io";
@@ -25,6 +25,7 @@ const Conversation = ({
   const [newMsg, setNewMsg] = useState("");
   const [isStreaming, setStreaming] = useState(false);
   const [fileDataURL, setFileDataURL] = useState(null);
+  const imageRef = useRef();
 
   useEffect(() => {
     socket.on("message", (data) => {
@@ -49,7 +50,7 @@ const Conversation = ({
   };
 
   const cancelUpload = (e) => {
-    console.log(e.target);
+    imageRef.current.value = null;
     setFileDataURL(null);
   };
 
@@ -107,7 +108,7 @@ const Conversation = ({
             isStreaming ? "h-1/2" : "h-full"
           } w-auto flex flex-col`}>
           <div
-            className="h-[62px] shrink-0 w-full bg-[#F8FAFF] flex items-center pl-3 pr-6"
+            className="h-[62px] shrink-0 w-full bg-[#F8FAFF] flex items-center pl-4 pr-6"
             style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
             <h3 className="text-lg">
               {currChannel.category === "team"
@@ -163,6 +164,7 @@ const Conversation = ({
                   id="fileInput"
                   name="file"
                   accept="image/*"
+                  ref={imageRef}
                   onChange={handlePreview}
                 />
                 <label htmlFor="fileInput">
