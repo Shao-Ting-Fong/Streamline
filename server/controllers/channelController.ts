@@ -5,8 +5,9 @@ import ExpressError from "../utils/ExpressError.js";
 import { Channel, User } from "../models/index.js";
 import verifyJWT from "../utils/verifyJWT.js";
 import dayjs from "dayjs";
+import { RequestWithWid } from "../routes/chat/chatRoutes.js";
 
-export const getUserChannels = async (req: Request, res: Response) => {
+export const getUserChannels = async (req: RequestWithWid, res: Response) => {
   try {
     // if(!req.wid) throw new ExpressError("Workspace Id is required", 400)
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -89,12 +90,7 @@ const findOrAddChannel = async (userId: string, to: MessageTo) => {
     return foundChannel;
   } else if (type === "direct") {
     const foundChannel = await Channel.findOne({
-      $and: [
-        { category: "direct" },
-        { workspaceId: workspace },
-        { members: userId },
-        { members: id },
-      ],
+      $and: [{ category: "direct" }, { workspaceId: workspace }, { members: userId }, { members: id }],
     });
     if (!foundChannel) {
       // create new channel
@@ -117,6 +113,7 @@ export const addMessage = async (req: Request, res: Response) => {
   try {
     const { from, message } = req.body;
     const to = JSON.parse(req.body.to);
+    // @ts-ignore
     const location = req.file?.location;
     const { io } = res.locals;
 
@@ -130,11 +127,9 @@ export const addMessage = async (req: Request, res: Response) => {
 
     const insertData = [];
 
-    if (message)
-      insertData.push({ from: userId, content: message, type: "text" });
+    if (message) insertData.push({ from: userId, content: message, type: "text" });
 
-    if (location)
-      insertData.push({ from: userId, content: location, type: "image" });
+    if (location) insertData.push({ from: userId, content: location, type: "image" });
 
     await foundChannel.updateOne(
       {
@@ -153,9 +148,7 @@ export const addMessage = async (req: Request, res: Response) => {
     // ! Bug to Fix: Time recorded in DB may be slightly different.
 
     foundChannel.members.forEach((member) => {
-      connections
-        .to(`userId:${member}`)
-        .emit("notification", { to: foundChannel._id });
+      connections.to(`userId:${member}`).emit("notification", { to: foundChannel._id });
     });
 
     insertData.forEach((data) => {
@@ -186,7 +179,7 @@ export const addMessage = async (req: Request, res: Response) => {
   }
 };
 
-export const createNewChannel = async (req: Request, res: Response) => {
+export const createNewChannel = async (req: RequestWithWid, res: Response) => {
   try {
     const { channelName, ...member } = req.body;
     if (!member) {

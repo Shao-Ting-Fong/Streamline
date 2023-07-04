@@ -3,7 +3,7 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import signJWT, { EXPIRE_TIME } from "../utils/signJWT.js";
 import { createAvatar } from "@dicebear/core";
-import { thumbs } from "@dicebear/collection";
+import * as thumbs from "@dicebear/thumbs";
 import { nanoid } from "nanoid";
 import verifyJWT from "../utils/verifyJWT.js";
 import ExpressError from "../utils/ExpressError.js";
@@ -104,9 +104,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
       throw new ExpressError("You need to sign in first.", 400);
     }
     const { userId } = await verifyJWT(token);
-    const foundUser = await User.findById(userId).select(
-      "_id username email avatarURL workspaces"
-    );
+    const foundUser = await User.findById(userId).select("_id username email avatarURL workspaces");
     if (!foundUser) {
       throw new ExpressError("User not found", 404);
     }

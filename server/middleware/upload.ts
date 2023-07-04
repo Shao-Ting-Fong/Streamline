@@ -1,4 +1,3 @@
-import aws from "aws-sdk";
 import path from "path";
 import { nanoid } from "nanoid";
 import { S3Client } from "@aws-sdk/client-s3";
@@ -17,11 +16,7 @@ const s3Config = new S3Client({
   region: process.env.BUCKET_REGION,
 });
 
-const fileFilter = (
-  req: Request,
-  file: Express.Multer.File,
-  cb: FileFilterCallback
-): void => {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
   if (["image/png", "image/jpg", "image/jpeg"].includes(file.mimetype)) {
     cb(null, true);
   } else {

@@ -4,7 +4,8 @@ import verifyJWT from "../utils/verifyJWT.js";
 import { User } from "../models/index.js";
 
 const chatroom = function () {
-  const _self = this;
+  // @ts-ignore
+  const _self = this as { init: Function };
 
   _self.init = async function (connections: Server) {
     connections.on("connection", (socket: Socket) => {
@@ -20,48 +21,17 @@ const chatroom = function () {
         socket.leave(roomId);
       });
 
-      socket.on(
-        "chatMessage",
-        async ({
-          from,
-          room,
-          msg,
-        }: {
-          from: string;
-          room: string;
-          msg: string;
-        }) => {
-          console.log(from, room, msg);
-          const { userId } = await verifyJWT(from);
-          const foundUser = await User.findById(userId);
-          if (!foundUser) throw new Error("User not found");
+      socket.on("chatMessage", async ({ from, room, msg }: { from: string; room: string; msg: string }) => {
+        console.log(from, room, msg);
+        const { userId } = await verifyJWT(from);
+        const foundUser = await User.findById(userId);
+        if (!foundUser) throw new Error("User not found");
 
-          await connections.emit(
-            "message",
-            formatMessage(foundUser.username, msg)
-          );
-        }
-      );
-
-      // socket.on("disconnect", () => {
-      //   const user = userLeave(socket.id);
-
-      //   if (user) {
-      //     // Inform all users, including the disconnected one
-      //     connections
-      //       .to(user.room)
-      //       .emit(
-      //         "message",
-      //         formatMessage(botName, `${user.username} has left the chat!`)
-      //       );
-      //     connections.to(user.room).emit("roomInfo", {
-      //       room: user.room,
-      //       users: getRoomUsers(user.room),
-      //     });
-      //   }
-      // });
+        await connections.emit("message", formatMessage(foundUser.username, msg));
+      });
     });
   };
 };
 
+// @ts-ignore
 export default new chatroom();

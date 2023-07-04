@@ -3,9 +3,13 @@ import channelRoutes from "./channelRoutes.js";
 import workspaceRoutes from "./workspaceRoutes.js";
 import { getWorkspaceByChannelId } from "../../controllers/channelController.js";
 
+export interface RequestWithWid extends Request {
+  wid?: string;
+}
+
 const router = Router();
 
-const mergeParams = (req: Request, res: Response, next: NextFunction) => {
+const mergeParams = (req: RequestWithWid, res: Response, next: NextFunction) => {
   req.wid = req.params.wid;
   next();
 };
