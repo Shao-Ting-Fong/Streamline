@@ -12,7 +12,7 @@ COPY client/ ./client
 
 COPY client/.env ./client/.env
 
-RUN cd client && npm i && npm run build
+RUN cd client && npm install && npm run build
 
 COPY server/ ./server
 
@@ -20,8 +20,10 @@ COPY server/.env ./server/.env
 
 WORKDIR /usr/app/server
 
-RUN npm i
+RUN npm install
 
 RUN npm run build
 
-CMD "npm run start"
+EXPOSE 3000
+
+CMD ["node", "dist/index.js"]

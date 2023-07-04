@@ -23,6 +23,8 @@ export const signup = async (req: Request, res: Response) => {
       radius: 50,
     });
 
+    // `https://api.dicebear.com/6.x/pixel-art/svg?seed=${username}&radius=50`;
+
     const png = await avatar.png();
 
     const avatarURL = `/avatar/${nanoid()}.png`;
