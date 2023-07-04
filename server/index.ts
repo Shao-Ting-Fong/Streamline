@@ -45,6 +45,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.locals.io = io;
@@ -54,6 +55,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use("/video", videoRouter);
 app.use("/auth", authRouter);
 app.use("/chat", chatRouter);
+
+app.get("*", (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
 
 httpServer.listen(3000, () => {
   console.log("listening on port: 3000");
