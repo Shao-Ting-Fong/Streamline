@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 import { Workspace, Channel, User } from "../dist/models/index.js";
-import { createAvatar } from "@dicebear/core";
-import { thumbs } from "@dicebear/collection";
 import { nanoid } from "nanoid";
 import bcrypt from "bcrypt";
 import path from "path";
 import dotenv from "dotenv";
+import axios from "axios";
+import { uploadImageToS3 } from "../dist/models/s3bucket.js";
 
 const __dirname = path.resolve();
 dotenv.config({ path: path.join(__dirname, "/../.env") });
@@ -84,39 +84,51 @@ await User.deleteMany({ username: { $nin: ["Tom", "Irene", "linhuhu"] } });
 const owner = await User.findOne({ username: "Tom" });
 
 const workspace = Workspace({
-  title: "Test Org.",
+  title: "Appworks School Backend Batch #20",
   ownerId: owner._id,
   avatarURL: "/img/company.png",
 });
 
 await workspace.save();
 
-console.log("Before for-each loop");
-names.forEach(async (name) => {
-  console.log("Inside for-each loop", name);
-  const hashPassword = await bcrypt.hash(name.toLowerCase(), 10);
+const name = "Daisy";
 
-  const avatar = await createAvatar(thumbs, {
-    seed: name,
-    radius: 50,
-  });
+// for (let name of names) {
+const hashPassword = await bcrypt.hash(name.toLowerCase(), 10);
 
-  const png = await avatar.png();
+console.log("before axios");
 
-  const avatarURL = `/avatar/${name}.png`;
-  await png.toFile(`../public${avatarURL}`);
-
-  const newUser = new User({
-    username: name,
-    email: `${name}@gmail.com`,
-    password: hashPassword,
-    avatarURL,
-    provider: "native",
-    workspaces: [],
-  });
-
-  await newUser.save();
+const response = await axios.get(`https://api.dicebear.com/6.x/thumbs/png?seed=${name}&radius=50`, {
+  responseType: "stream",
 });
+
+const avatarURL = `uploads/avatar/${nanoid()}.png`;
+
+console.log("before upload");
+
+await uploadImageToS3(response, avatarURL);
+
+// const avatar = await createAvatar(thumbs, {
+//   seed: name,
+//   radius: 50,
+// });
+
+// const png = await avatar.png();
+
+// const avatarURL = `/avatar/${name}.png`;
+// await png.toFile(`../public${avatarURL}`);
+
+const newUser = new User({
+  username: name,
+  email: `${name}@gmail.com`,
+  password: hashPassword,
+  avatarURL,
+  provider: "native",
+  workspaces: [],
+});
+
+await newUser.save();
+// }
 
 await User.updateMany({}, { workspaces: [workspace._id] });
 

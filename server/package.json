@@ -43,11 +43,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.363.0",
-    "@dicebear/core": "^6.0.4",
-    "@dicebear/thumbs": "^6.0.4",
     "@resvg/resvg-js": "^2.4.1",
     "@types/multer": "^1.4.7",
     "@types/multer-s3": "^3.0.0",
+    "axios": "^1.4.0",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",
     "dayjs": "^1.11.8",

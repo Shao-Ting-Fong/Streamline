@@ -1,9 +1,5 @@
 import mongoose from "mongoose";
 import { Workspace, Channel, User } from "../dist/models/index.js";
-import { createAvatar } from "@dicebear/core";
-import { thumbs } from "@dicebear/collection";
-import { nanoid } from "nanoid";
-import bcrypt from "bcrypt";
 import path from "path";
 import dotenv from "dotenv";
 
@@ -12,57 +8,6 @@ dotenv.config({ path: path.join(__dirname, "/../.env") });
 // import Workspace from "../dist/models/workspace.js";
 // import Channel from "../dist/models/channel.js";
 // import User from "../dist/models/user.js";
-
-const names = [
-  "Daisy",
-  "Deborah",
-  "Isabel",
-  "Stella",
-  "Debra",
-  "Beverly",
-  "Vera",
-  "Angela",
-  "Lucy",
-  "Lauren",
-  "Janet",
-  "Loretta",
-  "Tracey",
-  "Beatrice",
-  "Sabrina",
-  "Melody",
-  "Chrysta",
-  "Christina",
-  "Vicki",
-  "Molly",
-  "Alison",
-  "Miranda",
-  "Stephanie",
-  "Leona",
-  "Katrina",
-  "Wade",
-  "Dave",
-  "Seth",
-  "Ivan",
-  "Riley",
-  "Gilbert",
-  "Jorge",
-  "Dan",
-  "Brian",
-  "Roberto",
-  "Ramon",
-  "Miles",
-  "Liam",
-  "Nathaniel",
-  "Ethan",
-  "Lewis",
-  "Milton",
-  "Claude",
-  "Joshua",
-  "Glen",
-  "Harvey",
-  "Blake",
-  "Antonio",
-];
 
 const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/slackalendar";
 console.log(dbUrl);

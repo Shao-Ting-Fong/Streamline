@@ -1,34 +1,38 @@
 import { Request, Response } from "express";
-import { z } from "zod";
+import axios from "axios";
 import bcrypt from "bcrypt";
 import signJWT, { EXPIRE_TIME } from "../utils/signJWT.js";
-import { createAvatar } from "@dicebear/core";
-import * as thumbs from "@dicebear/thumbs";
 import { nanoid } from "nanoid";
 import verifyJWT from "../utils/verifyJWT.js";
 import ExpressError from "../utils/ExpressError.js";
 import { User } from "../models/index.js";
-import path from "path";
+import fs from "fs";
+import { uploadImageToS3 } from "../models/s3bucket.js";
 
 const saltRounds = 10;
-const __dirname = path.resolve();
+
+export async function downloadFile(fileUrl: string, outputLocationPath: string): Promise<any> {
+  const writer = fs.createWriteStream(outputLocationPath);
+
+  const response = await axios.get(fileUrl, {
+    responseType: "stream",
+  });
+
+  await response.data.pipe(writer);
+}
 
 export const signup = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
-    const avatar = await createAvatar(thumbs, {
-      seed: username,
-      radius: 50,
+    const response = await axios.get(`https://api.dicebear.com/6.x/thumbs/png?seed=${username}&radius=50`, {
+      responseType: "stream",
     });
 
-    // `https://api.dicebear.com/6.x/pixel-art/svg?seed=${username}&radius=50`;
+    const avatarURL = `uploads/avatar/${nanoid()}.png`;
 
-    const png = await avatar.png();
-
-    const avatarURL = `/avatar/${nanoid()}.png`;
-    await png.toFile(path.join(__dirname, `/public${avatarURL}`));
+    await uploadImageToS3(response, avatarURL);
 
     const newUser = new User({
       ...req.body,
@@ -36,7 +40,10 @@ export const signup = async (req: Request, res: Response) => {
       avatarURL,
       provider: "native",
     });
-    await newUser.save();
+
+    console.log("newUser", newUser);
+
+    // await newUser.save();
     const token = await signJWT(newUser._id);
     res.status(200).json({
       data: {
