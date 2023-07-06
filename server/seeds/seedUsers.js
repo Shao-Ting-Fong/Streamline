@@ -66,8 +66,8 @@ const names = [
   "Antonio",
 ];
 
-const dbUrl = process.env.DB_URL;
-// const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
+// const dbUrl = process.env.DB_URL;
+const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
 console.log(dbUrl);
 try {
   const result = await mongoose.connect(dbUrl, {
@@ -95,7 +95,7 @@ for (let name of names) {
 
   // const png = await avatar.png();
 
-  const avatarURL = `/avatar/${name}.png`;
+  const avatarURL = `/uploads/avatar/${name}.png`;
   // await png.toFile(`../public${avatarURL}`);
 
   const newUser = new User({
