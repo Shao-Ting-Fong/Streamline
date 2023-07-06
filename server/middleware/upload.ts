@@ -39,23 +39,38 @@ const messagesMulterS3Config = multerS3({
   },
 });
 
-const avatarsMulterS3Config = multerS3({
-  s3: s3Config,
-  bucket: process.env.BUCKET_NAME ?? "",
-  acl: "public-read",
-  key: function (req, file, cb) {
-    cb(null, "uploads/avatars/" + nanoid() + path.extname(file.originalname));
-  },
-});
-
 export const uploadMessagesToS3 = multer({
   storage: messagesMulterS3Config,
   fileFilter,
   limits: { fileSize: MAX_FILE_SIZE },
 });
 
-export const uploadAvatarsToS3 = multer({
-  storage: avatarsMulterS3Config,
+// const avatarsMulterS3Config = multerS3({
+//   s3: s3Config,
+//   bucket: process.env.BUCKET_NAME ?? "",
+//   acl: "public-read",
+//   key: function (req, file, cb) {
+//     cb(null, "uploads/avatars/" + nanoid() + path.extname(file.originalname));
+//   },
+// });
+
+// export const uploadAvatarsToS3 = multer({
+//   storage: avatarsMulterS3Config,
+//   fileFilter,
+//   limits: { fileSize: MAX_FILE_SIZE },
+// });
+
+const workspaceMulterS3Config = multerS3({
+  s3: s3Config,
+  bucket: process.env.BUCKET_NAME ?? "",
+  acl: "public-read",
+  key: function (req, file, cb) {
+    cb(null, "uploads/workspaces/" + nanoid() + path.extname(file.originalname));
+  },
+});
+
+export const uploadWorkspaceImageToS3 = multer({
+  storage: workspaceMulterS3Config,
   fileFilter,
   limits: { fileSize: MAX_FILE_SIZE },
 });

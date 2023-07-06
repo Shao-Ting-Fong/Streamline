@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ExpressError from "../utils/ExpressError.js";
-import { User, Channel } from "../models/index.js";
+import { User, Channel, Workspace } from "../models/index.js";
 // import User from "../models/user.js";
 import verifyJWT from "../utils/verifyJWT.js";
 import { Types } from "mongoose";
@@ -92,5 +92,65 @@ export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
       return;
     }
     res.status(500).json({ errors: "Get workspace failed" });
+  }
+};
+
+export const createWorkspace = async (req: Request, res: Response) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+      throw new ExpressError("You need to sign in first.", 400);
+    }
+    const { userId } = await verifyJWT(token);
+    const { workspaceName } = req.body;
+    // @ts-ignore
+    const avatarURL = req.file?.key;
+
+    const newWorkspace = new Workspace({
+      title: workspaceName,
+      ownerId: userId,
+      avatarURL,
+    });
+
+    await newWorkspace.save();
+
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: { workspaces: newWorkspace._id },
+      },
+      { runValidators: true }
+    );
+
+    const defaultChannels = [
+      {
+        workspaceId: newWorkspace._id,
+        title: "Announcement",
+        members: [userId],
+        category: "team",
+        messages: [],
+      },
+      {
+        workspaceId: newWorkspace._id,
+        title: "Public",
+        members: [userId],
+        category: "team",
+        messages: [],
+      },
+    ];
+
+    await Channel.insertMany(defaultChannels);
+
+    res.status(200).json({ workspaceId: newWorkspace._id });
+  } catch (err) {
+    if (err instanceof ExpressError) {
+      res.status(err.statusCode).json({ errors: err.message });
+      return;
+    } else if (err instanceof Error) {
+      console.log(err);
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    res.status(500).json({ errors: "Create workspace failed" });
   }
 };

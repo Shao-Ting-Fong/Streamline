@@ -10,12 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
-const CreateChannel = ({
-  isCreating,
-  setIsCreating,
-  userProfile,
-  setTeamChannels,
-}) => {
+const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, setTeamChannels }) => {
   const { wid } = useParams();
   const [workspaceMembers, setWorkspaceMembers] = useState([]);
   const navigate = useNavigate();
@@ -24,9 +19,7 @@ const CreateChannel = ({
 
   useEffect(() => {
     const getWorkspaceMembers = async () => {
-      const { data } = await axios.get(
-        `${API_ROUTE}/chat/workspace/${wid}/members`
-      );
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/members`);
       setWorkspaceMembers(data);
     };
 
@@ -34,34 +27,26 @@ const CreateChannel = ({
   }, []);
 
   const handleClose = () => {
-    setIsCreating(false);
+    setIsCreatingChannel(false);
   };
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
     const formData = new FormData(evt.target);
 
-    const { data } = await axios.post(
-      `${API_ROUTE}/chat/workspace/${wid}/channel/new`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/new`, formData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    setIsCreating(false);
+    setIsCreatingChannel(false);
     setTeamChannels((prev) => [...prev, data]);
     navigate(`/workspace/${wid}/channel/${data._id}/room`);
   };
 
   return (
-    <Dialog
-      open={isCreating}
-      onClose={setIsCreating}
-      maxWidth={"sm"}
-      fullWidth={true}>
+    <Dialog open={isCreatingChannel} onClose={setIsCreatingChannel} maxWidth={"sm"} fullWidth={true}>
       <DialogTitle>Create New Channel</DialogTitle>
 
       <DialogContent>
@@ -86,11 +71,7 @@ const CreateChannel = ({
                   member._id === userProfile._id ? "hidden" : ""
                 }`}
                 key={member._id}>
-                <img
-                  className="h-10"
-                  src={API_ROUTE + member.avatarURL}
-                  alt=""
-                />
+                <img className="h-10" src={API_ROUTE + member.avatarURL} alt="" />
                 <label htmlFor={member._id} className="ml-3">
                   {member.username}
                 </label>

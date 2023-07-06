@@ -11,7 +11,6 @@ interface IWorkspace {
   title: string;
   ownerId: Types.ObjectId;
   avatarURL: string;
-  members: Types.ObjectId[];
 }
 
 // const WorkspaceMembersSchema = new Schema<IWorkspaceMember>({

@@ -13,7 +13,8 @@ import chatRouter from "./routes/chat/chatRoutes.js";
 import videoChat from "./socket/videoChat.js";
 import chatroom from "./socket/chatroom.js";
 
-const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/slackalendar";
+const dbUrl =
+  process.env.NODE_ENV === "production" ? process.env.DB_URL ?? "" : "mongodb://127.0.0.1:27017/slackalendar";
 
 try {
   await mongoose.connect(dbUrl);
