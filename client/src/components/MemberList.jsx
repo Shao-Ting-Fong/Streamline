@@ -4,6 +4,7 @@ import Popover from "@mui/material/Popover";
 import MemberProfileCard from "./MemberProfileCard";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
+const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
 const MemberList = ({ currChannel, userProfile }) => {
   const [memberClicked, setMemberClicked] = useState({
@@ -36,12 +37,9 @@ const MemberList = ({ currChannel, userProfile }) => {
             currChannel.members
               .filter((member) => member._id !== userProfile._id)
               .map((member) => (
-                <div
-                  key={member._id}
-                  className="flex items-center m-4"
-                  onClick={(e) => handleClick(e, member)}>
+                <div key={member._id} className="flex items-center m-4" onClick={(e) => handleClick(e, member)}>
                   <BadgeAvatar
-                    imgUrl={API_ROUTE + member.avatarURL}
+                    imgUrl={IMG_ROUTE + member.avatarURL}
                     position={{ vertical: "bottom", horizontal: "right" }}
                     showState={true}
                     stateColor={"#44b700"}
@@ -63,10 +61,7 @@ const MemberList = ({ currChannel, userProfile }) => {
               horizontal: "right",
             }}
             transitionDuration={0}>
-            <MemberProfileCard
-              member={memberClicked.member}
-              setMemberClicked={setMemberClicked}
-            />
+            <MemberProfileCard member={memberClicked.member} setMemberClicked={setMemberClicked} />
           </Popover>
         </div>
       </div>

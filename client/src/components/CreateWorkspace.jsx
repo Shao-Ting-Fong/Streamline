@@ -29,7 +29,7 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
   const [workspaceAvatar, setWorkspaceAvatar] = useState(ImageUploadIcon);
   const [currentPage, setCurrentPage] = useState("home");
 
-  const handlePreview = (e) => {
+  const handleAvatarPreview = (e) => {
     const file = e.target.files[0];
 
     if (file) {
@@ -127,7 +127,7 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
                 id="fileInput"
                 name="file"
                 accept="image/*"
-                onChange={handlePreview}
+                onChange={handleAvatarPreview}
               />
               <TextField
                 autoFocus

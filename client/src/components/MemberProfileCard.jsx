@@ -4,6 +4,7 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
+const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 const cookies = new Cookies();
 
 const MemberProfileCard = ({ member, setMemberClicked }) => {
@@ -14,14 +15,11 @@ const MemberProfileCard = ({ member, setMemberClicked }) => {
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
-    const { data } = await axios.post(
-      `${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`,
-      {
-        from: token,
-        to: JSON.stringify({ workspace: wid, type: "direct", id: member._id }),
-        message: newMsg,
-      }
-    );
+    const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, {
+      from: token,
+      to: JSON.stringify({ workspace: wid, type: "direct", id: member._id }),
+      message: newMsg,
+    });
     setMemberClicked({ anchorEl: null, member: null });
     navigate(`/workspace/${wid}/channel/${data.to}/room`);
   };
@@ -33,15 +31,13 @@ const MemberProfileCard = ({ member, setMemberClicked }) => {
           <div className="h-1/5 w-full relative bg-dark-color-purple-b shrink-0 mb-5">
             <img
               className="w-1/4 absolute bottom-0 left-1/4 -translate-x-1/2 translate-y-1/2 border-4 rounded-full"
-              src={API_ROUTE + member.avatarURL}
+              src={IMG_ROUTE + member.avatarURL}
               alt=""
             />
           </div>
           <div className="w-5/6 h-full my-[25px] rounded-lg bg-white p-4 flex flex-col">
             <h1 className="text-2xl">{member.username}</h1>
-            <p className="text-xs text-secondary  my-2 pb-2 border-b border-secondary">
-              {member._id}
-            </p>
+            <p className="text-xs text-secondary  my-2 pb-2 border-b border-secondary">{member._id}</p>
             <p className="text-sm">Joined on</p>
             <p className="text-xs mt-2">2023-06-30</p>
             <form className="w-full mt-auto mb-1" onSubmit={handleSubmit}>

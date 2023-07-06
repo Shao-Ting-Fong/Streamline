@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import Avatar from "@mui/material/Avatar";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
+const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
 const ChatBody = ({ messages }) => {
   console.log(messages[0]);
@@ -20,7 +21,7 @@ const ChatBody = ({ messages }) => {
         {messages.length > 0 &&
           messages.map((msg, idx) => (
             <div className="w-full flex items-start" key={idx}>
-              <Avatar src={API_ROUTE + msg.avatarURL} />
+              <Avatar src={IMG_ROUTE + msg.avatarURL} />
               <div className="w-full px-4 py-2 mx-3 mb-3 bg-light-color-purple rounded-md" key={idx}>
                 <p className="text-md font-bold opacity-70 mb-2">
                   {msg.username} <span className="text-secondary text-sm font-normal">{msg.time}</span>
