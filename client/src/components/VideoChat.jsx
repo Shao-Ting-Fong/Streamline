@@ -80,11 +80,7 @@ const VideoChat = ({ setStreaming }) => {
     let consumingTransports = [];
     let onClose;
 
-    const connectRecvTransport = async (
-      consumerTransport,
-      remoteProducerId,
-      serverConsumerTransportId
-    ) => {
+    const connectRecvTransport = async (consumerTransport, remoteProducerId, serverConsumerTransportId) => {
       await videoSocket.emit(
         "consume",
         {
@@ -133,12 +129,8 @@ const VideoChat = ({ setStreaming }) => {
     };
 
     const connectSendTransport = async () => {
-      audioProducer.current = await producerTransport.current.produce(
-        audioParams.current
-      );
-      videoProducer.current = await producerTransport.current.produce(
-        videoParams.current
-      );
+      audioProducer.current = await producerTransport.current.produce(audioParams.current);
+      videoProducer.current = await producerTransport.current.produce(videoParams.current);
 
       audioProducer.current.on("trackended", () => {
         console.log("audio track ended");
@@ -169,49 +161,40 @@ const VideoChat = ({ setStreaming }) => {
       if (consumingTransports.includes(remoteProducerId)) return;
       consumingTransports.push(remoteProducerId);
 
-      await videoSocket.emit(
-        "createWebRtcTransport",
-        { consumer: true },
-        ({ params }) => {
-          if (params.error) {
-            console.log(params.error);
-            return;
-          }
-          let consumerTransport;
-          try {
-            consumerTransport = device.current.createRecvTransport(params);
-          } catch (error) {
-            console.log(error);
-            return;
-          }
-
-          consumerTransport.on(
-            "connect",
-            async ({ dtlsParameters }, callback, errback) => {
-              try {
-                await videoSocket.emit("transport-recv-connect", {
-                  dtlsParameters,
-                  serverConsumerTransportId: params.id,
-                });
-
-                // Tell the transport that parameters were transmitted.
-                callback();
-              } catch (error) {
-                // Tell the transport that something was wrong
-                errback(error);
-              }
-            }
-          );
-
-          connectRecvTransport(consumerTransport, remoteProducerId, params.id);
+      await videoSocket.emit("createWebRtcTransport", { consumer: true }, ({ params }) => {
+        if (params.error) {
+          console.log(params.error);
+          return;
         }
-      );
+        let consumerTransport;
+        try {
+          consumerTransport = device.current.createRecvTransport(params);
+        } catch (error) {
+          console.log(error);
+          return;
+        }
+
+        consumerTransport.on("connect", async ({ dtlsParameters }, callback, errback) => {
+          try {
+            await videoSocket.emit("transport-recv-connect", {
+              dtlsParameters,
+              serverConsumerTransportId: params.id,
+            });
+
+            // Tell the transport that parameters were transmitted.
+            callback();
+          } catch (error) {
+            // Tell the transport that something was wrong
+            errback(error);
+          }
+        });
+
+        connectRecvTransport(consumerTransport, remoteProducerId, params.id);
+      });
     };
 
     // server informs the client of a new producer just joined
-    videoSocket.on("new-producer", ({ producerId }) =>
-      signalNewConsumerTransport(producerId)
-    );
+    videoSocket.on("new-producer", ({ producerId }) => signalNewConsumerTransport(producerId));
 
     const getProducers = () => {
       videoSocket.emit("getProducers", (producerIds) => {
@@ -221,60 +204,49 @@ const VideoChat = ({ setStreaming }) => {
     };
 
     const createSendTransport = () => {
-      videoSocket.emit(
-        "createWebRtcTransport",
-        { consumer: false },
-        ({ params }) => {
-          if (params.error) {
-            console.log(params.error);
-            return;
-          }
-
-          producerTransport.current =
-            device.current.createSendTransport(params);
-
-          producerTransport.current.on(
-            "connect",
-            async ({ dtlsParameters }, callback, errback) => {
-              try {
-                await videoSocket.emit("transport-connect", {
-                  dtlsParameters,
-                });
-
-                callback();
-              } catch (error) {
-                errback(error);
-              }
-            }
-          );
-
-          producerTransport.current.on(
-            "produce",
-            async (parameters, callback, errback) => {
-              try {
-                await videoSocket.emit(
-                  "transport-produce",
-                  {
-                    kind: parameters.kind,
-                    rtpParameters: parameters.rtpParameters,
-                    appData: parameters.appData,
-                  },
-                  ({ id, producersExist }) => {
-                    callback({ id });
-
-                    // if producers exist, then join room
-                    if (producersExist) getProducers();
-                  }
-                );
-              } catch (error) {
-                errback(error);
-              }
-            }
-          );
-
-          connectSendTransport();
+      videoSocket.emit("createWebRtcTransport", { consumer: false }, ({ params }) => {
+        if (params.error) {
+          console.log(params.error);
+          return;
         }
-      );
+
+        producerTransport.current = device.current.createSendTransport(params);
+
+        producerTransport.current.on("connect", async ({ dtlsParameters }, callback, errback) => {
+          try {
+            await videoSocket.emit("transport-connect", {
+              dtlsParameters,
+            });
+
+            callback();
+          } catch (error) {
+            errback(error);
+          }
+        });
+
+        producerTransport.current.on("produce", async (parameters, callback, errback) => {
+          try {
+            await videoSocket.emit(
+              "transport-produce",
+              {
+                kind: parameters.kind,
+                rtpParameters: parameters.rtpParameters,
+                appData: parameters.appData,
+              },
+              ({ id, producersExist }) => {
+                callback({ id });
+
+                // if producers exist, then join room
+                if (producersExist) getProducers();
+              }
+            );
+          } catch (error) {
+            errback(error);
+          }
+        });
+
+        connectSendTransport();
+      });
     };
 
     const createDevice = async (data) => {
@@ -289,8 +261,7 @@ const VideoChat = ({ setStreaming }) => {
         createSendTransport();
       } catch (error) {
         console.log(error);
-        if (error.name === "UnsupportedError")
-          console.warn("browser not supported");
+        if (error.name === "UnsupportedError") console.warn("browser not supported");
       }
     };
 
@@ -324,16 +295,12 @@ const VideoChat = ({ setStreaming }) => {
     });
 
     videoSocket.on("producer-closed", ({ remoteProducerId }) => {
-      const producerToClose = consumerTransports.find(
-        (transportData) => transportData.producerId === remoteProducerId
-      );
+      const producerToClose = consumerTransports.find((transportData) => transportData.producerId === remoteProducerId);
       producerToClose.consumerTransport.close();
       producerToClose.consumer.close();
 
       // remove the consumer transport from the list
-      consumerTransports = consumerTransports.filter(
-        (transportData) => transportData.producerId !== remoteProducerId
-      );
+      consumerTransports = consumerTransports.filter((transportData) => transportData.producerId !== remoteProducerId);
 
       // remove the video div element
       setRemoteStreams((streams) => {
@@ -347,7 +314,7 @@ const VideoChat = ({ setStreaming }) => {
       videoSocket.off("producer-closed");
       videoSocket.disconnect();
       console.log("First useEffect cleanup");
-      onClose();
+      if (onClose) onClose();
     };
   }, []);
 
@@ -363,9 +330,7 @@ const VideoChat = ({ setStreaming }) => {
 
   return (
     <main className="h-full w-full flex">
-      <div
-        id="main_videos"
-        className="grow relative bg-black justify-center items-center">
+      <div id="main_videos" className="grow relative bg-black justify-center items-center">
         <div className="w-full h-full flex justify-center items-center">
           <Video mediaSrc={localStream} className="video" />
 
@@ -373,51 +338,32 @@ const VideoChat = ({ setStreaming }) => {
             remoteStreams[key].kind === "audio" ? (
               <Audio mediaSrc={remoteStreams[key].src} key={key} />
             ) : (
-              <Video
-                mediaSrc={remoteStreams[key].src}
-                key={key}
-                className="video"
-              />
+              <Video mediaSrc={remoteStreams[key].src} key={key} className="video" />
             )
           )}
         </div>
 
-        <div
-          id="main_controls"
-          className="absolute right-0 top-1/2 -translate-y-1/2  bg-transparent text-white">
-          <div
-            id="main_controls_block"
-            className="flex flex-col justify-center">
+        <div id="main_controls" className="absolute right-0 top-1/2 -translate-y-1/2  bg-transparent text-white">
+          <div id="main_controls_block" className="flex flex-col justify-center">
             {isMute ? (
-              <div
-                className="main_controls_btn hover:bg-[#343434] text-[#EB534B]"
-                onClick={toggleAudio}>
+              <div className="main_controls_btn hover:bg-[#343434] text-[#EB534B]" onClick={toggleAudio}>
                 <MicOffIcon fontSize="large" />
               </div>
             ) : (
-              <div
-                className="main_controls_btn hover:bg-[#343434]"
-                onClick={toggleAudio}>
+              <div className="main_controls_btn hover:bg-[#343434]" onClick={toggleAudio}>
                 <KeyboardVoiceIcon fontSize="large" />
               </div>
             )}
             <div className="main_controls_btn  bg-[#EB534B]">
-              <CallEndIcon
-                fontSize="large"
-                onClick={() => setStreaming(false)}
-              />
+              <CallEndIcon fontSize="large" onClick={() => setStreaming(false)} />
             </div>
 
             {isStopPlaying ? (
-              <div
-                className="main_controls_btn hover:bg-[#343434] text-[#EB534B]"
-                onClick={toggleVideo}>
+              <div className="main_controls_btn hover:bg-[#343434] text-[#EB534B]" onClick={toggleVideo}>
                 <VideocamOffIcon fontSize="large" />
               </div>
             ) : (
-              <div
-                className="main_controls_btn hover:bg-[#343434]"
-                onClick={toggleVideo}>
+              <div className="main_controls_btn hover:bg-[#343434]" onClick={toggleVideo}>
                 <VideocamIcon fontSize="large" />
               </div>
             )}

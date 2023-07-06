@@ -68,16 +68,18 @@ const ChannelListContainer = ({ channelUnread, setChannelUnread, userProfile }) 
       <div className="channel-list__container">
         <div className="channel-list__list__wrapper">
           <CompanyHeader wid={wid} workspaceTitle={workspaceTitle} />
-          <TeamChannelList type="team" userProfile={userProfile} setTeamChannels={setTeamChannels} />
-          <div className="mt-2">
-            {teamChannels.map((channel) => (
-              <TeamChannelPreview
-                key={channel._id}
-                channel={channel}
-                channelUnread={channelUnread}
-                setChannelUnread={setChannelUnread}
-              />
-            ))}
+          <div className="mt-4">
+            <TeamChannelList type="team" userProfile={userProfile} setTeamChannels={setTeamChannels} />
+            <div className="mt-2">
+              {teamChannels.map((channel) => (
+                <TeamChannelPreview
+                  key={channel._id}
+                  channel={channel}
+                  channelUnread={channelUnread}
+                  setChannelUnread={setChannelUnread}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="mt-4">

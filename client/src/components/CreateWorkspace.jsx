@@ -43,6 +43,7 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
 
   const handleClose = () => {
     setIsCreatingWorkspace(false);
+    setWorkspaceAvatar(ImageUploadIcon);
     setTimeout(() => setCurrentPage("home"), 500);
   };
 

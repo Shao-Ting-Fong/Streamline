@@ -51,9 +51,10 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
     window.location.href = "/";
   };
 
-  const hasUnread = (wid) => {
-    // console.log(Object.values(channelUnread));
-    return Object.values(channelUnread).some((ele) => ele.workspaceId !== wid && ele.unread);
+  const hasUnread = (workspaceId, currWorksapce) => {
+    return Object.values(channelUnread).some(
+      (ele) => ele.workspaceId !== currWorksapce && ele.workspaceId === workspaceId && ele.unread
+    );
   };
 
   return (
@@ -71,7 +72,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
                   <BadgeAvatar
                     imgUrl={IMG_ROUTE + workspace.avatarURL}
                     position={{ vertical: "top", horizontal: "right" }}
-                    showState={hasUnread(wid)}
+                    showState={hasUnread(workspace._id, wid)}
                     stateColor={"#CC3333"}
                   />
                 </div>

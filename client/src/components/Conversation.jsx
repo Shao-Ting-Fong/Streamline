@@ -12,14 +12,7 @@ const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const cookies = new Cookies();
 
-const Conversation = ({
-  currChannel,
-  messages,
-  updateMessages,
-  showMembers,
-  setShowMembers,
-  userProfile,
-}) => {
+const Conversation = ({ currChannel, messages, updateMessages, showMembers, setShowMembers, userProfile }) => {
   const { wid, cid } = useParams();
   const token = cookies.get("jwtToken");
   const [newMsg, setNewMsg] = useState("");
@@ -65,14 +58,8 @@ const Conversation = ({
       formData.append("message", evt.target.message.value);
       formData.append("file", evt.target.file.files[0]);
       formData.append("from", token);
-      formData.append(
-        "to",
-        JSON.stringify({ workspace: wid, type: "team", id: currChannel._id })
-      );
-      const { data } = await axios.post(
-        `${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`,
-        formData
-      );
+      formData.append("to", JSON.stringify({ workspace: wid, type: "team", id: currChannel._id }));
+      const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, formData);
       // console.log("Send Message", data);
       // updateMessages((prev) => [...prev, data.msg]);
       setNewMsg("");
@@ -94,51 +81,28 @@ const Conversation = ({
   return (
     <>
       <div className="h-screen">
-        <div
-          className={`w-full ${
-            isStreaming ? "h-1/2" : "h-0 translate-y-0"
-          } ease-in-out duration-500`}>
-          {isStreaming && (
-            <VideoChat isStreaming={isStreaming} setStreaming={setStreaming} />
-          )}
+        <div className={`w-full ${isStreaming ? "h-1/2" : "h-0 translate-y-0"} ease-in-out duration-500`}>
+          {isStreaming && <VideoChat isStreaming={isStreaming} setStreaming={setStreaming} />}
         </div>
 
-        <div
-          className={`${
-            isStreaming ? "h-1/2" : "h-full"
-          } w-auto flex flex-col`}>
+        <div className={`${isStreaming ? "h-1/2" : "h-full"} w-auto flex flex-col`}>
           <div
             className="h-[62px] shrink-0 w-full bg-[#F8FAFF] flex items-center pl-4 pr-6"
             style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
-            <h3 className="text-lg">
-              {currChannel.category === "team"
-                ? currChannel.title
-                : channelTitle}
-            </h3>
+            <h3 className="text-lg">{currChannel.category === "team" ? currChannel.title : channelTitle}</h3>
             <div className="ml-auto">
               <button onClick={() => setStreaming((prev) => !prev)}>
-                <BiSolidVideo
-                  className={`text-2xl inline-block align-bottom ${
-                    isStreaming ? "fill-[#005fff]" : ""
-                  }`}
-                />
+                <BiSolidVideo className={`text-2xl inline-block align-bottom ${isStreaming ? "fill-[#005fff]" : ""}`} />
               </button>
-              <button
-                className="ml-4"
-                onClick={() => setShowMembers((prev) => !prev)}>
+              <button className="ml-4" onClick={() => setShowMembers((prev) => !prev)}>
                 <BsFillPeopleFill
-                  className={`text-2xl inline-block align-bottom ${
-                    showMembers ? "fill-[#005fff]" : ""
-                  }`}
+                  className={`text-2xl inline-block align-bottom ${showMembers ? "fill-[#005fff]" : ""}`}
                 />
               </button>
             </div>
           </div>
           <ChatBody messages={messages} />
-          <form
-            method="post"
-            encType="multipart/form-data"
-            onSubmit={sendMessage}>
+          <form method="post" encType="multipart/form-data" onSubmit={sendMessage}>
             <div
               className={`h-[200px] w-full bg-[#F8FAFF] border-t flex items-center px-3 shrink-0 ${
                 !fileDataURL && "hidden"
