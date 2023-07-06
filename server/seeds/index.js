@@ -9,8 +9,8 @@ dotenv.config({ path: path.join(__dirname, "/../.env") });
 // import Channel from "../dist/models/channel.js";
 // import User from "../dist/models/user.js";
 
-// const dbUrl = process.env.DB_URL;
-const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
+const dbUrl = process.env.DB_URL;
+// const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
 console.log(dbUrl);
 try {
   await mongoose.connect(dbUrl, {
@@ -33,7 +33,7 @@ const member = await User.findOne({ username: "linhuhu" });
 const workspace = Workspace({
   title: "Appworks School Backend Batch #20",
   ownerId: owner._id,
-  avatarURL: "/uploads/workspaces/company.png",
+  avatarURL: "uploads/workspaces/company.png",
 });
 
 await workspace.save();
