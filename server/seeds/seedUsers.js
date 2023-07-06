@@ -63,7 +63,8 @@ const names = [
   "Antonio",
 ];
 
-const dbUrl = process.env.NODE_ENV === "production" ? process.env.DB_URL : "mongodb://127.0.0.1:27017/slackalendar";
+// const dbUrl = process.env.DB_URL;
+const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
 console.log(dbUrl);
 try {
   const result = await mongoose.connect(dbUrl, {
@@ -86,7 +87,7 @@ const owner = await User.findOne({ username: "Tom" });
 const workspace = Workspace({
   title: "Appworks School Backend Batch #20",
   ownerId: owner._id,
-  avatarURL: "/img/company.png",
+  avatarURL: "/uploads/workspaces/company.png",
 });
 
 await workspace.save();
@@ -94,15 +95,15 @@ await workspace.save();
 for (let name of names) {
   const hashPassword = await bcrypt.hash(name.toLowerCase(), 10);
 
-  const avatar = await createAvatar(thumbs, {
-    seed: name,
-    radius: 50,
-  });
+  // const avatar = await createAvatar(thumbs, {
+  //   seed: name,
+  //   radius: 50,
+  // });
 
-  const png = await avatar.png();
+  // const png = await avatar.png();
 
   const avatarURL = `/avatar/${name}.png`;
-  await png.toFile(`../public${avatarURL}`);
+  // await png.toFile(`../public${avatarURL}`);
 
   const newUser = new User({
     username: name,
