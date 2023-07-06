@@ -1,5 +1,6 @@
 server/dist/
 avatar/
+seeds/
 node_modules/
 .vscode/
 server/src/

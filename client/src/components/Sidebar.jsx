@@ -4,7 +4,6 @@ import { BadgeAvatar } from "./";
 import { socket } from "../socket";
 import LogoutIcon from "../assets/logout.png";
 import { AiOutlinePlus } from "react-icons/ai";
-
 import Cookies from "universal-cookie";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
