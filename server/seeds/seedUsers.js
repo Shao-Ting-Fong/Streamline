@@ -13,6 +13,9 @@ dotenv.config({ path: path.join(__dirname, "/../.env") });
 // import User from "../dist/models/user.js";cd
 
 const names = [
+  "Irene",
+  "Tom",
+  "linhuhu",
   "Daisy",
   "Deborah",
   "Isabel",
@@ -63,8 +66,8 @@ const names = [
   "Antonio",
 ];
 
-// const dbUrl = process.env.DB_URL;
-const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
+const dbUrl = process.env.DB_URL;
+// const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
 console.log(dbUrl);
 try {
   const result = await mongoose.connect(dbUrl, {
@@ -80,17 +83,7 @@ try {
 
 // const seedDB = async () => {
 await Workspace.deleteMany({});
-await User.deleteMany({ username: { $nin: ["Tom", "Irene", "linhuhu"] } });
-
-const owner = await User.findOne({ username: "Tom" });
-
-const workspace = Workspace({
-  title: "Appworks School Backend Batch #20",
-  ownerId: owner._id,
-  avatarURL: "/uploads/workspaces/company.png",
-});
-
-await workspace.save();
+await User.deleteMany({});
 
 for (let name of names) {
   const hashPassword = await bcrypt.hash(name.toLowerCase(), 10);
@@ -116,6 +109,18 @@ for (let name of names) {
 
   await newUser.save();
 }
+
+console.log("Before create workspace.");
+
+const owner = await User.findOne({ username: "Tom" });
+
+const workspace = new Workspace({
+  title: "Appworks School Backend Batch #20",
+  ownerId: owner._id,
+  avatarURL: "/uploads/workspaces/company.png",
+});
+
+await workspace.save();
 
 User.updateMany({}, { workspaces: [workspace._id] }).then((res) => {
   console.log(res);
