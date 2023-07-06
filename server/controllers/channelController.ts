@@ -84,7 +84,6 @@ interface MessageTo {
 const findOrAddChannel = async (userId: string, to: MessageTo) => {
   const { workspace, type, id } = to;
 
-  // Save messages to DB
   if (type === "team") {
     const foundChannel = await Channel.findById(id);
     return foundChannel;

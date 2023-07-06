@@ -115,7 +115,7 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
           <DialogContent>
             <form id="createWorkspace" method="post" onSubmit={handleSubmit} className="w-full">
               <div className="border h-[80px] w-[80px] rounded-full relative mx-auto p-2">
-                <label htmlFor="fileInput" className="cursor-pointer">
+                <label htmlFor="avatarInput" className="cursor-pointer">
                   <AiFillPlusCircle className="absolute right-0 top-0 text-xl" />
                   <img src={workspaceAvatar} alt="File Preview" />
                 </label>
@@ -124,7 +124,7 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
               <input
                 className="hidden"
                 type="file"
-                id="fileInput"
+                id="avatarInput"
                 name="file"
                 accept="image/*"
                 onChange={handleAvatarPreview}

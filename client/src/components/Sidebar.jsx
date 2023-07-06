@@ -39,7 +39,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
     };
 
     getWorkspaces();
-  }, [authToken]);
+  }, [authToken, wid]);
 
   const handleClickOpen = () => {
     setIsCreatingWorkspace(true);

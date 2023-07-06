@@ -5,7 +5,6 @@ const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
 const ChatBody = ({ messages }) => {
-  console.log(messages[0]);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
