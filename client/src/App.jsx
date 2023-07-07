@@ -24,6 +24,9 @@ function App() {
 
     function onDisconnect() {
       console.log("Disconnected.");
+      if (userProfile._id) {
+        socket.emit("offline", { userId: userProfile._id });
+      }
     }
 
     socket.on("connect", onConnect);

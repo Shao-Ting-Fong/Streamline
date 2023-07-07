@@ -35,6 +35,10 @@ const chatroom = function () {
         console.log(`socket: ${socket.id} has left roomId:${roomId}`);
         socket.leave(`roomId:${roomId}`);
       });
+
+      socket.on("disconnect", () => {
+        console.log(`${socket.id} is disconnected`);
+      });
     });
   };
 };

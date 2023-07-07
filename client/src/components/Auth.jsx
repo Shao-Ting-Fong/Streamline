@@ -40,6 +40,7 @@ const Auth = () => {
     cookies.set("jwtToken", access_token, {
       // ...COOKIE_OPTIONS,
       maxAge: access_expired,
+      path: "/",
     });
 
     const authString = `Bearer ${access_token}`;

@@ -47,7 +47,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
   };
 
   const logout = () => {
-    cookies.remove("jwtToken");
+    cookies.remove("jwtToken", { path: "/" });
     socket.emit("offline", { userId: userProfile._id });
     setUserProfile({});
     window.location.href = "/";

@@ -22,7 +22,7 @@ const ChannelContainer = ({ userProfile }) => {
     socket.emit("leaveRoom", { roomId: currChannel._id });
     getChannelInfoById(wid, cid);
     socket.emit("joinRoom", { roomId: cid });
-  }, [cid]);
+  }, [wid, cid]);
 
   useEffect(() => {
     const getChannelMessagesById = async (wid, cid) => {

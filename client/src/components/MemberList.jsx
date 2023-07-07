@@ -1,36 +1,17 @@
 import { BadgeAvatar } from "./";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Popover from "@mui/material/Popover";
 import MemberProfileCard from "./MemberProfileCard";
-import { socket } from "../socket";
 
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
-const MemberList = ({ members, setMembers, userProfile }) => {
+const MemberList = ({ members, userProfile }) => {
   const [memberClicked, setMemberClicked] = useState({
     anchorEl: null,
     member: null,
   });
 
-  // useEffect(() => {
-  //   socket.on("onlineState", ({ userId, state }) => {
-  //     console.log("Online state changed. userId:", userId);
-  //     setMembers((prevMembers) => {
-  //       const idxOfMember = prevMembers.findIndex((member) => member._id === userId);
-  //       if (idxOfMember !== -1) {
-  //         prevMembers[idxOfMember].online = state;
-  //       }
-  //       return [...prevMembers];
-  //     });
-  //   });
-
-  //   return () => {
-  //     socket.off("onlineState");
-  //   };
-  // }, []);
-
   const handleClick = (event, member) => {
-    // console.log(memberClicked);
     setMemberClicked({ anchorEl: event.currentTarget, member });
   };
 
