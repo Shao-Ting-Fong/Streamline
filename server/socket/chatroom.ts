@@ -35,11 +35,12 @@ const chatroom = function () {
         console.log(`socket: ${socket.id} has left roomId:${roomId}`);
         socket.leave(`roomId:${roomId}`);
       });
-
-      socket.on("disconnect", () => {
-        console.log(`${socket.id} is disconnected`);
-      });
     });
+
+    // connections.on("userExit", async ({ userId }: { userId: string }) => {
+    //   console.log(`${userId} has closed the window`);
+    //   await redis.set(`online:${userId}`, 0);
+    // });
   };
 };
 

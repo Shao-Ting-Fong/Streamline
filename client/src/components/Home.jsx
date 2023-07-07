@@ -11,6 +11,8 @@ const Home = () => {
   const authToken = cookies.get("jwtToken");
   const authString = `Bearer ${authToken}`;
 
+  // if (authToken) navigate("/workspace");
+
   const handleSubmit = async (evt) => {
     evt.preventDefault();
     const inviteURL = evt.target.inviteURL.value;
@@ -30,7 +32,7 @@ const Home = () => {
   };
 
   const logout = () => {
-    cookies.remove("jwtToken");
+    cookies.remove("jwtToken", { path: "/" });
     window.location.href = "/";
   };
 
@@ -71,10 +73,10 @@ const Home = () => {
           <header className="absolute top-[25%] left-[8%] w-[500px] ">
             <h1 className="text-light-color-blue text-[64px] font-bold leading-tight">Slack Clone</h1>
             <h2 className="text-white text-[64px] font-bold leading-tight">Chat. Connect. Collaborate.</h2>
-            <h2 className="text-light-color-gray mt-2">
+            <h2 className="text-light-color-gray mt-2 ml-1">
               The all-in-one chat app for seamless team communication, collaboration, and video meetings.
             </h2>
-            <form onSubmit={handleSubmit} className="mt-6 w-full flex">
+            <form onSubmit={handleSubmit} className="mt-4 w-full flex">
               <input
                 className="bg-transparent text-white border h-[48px] grow rounded-xl pl-4 focus:outline-none"
                 type="text"
@@ -83,6 +85,12 @@ const Home = () => {
               />
               <button className="bg-light-color-azure text-white ml-3 px-4 py-2 rounded-xl ">Join Now!</button>
             </form>
+            <p className="text-light-color-gray mt-4">
+              Already a member?{" "}
+              <a className="font-bold" href="/workspace">
+                Go to Workspace
+              </a>
+            </p>
           </header>
           <div
             className="z-10 absolute left-[50%] h-5/6 w-1/2 bg-white bg-cover rounded-lg"

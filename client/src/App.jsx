@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { socket } from "./socket";
 import axios from "axios";
 import Cookies from "universal-cookie";
@@ -12,6 +12,8 @@ const cookies = new Cookies();
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 function App() {
+  const navigate = useNavigate();
+
   const authToken = cookies.get("jwtToken");
   const authString = `Bearer ${authToken}`;
   const [userProfile, setUserProfile] = useState({});
@@ -24,17 +26,27 @@ function App() {
 
     function onDisconnect() {
       console.log("Disconnected.");
-      if (userProfile._id) {
-        socket.emit("offline", { userId: userProfile._id });
-      }
     }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
 
     return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, []);
+
+  useEffect(() => {
+    const cleanup = () => {
+      if (userProfile._id) {
+        socket.emit("offline", { userId: userProfile._id });
+      }
+    };
+    window.addEventListener("beforeunload", cleanup);
+
+    return () => {
+      window.removeEventListener("beforeunload", cleanup);
     };
   }, []);
 
