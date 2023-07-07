@@ -7,7 +7,9 @@ const chatroom = function () {
   // @ts-ignore
   const _self = this as { init: Function };
 
-  _self.init = async function (connections: Server) {
+  _self.init = async function (io: Server) {
+    const connections = io.of("/chatroom");
+
     connections.on("connection", (socket: Socket) => {
       console.log("Chatroom socket connected");
 
@@ -21,14 +23,14 @@ const chatroom = function () {
         socket.leave(roomId);
       });
 
-      socket.on("chatMessage", async ({ from, room, msg }: { from: string; room: string; msg: string }) => {
-        console.log(from, room, msg);
-        const { userId } = await verifyJWT(from);
-        const foundUser = await User.findById(userId);
-        if (!foundUser) throw new Error("User not found");
+      // socket.on("chatMessage", async ({ from, room, msg }: { from: string; room: string; msg: string }) => {
+      //   console.log(from, room, msg);
+      //   const { userId } = await verifyJWT(from);
+      //   const foundUser = await User.findById(userId);
+      //   if (!foundUser) throw new Error("User not found");
 
-        await connections.emit("message", formatMessage(foundUser.username, msg));
-      });
+      //   await connections.emit("message", formatMessage(foundUser.username, msg));
+      // });
     });
   };
 };

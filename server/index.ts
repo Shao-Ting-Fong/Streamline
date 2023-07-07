@@ -34,11 +34,11 @@ const io = new Server(httpServer, {
     origin: "*",
   },
 });
-const videoConnection = io.of("/mediasoup");
-const chatConnection = io.of("/chatroom");
+// const videoConnection = io.of("/mediasoup");
+// const chatConnection = io.of("/chatroom");
 
-videoChat.init(videoConnection);
-chatroom.init(chatConnection);
+videoChat.init(io);
+chatroom.init(io);
 
 app.set("view engine", "ejs");
 app.use(cors());

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 import * as mediasoupClient from "mediasoup-client";
+import Cookies from "universal-cookie";
 
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
 import VideocamIcon from "@mui/icons-material/Videocam";
@@ -10,6 +11,8 @@ import VideocamOffIcon from "@mui/icons-material/VideocamOff";
 import CallEndIcon from "@mui/icons-material/CallEnd";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
+
+const cookies = new Cookies();
 
 function Video({ mediaSrc }) {
   const ref = useRef();
@@ -57,10 +60,12 @@ let params = {
   },
 };
 
-const VideoChat = ({ setStreaming }) => {
+const VideoChat = ({ setStreaming, userProfile }) => {
   const [videoSocket] = useState(() => {
     return io(`${API_ROUTE}/mediasoup`);
   });
+
+  const authToken = cookies.get("jwtToken");
 
   const device = useRef();
   const producerTransport = useRef();
@@ -69,7 +74,7 @@ const VideoChat = ({ setStreaming }) => {
   const audioParams = useRef({});
   const videoParams = useRef({ params });
 
-  const { cid } = useParams();
+  const { wid, cid } = useParams();
   const [localStream, setLocalStream] = useState();
   const [remoteStreams, setRemoteStreams] = useState({});
   const [isMute, setMute] = useState(false);
@@ -276,7 +281,7 @@ const VideoChat = ({ setStreaming }) => {
       videoParams.current.track = stream.getVideoTracks()[0];
 
       // joinRoom()
-      videoSocket.emit("joinRoom", { roomName: cid }, (data) => {
+      videoSocket.emit("joinRoom", { roomName: cid, workspace: wid, token: authToken }, (data) => {
         // createDevice()
         createDevice(data);
       });

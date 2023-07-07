@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
-import { Types } from "mongoose";
-import { Socket, Server } from "socket.io";
 import ExpressError from "../utils/ExpressError.js";
-import { Channel, User } from "../models/index.js";
+import { Channel } from "../models/index.js";
 import verifyJWT from "../utils/verifyJWT.js";
-import dayjs from "dayjs";
+import { sendingMessages } from "../models/messages.js";
 import { RequestWithWid } from "../routes/chat/chatRoutes.js";
 
 export const getUserChannels = async (req: RequestWithWid, res: Response) => {
@@ -75,39 +73,6 @@ export const getWorkspaceByChannelId = async (req: Request, res: Response) => {
   }
 };
 
-interface MessageTo {
-  workspace: Types.ObjectId;
-  type: "team" | "direct";
-  id: Types.ObjectId;
-}
-
-const findOrAddChannel = async (userId: string, to: MessageTo) => {
-  const { workspace, type, id } = to;
-
-  if (type === "team") {
-    const foundChannel = await Channel.findById(id);
-    return foundChannel;
-  } else if (type === "direct") {
-    const foundChannel = await Channel.findOne({
-      $and: [{ category: "direct" }, { workspaceId: workspace }, { members: userId }, { members: id }],
-    });
-    if (!foundChannel) {
-      // create new channel
-      const newChannel = new Channel({
-        workspaceId: workspace,
-        title: "???",
-        category: "direct",
-        members: [userId, id],
-        messages: [],
-      });
-
-      await newChannel.save();
-      return newChannel;
-    }
-    return foundChannel;
-  }
-};
-
 export const addMessage = async (req: Request, res: Response) => {
   try {
     const { from, message } = req.body;
@@ -116,55 +81,9 @@ export const addMessage = async (req: Request, res: Response) => {
     const location = req.file?.location;
     const { io } = res.locals;
 
-    const connections = io.of("/chatroom");
-    const { userId } = await verifyJWT(from);
-    const foundUser = await User.findById(userId);
-    const CURR_TIME = dayjs();
+    const channelId = await sendingMessages(io, from, to, message, location);
 
-    const foundChannel = await findOrAddChannel(userId, to);
-    if (!foundChannel) throw new ExpressError("Channel not found", 404);
-
-    const insertData = [];
-
-    if (message) insertData.push({ from: userId, content: message, type: "text" });
-
-    if (location) insertData.push({ from: userId, content: location, type: "image" });
-
-    await foundChannel.updateOne(
-      {
-        $push: {
-          messages: {
-            $each: insertData,
-            $sort: { createdAt: 1 },
-          },
-        },
-      },
-      { runValidators: true }
-    );
-
-    await foundChannel.save();
-
-    // ! Bug to Fix: Time recorded in DB may be slightly different.
-
-    foundChannel.members.forEach((member) => {
-      connections.to(`userId:${member}`).emit("notification", { to: foundChannel._id });
-    });
-
-    insertData.forEach((data) => {
-      const response = {
-        to: foundChannel._id,
-        message: {
-          username: foundUser?.username,
-          avatarURL: foundUser?.avatarURL,
-          time: CURR_TIME,
-          text: data.content,
-          type: data.type,
-        },
-      };
-      connections.to(`roomId:${foundChannel._id}`).emit("message", response);
-    });
-
-    res.status(200).json({ to: foundChannel._id });
+    res.status(200).json({ to: channelId });
   } catch (err) {
     if (err instanceof ExpressError) {
       res.status(err.statusCode).json({ errors: err.message });
