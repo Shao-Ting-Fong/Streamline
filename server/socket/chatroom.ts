@@ -18,7 +18,7 @@ const chatroom = function () {
 
       socket.on("online", async ({ userId }: { userId: string }) => {
         console.log(`socket: ${socket.id} has joined userId:${userId}`);
-        await redis.set(`online:${userId}`, 1);
+        await redis.set(`online:${userId}`, 1, "EX", 3600);
         socket.join(`userId:${userId}`);
         console.log("Add onlineState", userId);
         connections.emit("onlineState", { userId, state: "1" });
@@ -26,7 +26,7 @@ const chatroom = function () {
 
       socket.on("offline", async ({ userId }: { userId: string }) => {
         console.log(`socket: ${socket.id} has left userId:${userId}`);
-        await redis.set(`online:${userId}`, 0);
+        await redis.del(`online:${userId}`);
         console.log("Remove onlineState", userId);
         connections.emit("onlineState", { userId, state: "0" });
       });
@@ -36,11 +36,6 @@ const chatroom = function () {
         socket.leave(`roomId:${roomId}`);
       });
     });
-
-    // connections.on("userExit", async ({ userId }: { userId: string }) => {
-    //   console.log(`${userId} has closed the window`);
-    //   await redis.set(`online:${userId}`, 0);
-    // });
   };
 };
 
