@@ -20,7 +20,7 @@ try {
   console.log("CONNECTION OPEN!!!");
 } catch (error) {
   console.log("OH NO ERROR!!!!");
-  console.log(err);
+  console.log(error);
 }
 
 // const seedDB = async () => {
@@ -57,21 +57,21 @@ const seedChannels = [
     workspaceId: workspace._id,
     title: "Announcement",
     members: [owner._id, staff._id, member._id, ...otherUserIds],
-    category: "team",
+    category: "public",
     messages: [],
   },
   {
     workspaceId: workspace._id,
     title: "Public",
     members: [owner._id, staff._id, member._id, ...otherUserIds],
-    category: "team",
+    category: "public",
     messages: [],
   },
   {
     workspaceId: workspace._id,
     title: "Managers",
     members: [owner._id, staff._id, member._id],
-    category: "team",
+    category: "private",
     messages: [],
   },
 ];
