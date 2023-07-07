@@ -70,7 +70,7 @@ interface IChannel {
   _id: Types.ObjectId;
   workspaceId: Types.ObjectId;
   title: string;
-  category: "team" | "direct";
+  category: "public" | "private" | "direct";
   members: Types.ObjectId[];
   messages: Types.DocumentArray<IMessage>;
 }
@@ -100,7 +100,7 @@ const channelSchema = new Schema<IChannel>({
   members: { type: [Schema.Types.ObjectId], ref: "User", required: true },
   category: {
     type: String,
-    enum: ["team", "direct"],
+    enum: ["public", "private", "direct"],
     required: true,
   },
   messages: [messageSchema],

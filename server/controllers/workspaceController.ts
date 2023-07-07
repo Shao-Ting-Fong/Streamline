@@ -74,7 +74,7 @@ export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
     await foundUser.save();
 
     await Channel.updateMany(
-      { workspaceId: wid, category: "team" },
+      { workspaceId: wid, category: "public" },
       {
         $push: { members: foundUser._id },
       },
@@ -127,14 +127,14 @@ export const createWorkspace = async (req: Request, res: Response) => {
         workspaceId: newWorkspace._id,
         title: "Announcement",
         members: [userId],
-        category: "team",
+        category: "public",
         messages: [],
       },
       {
         workspaceId: newWorkspace._id,
         title: "Public",
         members: [userId],
-        category: "team",
+        category: "public",
         messages: [],
       },
     ];

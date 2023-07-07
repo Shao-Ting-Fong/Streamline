@@ -1,14 +1,17 @@
 import axios from "axios";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import Switch from "@mui/material/Switch";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { BiLockAlt } from "react-icons/bi";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
+const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
 const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, setTeamChannels }) => {
   const { wid } = useParams();
@@ -62,17 +65,30 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
             name="channelName"
             required
           />
+          <div className="w-full flex items-center mt-8">
+            <label htmlFor="privateChannel">
+              <div className="">
+                <div className="flex items-center -ml-1">
+                  <BiLockAlt className="text-xl" />
+                  <h1 className="text-lg ml-1">Private Channel?</h1>
+                </div>
 
-          <h3 className="mt-3 text-xl">Invite Members</h3>
-          <div className="h-full mt-3">
+                <p className="text-sm mt-2">Only the invited members can view this channel.</p>
+              </div>
+            </label>
+            <Switch className="ml-auto" id="privateChannel" name="isPrivate" />
+          </div>
+
+          <h3 className="mt-8 text-xl">Invite Members</h3>
+          <div className="h-full mt-4">
             {workspaceMembers.map((member) => (
               <div
                 className={`flex items-center px-3 py-2 hover:bg-light-color-purple ${
                   member._id === userProfile._id ? "hidden" : ""
                 }`}
                 key={member._id}>
-                <img className="h-10" src={API_ROUTE + member.avatarURL} alt="" />
-                <label htmlFor={member._id} className="ml-3">
+                <img className="h-10" src={IMG_ROUTE + member.avatarURL} alt="" />
+                <label htmlFor={member._id} className="ml-6">
                   {member.username}
                 </label>
                 <input

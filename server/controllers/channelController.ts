@@ -154,14 +154,14 @@ export const addMessage = async (req: Request, res: Response) => {
 
 export const createNewChannel = async (req: RequestWithWid, res: Response) => {
   try {
-    const { channelName, ...member } = req.body;
+    const { channelName, isPrivate, ...member } = req.body;
     if (!member) {
       throw new ExpressError("At least one member is required!", 400);
     }
     const newChannel = new Channel({
       workspaceId: req.wid,
       title: channelName,
-      category: "team",
+      category: isPrivate ? "private" : "public",
       members: Object.keys(member),
       messages: [],
     });

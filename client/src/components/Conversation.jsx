@@ -88,7 +88,7 @@ const Conversation = ({ currChannel, messages, updateMessages, showMembers, setS
           <div
             className="h-[62px] shrink-0 w-full bg-[#F8FAFF] flex items-center pl-4 pr-6"
             style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
-            <h3 className="text-lg">{currChannel.category === "team" ? currChannel.title : channelTitle}</h3>
+            <h3 className="text-lg">{currChannel.category === "direct" ? channelTitle : currChannel.title}</h3>
             <div className="ml-auto">
               <button onClick={() => setStreaming((prev) => !prev)}>
                 <BiSolidVideo className={`text-2xl inline-block align-bottom ${isStreaming ? "fill-[#005fff]" : ""}`} />

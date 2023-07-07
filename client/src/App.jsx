@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { socket } from "./socket";
 import axios from "axios";
 import Cookies from "universal-cookie";
@@ -12,8 +12,6 @@ const cookies = new Cookies();
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 function App() {
-  const navigate = useNavigate();
-
   const authToken = cookies.get("jwtToken");
   const authString = `Bearer ${authToken}`;
   const [userProfile, setUserProfile] = useState({});
