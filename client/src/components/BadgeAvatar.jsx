@@ -14,7 +14,7 @@ const StyledBadge = styled(Badge)(({ theme, stateColor }) => ({
       width: "100%",
       height: "100%",
       borderRadius: "50%",
-      animation: "ripple 1.2s infinite ease-in-out",
+      // animation: "ripple 1.2s infinite ease-in-out",
       border: "1px solid currentColor",
       content: '""',
     },
@@ -37,20 +37,11 @@ const StyledBadge = styled(Badge)(({ theme, stateColor }) => ({
 //   border: `2px solid ${theme.palette.background.paper}`,
 // }));
 
-export default function BadgeAvatars({
-  imgUrl,
-  position,
-  showState,
-  stateColor,
-}) {
+export default function BadgeAvatars({ imgUrl, position, showState, stateColor }) {
   return (
     <>
       {showState ? (
-        <StyledBadge
-          overlap="circular"
-          anchorOrigin={position}
-          variant="dot"
-          stateColor={stateColor}>
+        <StyledBadge overlap="circular" anchorOrigin={position} variant="dot" stateColor={stateColor}>
           <Avatar alt="Remy Sharp" src={imgUrl} />
         </StyledBadge>
       ) : (

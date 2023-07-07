@@ -11,14 +11,22 @@ const ChannelContainer = ({ userProfile }) => {
   const { wid, cid } = useParams();
   const [currChannel, setCurrChannel] = useState({});
   const [messages, updateMessages] = useState([]);
+  const [members, setMembers] = useState([]);
   const [showMembers, setShowMembers] = useState(false);
 
   useEffect(() => {
-    const getChannelById = async (wid, cid) => {
-      const { data } = await axios.get(
-        `${API_ROUTE}/chat/workspace/${wid}/channel/${cid}`
-      );
+    const getChannelInfoById = async (wid, cid) => {
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/info`);
       setCurrChannel(data);
+    };
+    socket.emit("leaveRoom", { roomId: currChannel._id });
+    getChannelInfoById(wid, cid);
+    socket.emit("joinRoom", { roomId: cid });
+  }, [cid]);
+
+  useEffect(() => {
+    const getChannelMessagesById = async (wid, cid) => {
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`);
       updateMessages(
         data.messages.map((msg) => ({
           username: msg.from.username,
@@ -29,9 +37,30 @@ const ChannelContainer = ({ userProfile }) => {
         }))
       );
     };
-    socket.emit("leaveRoom", { roomId: `roomId:${currChannel._id}` });
-    getChannelById(wid, cid);
-    socket.emit("joinRoom", { roomId: `roomId:${cid}` });
+    getChannelMessagesById(wid, cid);
+  }, [cid]);
+
+  useEffect(() => {
+    const getChannelMembersById = async (wid, cid) => {
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/members`);
+
+      setMembers(data);
+    };
+    getChannelMembersById(wid, cid);
+    socket.on("onlineState", ({ userId, state }) => {
+      console.log("Online state changed. userId:", userId);
+      setMembers((prevMembers) => {
+        const idxOfMember = prevMembers.findIndex((member) => member._id === userId);
+        if (idxOfMember !== -1) {
+          prevMembers[idxOfMember].online = state;
+        }
+        return [...prevMembers];
+      });
+    });
+
+    return () => {
+      socket.off("onlineState");
+    };
   }, [cid]);
 
   return (
@@ -45,11 +74,12 @@ const ChannelContainer = ({ userProfile }) => {
             showMembers={showMembers}
             setShowMembers={setShowMembers}
             userProfile={userProfile}
+            members={members}
           />
         </div>
         {showMembers && (
-          <div className="h-full w-1/4 cursor-pointer">
-            <MemberList currChannel={currChannel} userProfile={userProfile} />
+          <div className="h-full w-1/4">
+            <MemberList members={members} userProfile={userProfile} />
           </div>
         )}
       </div>

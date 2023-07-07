@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { redis } from "../models/redis.js";
 import ExpressError from "../utils/ExpressError.js";
 import { Channel } from "../models/index.js";
 import verifyJWT from "../utils/verifyJWT.js";
@@ -33,13 +34,67 @@ export const getUserChannels = async (req: RequestWithWid, res: Response) => {
   }
 };
 
-export const getChannelById = async (req: Request, res: Response) => {
+export const getChannelInfoById = async (req: Request, res: Response) => {
+  try {
+    const { cid } = req.params;
+
+    const foundChannels = await Channel.findById(cid).select("_id workspaceId title category");
+    // .populate("messages.from", "username avatarURL")
+    // .populate("members", "username avatarURL");
+    if (!foundChannels) throw new ExpressError("Channel not found", 404);
+    res.status(200).json(foundChannels);
+  } catch (err) {
+    if (err instanceof ExpressError) {
+      res.status(err.statusCode).json({ errors: err.message });
+      return;
+    } else if (err instanceof Error) {
+      console.log(err);
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    res.status(500).json({ errors: "Get channels failed" });
+  }
+};
+
+export const getChannelMembersById = async (req: Request, res: Response) => {
   try {
     const { cid } = req.params;
 
     const foundChannels = await Channel.findById(cid)
-      .populate("messages.from", "username avatarURL")
-      .populate("members", "username avatarURL");
+      .select("_id members")
+      .populate("members", "username avatarURL")
+      .exec();
+
+    if (!foundChannels) throw new ExpressError("Channel not found", 404);
+    const membersState = await Promise.all(
+      foundChannels.members.map(async (member) => {
+        const { _id, username, avatarURL } = member;
+        const onlineState = (await redis.get(`online:${member._id}`)) ?? "0";
+        return { _id, username, avatarURL, online: onlineState };
+      })
+    );
+    // console.log(membersState);
+    res.status(200).json(membersState);
+  } catch (err) {
+    if (err instanceof ExpressError) {
+      res.status(err.statusCode).json({ errors: err.message });
+      return;
+    } else if (err instanceof Error) {
+      console.log(err);
+      res.status(400).json({ errors: err.message });
+      return;
+    }
+    res.status(500).json({ errors: "Get channels failed" });
+  }
+};
+
+export const getChannelMessagesById = async (req: Request, res: Response) => {
+  try {
+    const { cid } = req.params;
+
+    const foundChannels = await Channel.findById(cid)
+      .select("_id messages")
+      .populate("messages.from", "username avatarURL");
     if (!foundChannels) throw new ExpressError("Channel not found", 404);
     res.status(200).json(foundChannels);
   } catch (err) {

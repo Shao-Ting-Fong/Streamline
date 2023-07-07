@@ -12,7 +12,7 @@ const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const cookies = new Cookies();
 
-const Conversation = ({ currChannel, messages, updateMessages, showMembers, setShowMembers, userProfile }) => {
+const Conversation = ({ currChannel, messages, updateMessages, showMembers, setShowMembers, userProfile, members }) => {
   const { wid, cid } = useParams();
   const token = cookies.get("jwtToken");
   const [newMsg, setNewMsg] = useState("");
@@ -71,12 +71,11 @@ const Conversation = ({ currChannel, messages, updateMessages, showMembers, setS
   };
 
   const channelTitle =
-    Object.keys(currChannel).length > 0
-      ? currChannel.members
-          .filter((member) => member.username !== userProfile.username)
-          .map((member) => member.username)
-          .join()
-      : "";
+    members &&
+    members
+      .filter((member) => member.username !== userProfile.username)
+      .map((member) => member.username)
+      .join();
 
   return (
     <>

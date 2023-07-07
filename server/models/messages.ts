@@ -1,8 +1,9 @@
-import { User, Channel } from "./index.js";
+import { User } from "./index.js";
 import verifyJWT from "../utils/verifyJWT.js";
 import { Server } from "socket.io";
 import { MessageTo, findOrAddChannel } from "./channels.js";
 import dayjs from "dayjs";
+import { Types } from "mongoose";
 import ExpressError from "../utils/ExpressError.js";
 
 export const sendingMessages = async (
@@ -11,7 +12,7 @@ export const sendingMessages = async (
   to: MessageTo,
   message: string | undefined,
   location: string | undefined
-) => {
+): Promise<Types.ObjectId> => {
   const connections = io.of("/chatroom");
   const { userId } = await verifyJWT(from);
   const foundUser = await User.findById(userId);

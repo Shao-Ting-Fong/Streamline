@@ -1,7 +1,5 @@
 import { Socket, Server } from "socket.io";
-import formatMessage from "../utils/messages.js";
-import verifyJWT from "../utils/verifyJWT.js";
-import { User } from "../models/index.js";
+import { redis } from "../models/redis.js";
 
 const chatroom = function () {
   // @ts-ignore
@@ -14,23 +12,29 @@ const chatroom = function () {
       console.log("Chatroom socket connected");
 
       socket.on("joinRoom", ({ roomId }: { roomId: string }) => {
-        console.log(`socket: ${socket.id} has joined ${roomId}`);
-        socket.join(roomId);
+        console.log(`socket: ${socket.id} has joined roomId:${roomId}`);
+        socket.join(`roomId:${roomId}`);
+      });
+
+      socket.on("online", async ({ userId }: { userId: string }) => {
+        console.log(`socket: ${socket.id} has joined userId:${userId}`);
+        await redis.set(`online:${userId}`, 1);
+        socket.join(`userId:${userId}`);
+        console.log("Add onlineState", userId);
+        connections.emit("onlineState", { userId, state: "1" });
+      });
+
+      socket.on("offline", async ({ userId }: { userId: string }) => {
+        console.log(`socket: ${socket.id} has left userId:${userId}`);
+        await redis.set(`online:${userId}`, 0);
+        console.log("Remove onlineState", userId);
+        connections.emit("onlineState", { userId, state: "0" });
       });
 
       socket.on("leaveRoom", ({ roomId }: { roomId: string }) => {
-        console.log(`socket: ${socket.id} has left ${roomId}`);
-        socket.leave(roomId);
+        console.log(`socket: ${socket.id} has left roomId:${roomId}`);
+        socket.leave(`roomId:${roomId}`);
       });
-
-      // socket.on("chatMessage", async ({ from, room, msg }: { from: string; room: string; msg: string }) => {
-      //   console.log(from, room, msg);
-      //   const { userId } = await verifyJWT(from);
-      //   const foundUser = await User.findById(userId);
-      //   if (!foundUser) throw new Error("User not found");
-
-      //   await connections.emit("message", formatMessage(foundUser.username, msg));
-      // });
     });
   };
 };

@@ -44,7 +44,7 @@ function App() {
           },
         });
 
-        socket.emit("joinRoom", { roomId: `userId:${data._id}` });
+        socket.emit("online", { userId: data._id });
 
         socket.on("notification", async ({ to }) => {
           console.log(`Get Unread meassage to ${to}`);

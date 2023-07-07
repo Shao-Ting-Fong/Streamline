@@ -1,16 +1,33 @@
 import { BadgeAvatar } from "./";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Popover from "@mui/material/Popover";
 import MemberProfileCard from "./MemberProfileCard";
+import { socket } from "../socket";
 
-const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
-const MemberList = ({ currChannel, userProfile }) => {
+const MemberList = ({ members, setMembers, userProfile }) => {
   const [memberClicked, setMemberClicked] = useState({
     anchorEl: null,
     member: null,
   });
+
+  // useEffect(() => {
+  //   socket.on("onlineState", ({ userId, state }) => {
+  //     console.log("Online state changed. userId:", userId);
+  //     setMembers((prevMembers) => {
+  //       const idxOfMember = prevMembers.findIndex((member) => member._id === userId);
+  //       if (idxOfMember !== -1) {
+  //         prevMembers[idxOfMember].online = state;
+  //       }
+  //       return [...prevMembers];
+  //     });
+  //   });
+
+  //   return () => {
+  //     socket.off("onlineState");
+  //   };
+  // }, []);
 
   const handleClick = (event, member) => {
     // console.log(memberClicked);
@@ -22,7 +39,7 @@ const MemberList = ({ currChannel, userProfile }) => {
   };
 
   const open = Boolean(memberClicked.anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const id = open ? "member-popover" : undefined;
 
   return (
     <>
@@ -33,20 +50,47 @@ const MemberList = ({ currChannel, userProfile }) => {
           <h3 className="text-lg">Members</h3>
         </div>
         <div className="h-full border overflow-y-scroll">
-          {Object.keys(currChannel).length > 0 &&
-            currChannel.members
-              .filter((member) => member._id !== userProfile._id)
-              .map((member) => (
-                <div key={member._id} className="flex items-center m-4" onClick={(e) => handleClick(e, member)}>
-                  <BadgeAvatar
-                    imgUrl={IMG_ROUTE + member.avatarURL}
-                    position={{ vertical: "bottom", horizontal: "right" }}
-                    showState={true}
-                    stateColor={"#44b700"}
-                  />
-                  <p className="ml-4">{member.username}</p>
-                </div>
-              ))}
+          {members
+            .filter((member) => member.online === "1" && member._id !== userProfile._id)
+            .map((member) => (
+              <div
+                key={member._id}
+                className="flex items-center m-4 cursor-pointer"
+                onClick={(e) => handleClick(e, member)}>
+                <BadgeAvatar
+                  imgUrl={IMG_ROUTE + member.avatarURL}
+                  position={{ vertical: "bottom", horizontal: "right" }}
+                  showState={true}
+                  stateColor={"#44b700"}
+                />
+                <p className="ml-4">{member.username}</p>
+              </div>
+            ))}
+          {members
+            .filter((member) => member.online === "0" && member._id !== userProfile._id)
+            .map((member) => (
+              <div
+                key={member._id}
+                className="flex items-center m-4 cursor-pointer opacity-50"
+                onClick={(e) => handleClick(e, member)}>
+                <BadgeAvatar
+                  imgUrl={IMG_ROUTE + member.avatarURL}
+                  position={{ vertical: "bottom", horizontal: "right" }}
+                  showState={true}
+                  stateColor={"#808D9A"}
+                />
+                <p className="ml-4">{member.username}</p>
+              </div>
+            ))}
+          <div className="flex items-center m-4">
+            <BadgeAvatar
+              imgUrl={IMG_ROUTE + userProfile.avatarURL}
+              position={{ vertical: "bottom", horizontal: "right" }}
+              showState={true}
+              stateColor={"#44b700"}
+            />
+            <p className="ml-4">{`${userProfile.username} (Me)`}</p>
+          </div>
           <Popover
             id={id}
             open={open}

@@ -1,6 +1,7 @@
 import { Outlet, useParams } from "react-router-dom";
 import Tooltip from "@mui/material/Tooltip";
 import { BadgeAvatar } from "./";
+import { socket } from "../socket";
 import LogoutIcon from "../assets/logout.png";
 import { AiOutlinePlus } from "react-icons/ai";
 
@@ -47,6 +48,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
 
   const logout = () => {
     cookies.remove("jwtToken");
+    socket.emit("offline", { userId: userProfile._id });
     setUserProfile({});
     window.location.href = "/";
   };

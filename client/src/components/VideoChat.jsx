@@ -60,7 +60,7 @@ let params = {
   },
 };
 
-const VideoChat = ({ setStreaming, userProfile }) => {
+const VideoChat = ({ setStreaming }) => {
   const [videoSocket] = useState(() => {
     return io(`${API_ROUTE}/mediasoup`);
   });
