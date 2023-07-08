@@ -25,6 +25,17 @@ const WorkspaceSchema = new Schema<IWorkspace>({
   avatarURL: String,
 });
 
+interface INotification {
+  _id: Types.ObjectId;
+  channelId: Types.ObjectId;
+  unread: boolean;
+}
+
+const NotificationSchema = new Schema<INotification>({
+  channelId: { type: Schema.Types.ObjectId, ref: "Channel", required: true },
+  unread: { type: Boolean, default: false, required: true },
+});
+
 export interface IUser {
   _id: Types.ObjectId;
   username: string;
@@ -32,7 +43,8 @@ export interface IUser {
   password: string;
   avatarURL: string;
   provider: string;
-  workspaces?: Types.ObjectId[];
+  workspaces: Types.ObjectId[];
+  notification: Types.DocumentArray<INotification>;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -48,6 +60,7 @@ const UserSchema = new Schema<IUser>(
         ref: "Workspace",
       },
     ],
+    notification: [NotificationSchema],
   },
   { timestamps: true }
 );

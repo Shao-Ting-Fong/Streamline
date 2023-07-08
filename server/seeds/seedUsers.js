@@ -66,8 +66,8 @@ const names = [
   "Antonio",
 ];
 
-const dbUrl = process.env.DB_URL;
-// const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
+// const dbUrl = process.env.DB_URL;
+const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
 console.log(dbUrl);
 try {
   const result = await mongoose.connect(dbUrl, {
@@ -105,6 +105,7 @@ for (let name of names) {
     avatarURL,
     provider: "native",
     workspaces: [],
+    notification: [],
   });
 
   await newUser.save();
