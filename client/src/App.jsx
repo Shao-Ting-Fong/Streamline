@@ -93,7 +93,7 @@ function App() {
       <div className="flex w-screen flex-1 h-full bg-dark-gray-background shadow-black shadow">
         <Routes>
           <Route path="/" element={<Home userProfile={userProfile} setUserProfile={setUserProfile} />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth" element={<Auth userProfile={userProfile} setUserProfile={setUserProfile} />} />
           <Route
             path="workspace"
             element={
