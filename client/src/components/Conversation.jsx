@@ -86,16 +86,24 @@ const Conversation = ({ currChannel, messages, updateMessages, showMembers, setS
 
         <div className={`${isStreaming ? "h-1/2" : "h-full"} w-auto flex flex-col`}>
           <div
-            className="h-[62px] shrink-0 w-full bg-[#F8FAFF] flex items-center pl-4 pr-6"
+            className="h-[50px] shrink-0 w-full bg-dark-gray-background border-b border-dark-gray-navbar flex items-center pl-4 pr-6"
             style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
-            <h3 className="text-lg">{currChannel.category === "direct" ? channelTitle : currChannel.title}</h3>
+            <h3 className="text-lg text-white">
+              {currChannel.category === "direct" ? channelTitle : currChannel.title}
+            </h3>
             <div className="ml-auto">
               <button onClick={() => setStreaming((prev) => !prev)}>
-                <BiSolidVideo className={`text-2xl inline-block align-bottom ${isStreaming ? "fill-[#005fff]" : ""}`} />
+                <BiSolidVideo
+                  className={`text-2xl inline-block align-bottom ${
+                    isStreaming ? "fill-light-color-azure" : "fill-light-color-blue-background"
+                  }`}
+                />
               </button>
               <button className="ml-4" onClick={() => setShowMembers((prev) => !prev)}>
                 <BsFillPeopleFill
-                  className={`text-2xl inline-block align-bottom ${showMembers ? "fill-[#005fff]" : ""}`}
+                  className={`text-2xl inline-block align-bottom ${
+                    showMembers ? "fill-light-color-azure" : "fill-light-color-blue-background"
+                  }`}
                 />
               </button>
             </div>
@@ -103,13 +111,13 @@ const Conversation = ({ currChannel, messages, updateMessages, showMembers, setS
           <ChatBody messages={messages} />
           <form method="post" encType="multipart/form-data" onSubmit={sendMessage}>
             <div
-              className={`h-[200px] w-full bg-[#F8FAFF] border-t flex items-center px-3 shrink-0 ${
+              className={`h-[210px] w-full bg-dark-gray-background border-t border-dark-gray-navbar flex items-center px-3 shrink-0 ${
                 !fileDataURL && "hidden"
               }`}>
-              <div className="border rounded-lg relative p-2">
+              <div className="rounded-lg relative p-2">
                 <label htmlFor="reset">
                   <IoIosCloseCircle
-                    className="absolute right-0 top-0 text-xl translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                    className="absolute right-0 top-0 text-xl translate-x-1/2 -translate-y-1/2 cursor-pointer fill-light-color-blue-background hover:fill-white"
                     onClick={cancelUpload}
                   />
                 </label>
@@ -118,7 +126,7 @@ const Conversation = ({ currChannel, messages, updateMessages, showMembers, setS
               </div>
             </div>
             <div
-              className="h-[62px] w-full bg-[#F8FAFF] flex items-center shrink-0"
+              className="h-[62px] w-full bg-dark-gray-background flex items-center shrink-0"
               style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
               <div className="w-full h-full flex items-center mx-3">
                 <input
@@ -131,17 +139,17 @@ const Conversation = ({ currChannel, messages, updateMessages, showMembers, setS
                   onChange={handlePreview}
                 />
                 <label htmlFor="fileInput">
-                  <IoIosAddCircle className="text-2xl inline-block align-bottom hover:fill-[#005fff]" />
+                  <IoIosAddCircle className="text-2xl inline-block align-bottom fill-light-color-blue-background hover:fill-white" />
                 </label>
 
                 <input
-                  className="bg-gray-200 w-full h-1/2 ml-3 ps-5 rounded-full focus:outline-none"
+                  className="bg-light-color-blue-background w-full h-1/2 ml-3 ps-5 rounded-full focus:outline-none"
                   name="message"
                   value={newMsg}
                   onChange={(e) => setNewMsg(e.target.value)}
                 />
                 <button className="ml-3">
-                  <IoMdSend className="text-2xl inline-block align-bottom hover:fill-[#005fff]" />
+                  <IoMdSend className="text-2xl inline-block align-bottom fill-light-color-blue-background hover:fill-white" />
                 </button>
               </div>
             </div>

@@ -90,7 +90,7 @@ function App() {
 
   return (
     <>
-      <div className="app__wrapper">
+      <div className="flex w-screen flex-1 h-full shadow-black shadow">
         <Routes>
           <Route path="/" element={<Home userProfile={userProfile} setUserProfile={setUserProfile} />} />
           <Route path="/auth" element={<Auth />} />

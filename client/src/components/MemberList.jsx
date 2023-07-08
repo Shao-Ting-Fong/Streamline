@@ -26,17 +26,17 @@ const MemberList = ({ members, userProfile }) => {
     <>
       <div className="h-full flex flex-col">
         <div
-          className="h-[62px] w-full bg-[#F8FAFF] flex items-center pl-3 pr-6 border-0"
+          className="h-[50px] w-full bg-dark-gray-sidebar border-b border-dark-gray-navbar shrink-0 flex items-center pl-3 pr-6 border-0"
           style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
-          <h3 className="text-lg">Members</h3>
+          <h3 className="text-lg text-white">Members</h3>
         </div>
-        <div className="h-full border overflow-y-scroll">
+        <div className="h-full overflow-y-scroll scrollbar-members bg-dark-gray-sidebar text-white">
           {members
             .filter((member) => member.online === "1" && member._id !== userProfile._id)
             .map((member) => (
               <div
                 key={member._id}
-                className="flex items-center m-4 cursor-pointer"
+                className=" w-full flex items-center p-2 mx-2 cursor-pointer hover:bg-dark-gray-sidebar-hover"
                 onClick={(e) => handleClick(e, member)}>
                 <BadgeAvatar
                   imgUrl={IMG_ROUTE + member.avatarURL}
@@ -52,7 +52,7 @@ const MemberList = ({ members, userProfile }) => {
             .map((member) => (
               <div
                 key={member._id}
-                className="flex items-center m-4 cursor-pointer opacity-50"
+                className=" w-full flex items-center p-2 mx-2 cursor-pointer hover:bg-dark-gray-sidebar-hover opacity-50"
                 onClick={(e) => handleClick(e, member)}>
                 <BadgeAvatar
                   imgUrl={IMG_ROUTE + member.avatarURL}
@@ -63,7 +63,7 @@ const MemberList = ({ members, userProfile }) => {
                 <p className="ml-4">{member.username}</p>
               </div>
             ))}
-          <div className="flex items-center m-4">
+          <div className="w-full flex items-center p-2 mx-2 hover:bg-dark-gray-sidebar-hover">
             <BadgeAvatar
               imgUrl={IMG_ROUTE + userProfile.avatarURL}
               position={{ vertical: "bottom", horizontal: "right" }}

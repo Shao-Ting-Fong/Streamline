@@ -3,6 +3,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { BadgeAvatar } from "./";
 import { socket } from "../socket";
 import LogoutIcon from "../assets/logout.png";
+import { FiLogOut } from "react-icons/fi";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import Cookies from "universal-cookie";
@@ -85,7 +86,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
         <div className="channel-list__sidebar__icon" onClick={handleClickOpen}>
           <Tooltip title={<h1 className="text-sm">Add Workspace</h1>} placement="right" arrow>
             <div className="icon__inner">
-              <AiOutlinePlus className="text-xl" />
+              <AiOutlinePlus className="text-xl text-light-color-blue" />
             </div>
           </Tooltip>
         </div>
@@ -97,9 +98,11 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
           </Tooltip>
         </div>
         <div className="channel-list__sidebar__icon">
-          <div className="icon__inner" onClick={logout}>
-            <img src={LogoutIcon} alt="Logout" width="30" />
-          </div>
+          <Tooltip title={<h1 className="text-sm">Logout</h1>} placement="right" arrow>
+            <div className="icon__inner" onClick={logout}>
+              <FiLogOut className="text-2xl text-light-color-blue" />
+            </div>
+          </Tooltip>
         </div>
       </div>
       <CreateWorkspace
