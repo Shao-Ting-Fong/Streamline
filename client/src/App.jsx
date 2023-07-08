@@ -5,7 +5,7 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 import "./App.css";
 
-import { Sidebar, ChannelContainer, ChannelListContainer, Home, Auth, CreateChannel } from "./components";
+import { Sidebar, ChannelContainer, ChannelListContainer, Home, Auth } from "./components";
 
 const cookies = new Cookies();
 
@@ -37,8 +37,12 @@ function App() {
 
   useEffect(() => {
     const cleanup = () => {
+      console.log("cleanup");
+      console.log(userProfile._id);
       if (userProfile._id) {
+        console.log("before emit offline");
         socket.emit("offline", { userId: userProfile._id });
+        console.log("after emit offline");
       }
     };
     window.addEventListener("beforeunload", cleanup);
@@ -46,7 +50,7 @@ function App() {
     return () => {
       window.removeEventListener("beforeunload", cleanup);
     };
-  }, []);
+  }, [authToken, userProfile]);
 
   useEffect(() => {
     const getUserProfile = async () => {
@@ -82,18 +86,19 @@ function App() {
     };
   }, [authToken]);
 
+  console.log(userProfile._id);
+
   return (
     <>
       <div className="app__wrapper">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home userProfile={userProfile} setUserProfile={setUserProfile} />} />
           <Route path="/auth" element={<Auth />} />
           <Route
             path="workspace"
             element={
               <Sidebar userProfile={userProfile} setUserProfile={setUserProfile} channelUnread={channelUnread} />
             }>
-            {/* <Route path=":wid/invite" element={<WorkspaceInvitation />} /> */}
             <Route
               path=":wid/channel"
               element={
@@ -104,7 +109,6 @@ function App() {
                 />
               }>
               <Route path=":cid/room" element={<ChannelContainer userProfile={userProfile} />} />
-              <Route path="new" element={<CreateChannel />} />
             </Route>
           </Route>
         </Routes>

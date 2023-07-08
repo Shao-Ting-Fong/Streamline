@@ -3,17 +3,14 @@ import { Channel } from "./index.js";
 
 export interface MessageTo {
   workspace: Types.ObjectId;
-  type: "team" | "direct";
+  type: "public" | "private" | "direct" | undefined;
   id: Types.ObjectId;
 }
 
 export const findOrAddChannel = async (userId: string, to: MessageTo) => {
   const { workspace, type, id } = to;
 
-  if (type === "team") {
-    const foundChannel = await Channel.findById(id);
-    return foundChannel;
-  } else if (type === "direct") {
+  if (type === "direct") {
     const foundChannel = await Channel.findOne({
       $and: [{ category: "direct" }, { workspaceId: workspace }, { members: userId }, { members: id }],
     });
@@ -30,6 +27,9 @@ export const findOrAddChannel = async (userId: string, to: MessageTo) => {
       await newChannel.save();
       return newChannel;
     }
+    return foundChannel;
+  } else {
+    const foundChannel = await Channel.findById(id);
     return foundChannel;
   }
 };

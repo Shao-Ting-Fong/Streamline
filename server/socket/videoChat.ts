@@ -169,11 +169,11 @@ const videoChat = function () {
               currentPeers = rooms[roomName].peers || [];
             } else {
               router1 = await worker.createRouter({ mediaCodecs });
-              const message = "I've launch a video meeting, click the video button to join in!";
+              const message = "I've launched a video meeting, click the video button to join in!";
               await sendingMessages(
                 io,
                 token,
-                { workspace, type: "team", id: roomName as unknown as Types.ObjectId },
+                { workspace, type: undefined, id: roomName as unknown as Types.ObjectId },
                 message,
                 undefined
               );

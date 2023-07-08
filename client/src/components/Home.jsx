@@ -2,11 +2,12 @@ import { BiLogoGithub, BiLogoLinkedinSquare } from "react-icons/bi";
 import UiTemplate from "../assets/uiTemplate.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { socket } from "../socket";
 import Cookies from "universal-cookie";
 
 const cookies = new Cookies();
 
-const Home = () => {
+const Home = ({ userProfile, setUserProfile }) => {
   const navigate = useNavigate();
   const authToken = cookies.get("jwtToken");
   const authString = `Bearer ${authToken}`;
@@ -33,6 +34,8 @@ const Home = () => {
 
   const logout = () => {
     cookies.remove("jwtToken", { path: "/" });
+    socket.emit("offline", { userId: userProfile._id });
+    setUserProfile({});
     window.location.href = "/";
   };
 
