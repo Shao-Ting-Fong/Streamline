@@ -1,5 +1,6 @@
 import { BiLogoGithub, BiLogoLinkedinSquare } from "react-icons/bi";
 import UiTemplate from "../assets/uiTemplate.png";
+import MainPage from "../assets/MainPage.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../socket";
@@ -95,9 +96,10 @@ const Home = ({ userProfile, setUserProfile }) => {
               </a>
             </p>
           </header>
-          <div
-            className="z-10 absolute left-[50%] h-5/6 w-1/2 bg-white bg-cover rounded-lg"
-            style={{ backgroundImage: `url(${UiTemplate})` }}></div>
+          <img className="z-10 absolute left-1/2 top-[10%] w-1/2 shadow-2xl" src={MainPage} alt="" />
+          {/* <div
+            className="z-10 absolute left-[45%] top-5 h-3/4 w-[55%] bg-contain rounded-lg"
+            style={{ backgroundImage: `url(${MainPage})` }}></div> */}
         </main>
 
         <footer className="w-full text-center mb-3 text-light-color-gray text-sm">
