@@ -1,8 +1,8 @@
-import UiTemplate from "../assets/uiTemplate.png";
 import MainPage from "../assets/MainPage.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { socket } from "../socket";
+import { toast } from "react-toastify";
+import toastConfig from "../utils/toastConfig";
 import Cookies from "universal-cookie";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -14,24 +14,28 @@ const Home = ({ userProfile, setUserProfile }) => {
   const authToken = cookies.get("jwtToken");
   const authString = `Bearer ${authToken}`;
 
-  // if (authToken) navigate("/workspace");
-
   const handleSubmit = async (evt) => {
-    evt.preventDefault();
-    const inviteURL = evt.target.inviteURL.value;
+    try {
+      evt.preventDefault();
+      const inviteURL = evt.target.inviteURL.value;
 
-    if (!authToken) {
-      navigate("/auth", { state: { inviteURL } });
-      return;
+      if (!authToken) {
+        navigate("/auth", { state: { inviteURL } });
+        return;
+      }
+
+      const { data } = await axios.get(inviteURL, {
+        headers: {
+          Authorization: authString,
+        },
+      });
+
+      navigate(`/workspace/${data.workspaceId}/channel`);
+      toast.success("Workspace joined in successfully!", toastConfig);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage, toastConfig);
     }
-
-    const { data } = await axios.get(inviteURL, {
-      headers: {
-        Authorization: authString,
-      },
-    });
-
-    navigate(`/workspace/${data.workspaceId}/channel`);
   };
 
   return (

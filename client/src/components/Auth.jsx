@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+import toastConfig from "../utils/toastConfig";
 import Cookies from "universal-cookie";
 import axios from "axios";
-
-import signinImage from "../assets/signup.jpg";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import { Navbar, Footer } from "./";
 
 const cookies = new Cookies();
 
@@ -33,33 +32,48 @@ const Auth = ({ userProfile, setUserProfile }) => {
   };
 
   const handleSubmit = async (evt) => {
-    evt.preventDefault();
+    try {
+      evt.preventDefault();
 
-    const { data } = await axios.post(`${API_ROUTE}/auth/${isSignup ? "signup" : "login"}`, form);
+      const { data } = await axios.post(`${API_ROUTE}/auth/${isSignup ? "signup" : "login"}`, form);
 
-    const { access_token, access_expired } = data.data;
+      const { access_token, access_expired } = data.data;
 
-    cookies.set("jwtToken", access_token, {
-      // ...COOKIE_OPTIONS,
-      maxAge: access_expired,
-      path: "/",
-    });
+      console.log(data.data);
 
-    const authString = `Bearer ${access_token}`;
-
-    if (inviteURL) {
-      const { data } = await axios.get(inviteURL, {
-        headers: {
-          Authorization: authString,
-        },
+      cookies.set("jwtToken", access_token, {
+        // ...COOKIE_OPTIONS,
+        maxAge: access_expired,
+        path: "/",
       });
 
-      navigate(`/workspace/${data.workspaceId}/channel`);
-      return;
-    }
+      const authString = `Bearer ${access_token}`;
 
-    navigate("/workspace");
-    window.location.reload();
+      if (inviteURL) {
+        const { data } = await axios.get(inviteURL, {
+          headers: {
+            Authorization: authString,
+          },
+        });
+
+        navigate(`/workspace/${data.workspaceId}/channel`);
+        toast.success("Workspace joined in successfully!", toastConfig);
+        return;
+      }
+
+      if (data.data.user.workspaces.length > 0) {
+        navigate(`/workspace/${data.data.user.workspaces[0]}/channel`);
+        toast.success(`Welcome! ${data.data.user.username}`, toastConfig);
+        return;
+      }
+
+      navigate("/workspace");
+      toast.success(`Welcome! ${data.data.user.username}`, toastConfig);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+
+      toast.error(errorMessage, toastConfig);
+    }
   };
 
   const switchMode = () => {

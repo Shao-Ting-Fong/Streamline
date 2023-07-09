@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import toastConfig from "../utils/toastConfig";
 import axios from "axios";
 import Button from "@mui/material/Button";
 import Cookies from "universal-cookie";
@@ -48,35 +50,40 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
   };
 
   const handleSubmit = async (evt) => {
-    evt.preventDefault();
-    let workspaceId;
-    if (currentPage === "new") {
-      const formData = new FormData(evt.target);
-      const { data } = await axios.post(`${API_ROUTE}/chat/workspace/new`, formData, {
-        headers: {
-          Authorization: authString,
-        },
-      });
-      workspaceId = data.workspaceId;
+    try {
+      evt.preventDefault();
+      let workspaceId;
+      if (currentPage === "new") {
+        const formData = new FormData(evt.target);
+        const { data } = await axios.post(`${API_ROUTE}/chat/workspace/new`, formData, {
+          headers: {
+            Authorization: authString,
+          },
+        });
+        workspaceId = data.workspaceId;
+      }
+
+      if (currentPage === "invite") {
+        console.log(evt.target);
+        const inviteURL = evt.target.invitation.value;
+
+        const { data } = await axios.get(inviteURL, {
+          headers: {
+            Authorization: authString,
+          },
+        });
+        workspaceId = data.workspaceId;
+      }
+
+      evt.target.reset();
+      setWorkspaceAvatar(ImageUploadIcon);
+      setIsCreatingWorkspace(false);
+      setCurrentPage("home");
+      navigate(`/workspace/${workspaceId}/channel`);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage, toastConfig);
     }
-
-    if (currentPage === "invite") {
-      console.log(evt.target);
-      const inviteURL = evt.target.invitation.value;
-
-      const { data } = await axios.get(inviteURL, {
-        headers: {
-          Authorization: authString,
-        },
-      });
-      workspaceId = data.workspaceId;
-    }
-
-    evt.target.reset();
-    setWorkspaceAvatar(ImageUploadIcon);
-    setIsCreatingWorkspace(false);
-    setCurrentPage("home");
-    navigate(`/workspace/${workspaceId}/channel`);
   };
 
   return (

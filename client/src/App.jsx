@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 import { Routes, Route } from "react-router-dom";
 import { socket } from "./socket";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import "./App.css";
+import "react-toastify/dist/ReactToastify.css";
 
-import { Sidebar, ChannelContainer, ChannelListContainer, Home, Auth } from "./components";
+import { Sidebar, ChannelContainer, ChannelListContainer, Home, Auth, NotFound } from "./components";
 
 const cookies = new Cookies();
 
@@ -90,6 +92,7 @@ function App() {
 
   return (
     <>
+      <ToastContainer />
       <div className="flex w-screen flex-1 h-full bg-dark-gray-background shadow-black shadow">
         <Routes>
           <Route path="/" element={<Home userProfile={userProfile} setUserProfile={setUserProfile} />} />
@@ -111,6 +114,7 @@ function App() {
               <Route path=":cid/room" element={<ChannelContainer userProfile={userProfile} />} />
             </Route>
           </Route>
+          <Route path="*" element={<NotFound userProfile={userProfile} setUserProfile={setUserProfile} />} />
         </Routes>
       </div>
     </>

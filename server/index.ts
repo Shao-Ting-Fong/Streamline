@@ -18,6 +18,7 @@ const dbUrl =
 
 try {
   await mongoose.connect(dbUrl);
+  console.log(dbUrl);
   console.log("CONNECTION OPEN!!!");
 } catch (error) {
   console.log("OH NO ERROR!!!!");

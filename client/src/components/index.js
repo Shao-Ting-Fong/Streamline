@@ -12,3 +12,6 @@ export { default as Sidebar } from "./Sidebar";
 export { default as BadgeAvatar } from "./BadgeAvatar";
 export { default as VideoChat } from "./VideoChat";
 export { default as MemberList } from "./MemberList";
+export { default as Navbar } from "./Navbar";
+export { default as Footer } from "./Footer";
+export { default as NotFound } from "./NotFound";

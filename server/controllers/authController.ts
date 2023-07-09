@@ -23,13 +23,14 @@ export async function downloadFile(fileUrl: string, outputLocationPath: string):
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const { email, username, password } = req.body;
+    const foundUser = await User.find({ $or: [{ username }, { email }] });
+    if (foundUser.length > 0) throw new ExpressError("Username or email has been taken.", 401);
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
     const response = await axios.get(`https://api.dicebear.com/6.x/thumbs/png?seed=${username}&radius=50`, {
       responseType: "stream",
     });
-
     const avatarURL = `uploads/avatar/${nanoid()}.png`;
 
     await uploadImageToS3(response, avatarURL);
@@ -41,9 +42,7 @@ export const signup = async (req: Request, res: Response) => {
       provider: "native",
     });
 
-    console.log("newUser", newUser);
-
-    // await newUser.save();
+    await newUser.save();
     const token = await signJWT(newUser._id);
     res.status(200).json({
       data: {
@@ -55,6 +54,7 @@ export const signup = async (req: Request, res: Response) => {
           email: newUser.email,
           avatarURL: newUser.avatarURL,
           provider: newUser.provider,
+          workspaces: newUser.workspaces,
         },
       },
     });
@@ -91,6 +91,7 @@ export const login = async (req: Request, res: Response) => {
           email: foundUser.email,
           avatarURL: foundUser.avatarURL,
           provider: foundUser.provider,
+          workspaces: foundUser.workspaces,
         },
       },
     });

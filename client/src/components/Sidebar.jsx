@@ -1,14 +1,13 @@
-import { Outlet, useParams } from "react-router-dom";
+import { Outlet, useParams, Link, useNavigate } from "react-router-dom";
 import Tooltip from "@mui/material/Tooltip";
 import { BadgeAvatar } from "./";
 import { socket } from "../socket";
-import LogoutIcon from "../assets/logout.png";
+import { toast } from "react-toastify";
+import toastConfig from "../utils/toastConfig";
 import { FiLogOut } from "react-icons/fi";
 import { AiOutlinePlus } from "react-icons/ai";
-
 import Cookies from "universal-cookie";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CreateWorkspace from "./CreateWorkspace";
 
@@ -36,7 +35,8 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
         });
         setWorkspaces(data);
       } catch (error) {
-        console.error(error);
+        const errorMessage = error.response ? error.response.data.errors : error.message;
+        toast.error(errorMessage, toastConfig);
       }
     };
 
@@ -51,7 +51,8 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
     cookies.remove("jwtToken", { path: "/" });
     socket.emit("offline", { userId: userProfile._id });
     setUserProfile({});
-    window.location.href = "/";
+    toast.success("Bye~👋", toastConfig);
+    navigate("/");
   };
 
   const hasUnread = (workspaceId, currWorksapce) => {
