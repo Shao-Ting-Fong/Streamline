@@ -7,23 +7,62 @@ import Cookies from "universal-cookie";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { ChatBody, VideoChat } from "./";
+import { toast } from "react-toastify";
+import toastConfig from "../utils/toastConfig";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const cookies = new Cookies();
 
-const Conversation = ({ currChannel, messages, updateMessages, showMembers, setShowMembers, userProfile, members }) => {
+const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, members }) => {
   const { wid, cid } = useParams();
   const token = cookies.get("jwtToken");
   const [newMsg, setNewMsg] = useState("");
+  const [paging, setPaging] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [messages, updateMessages] = useState([]);
   const [isStreaming, setStreaming] = useState(false);
   const [fileDataURL, setFileDataURL] = useState(null);
   const imageRef = useRef();
 
+  const fetchChannelMessages = async (wid, cid) => {
+    try {
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, {
+        params: { paging },
+      });
+      updateMessages((prev) => [
+        ...prev,
+        ...data.messages.map((msg) => ({
+          username: msg.from.username,
+          avatarURL: msg.from.avatarURL,
+          time: msg.createdAt,
+          text: msg.content,
+          type: msg.type,
+        })),
+      ]);
+
+      if (data.nextPaging) {
+        setPaging(data.nextPaging);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage, toastConfig);
+    }
+  };
+
+  useEffect(() => {
+    setHasMore(true);
+    setPaging(0);
+    updateMessages([]);
+    fetchChannelMessages(wid, cid);
+  }, [cid]);
+
   useEffect(() => {
     socket.on("message", (data) => {
       console.log("message", data);
-      updateMessages((prev) => [...prev, data.message]);
+      updateMessages((prev) => [data.message, ...prev]);
     });
     return () => {
       socket.off("message");
@@ -108,7 +147,7 @@ const Conversation = ({ currChannel, messages, updateMessages, showMembers, setS
               </button>
             </div>
           </div>
-          <ChatBody messages={messages} />
+          <ChatBody messages={messages} fetchChannelMessages={fetchChannelMessages} hasMore={hasMore} />
           <form method="post" encType="multipart/form-data" onSubmit={sendMessage}>
             <div
               className={`h-[210px] w-full bg-dark-gray-background border-t border-dark-gray-navbar flex items-center px-3 shrink-0 ${

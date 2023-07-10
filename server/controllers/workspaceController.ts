@@ -51,6 +51,7 @@ export const getWorkspaceMembers = async (req: Request, res: Response) => {
 
 export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
   try {
+    const { io } = res.locals;
     const { wid } = req.params as { wid: unknown } as { wid: Types.ObjectId };
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
@@ -80,6 +81,8 @@ export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
       },
       { runValidators: true }
     );
+
+    io.of("/chatroom").emit("newMember");
 
     res.status(200).json({ workspaceId: wid });
   } catch (err) {

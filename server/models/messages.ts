@@ -6,6 +6,12 @@ import dayjs from "dayjs";
 import { Types } from "mongoose";
 import ExpressError from "../utils/ExpressError.js";
 
+interface insertData {
+  from: string;
+  content: string;
+  type: "text" | "image";
+}
+
 export const sendingMessages = async (
   io: Server,
   from: string,
@@ -21,7 +27,7 @@ export const sendingMessages = async (
   const foundChannel = await findOrAddChannel(userId, to);
   if (!foundChannel) throw new ExpressError("Channel not found", 404);
 
-  const insertData = [];
+  const insertData: insertData[] = [];
 
   if (message) insertData.push({ from: userId, content: message, type: "text" });
 
@@ -32,7 +38,7 @@ export const sendingMessages = async (
       $push: {
         messages: {
           $each: insertData,
-          $sort: { createdAt: 1 },
+          $sort: { createdAt: -1 },
         },
       },
     },

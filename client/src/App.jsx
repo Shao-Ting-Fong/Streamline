@@ -39,6 +39,7 @@ function App() {
 
   useEffect(() => {
     const cleanup = () => {
+      socket.emit("hello");
       console.log("cleanup");
       console.log(userProfile._id);
       if (userProfile._id) {

@@ -6,6 +6,8 @@ import verifyJWT from "../utils/verifyJWT.js";
 import { sendingMessages } from "../models/messages.js";
 import { RequestWithWid } from "../routes/chat/chatRoutes.js";
 
+const MSG_LIMIT = 10;
+
 export const getUserChannels = async (req: RequestWithWid, res: Response) => {
   try {
     // if(!req.wid) throw new ExpressError("Workspace Id is required", 400)
@@ -91,12 +93,18 @@ export const getChannelMembersById = async (req: Request, res: Response) => {
 export const getChannelMessagesById = async (req: Request, res: Response) => {
   try {
     const { cid } = req.params;
+    const paging = Number(req.query.paging) || 0;
 
     const foundChannels = await Channel.findById(cid)
-      .select("_id messages")
+      .select({ _id: 1, messages: { $slice: [paging * MSG_LIMIT, MSG_LIMIT + 1] } })
       .populate("messages.from", "username avatarURL");
     if (!foundChannels) throw new ExpressError("Channel not found", 404);
-    res.status(200).json(foundChannels);
+    res.status(200).json({
+      _id: foundChannels._id,
+      ...(foundChannels.messages.length > MSG_LIMIT
+        ? { messages: foundChannels.messages.slice(0, -1), nextPaging: paging + 1 }
+        : { messages: foundChannels.messages }),
+    });
   } catch (err) {
     if (err instanceof ExpressError) {
       res.status(err.statusCode).json({ errors: err.message });

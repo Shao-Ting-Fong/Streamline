@@ -9,6 +9,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BiLockAlt } from "react-icons/bi";
+import { socket } from "../socket";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
@@ -27,7 +28,14 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
     };
 
     getWorkspaceMembers();
-  }, []);
+    socket.on("newMember", () => {
+      getWorkspaceMembers();
+    });
+
+    return () => {
+      socket.off("newMember");
+    };
+  }, [wid]);
 
   const handleClose = () => {
     setIsCreatingChannel(false);

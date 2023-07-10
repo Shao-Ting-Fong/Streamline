@@ -10,7 +10,7 @@ const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const ChannelContainer = ({ userProfile }) => {
   const { wid, cid } = useParams();
   const [currChannel, setCurrChannel] = useState({});
-  const [messages, updateMessages] = useState([]);
+  // const [messages, updateMessages] = useState([]);
   const [members, setMembers] = useState([]);
   const [showMembers, setShowMembers] = useState(false);
 
@@ -24,21 +24,22 @@ const ChannelContainer = ({ userProfile }) => {
     socket.emit("joinRoom", { roomId: cid });
   }, [wid, cid]);
 
-  useEffect(() => {
-    const getChannelMessagesById = async (wid, cid) => {
-      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`);
-      updateMessages(
-        data.messages.map((msg) => ({
-          username: msg.from.username,
-          avatarURL: msg.from.avatarURL,
-          time: msg.createdAt,
-          text: msg.content,
-          type: msg.type,
-        }))
-      );
-    };
-    getChannelMessagesById(wid, cid);
-  }, [cid]);
+  // useEffect(() => {
+  //   const getChannelMessagesById = async (wid, cid) => {
+  //     const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`);
+  //     console.log(data);
+  //     updateMessages(
+  //       data.messages.map((msg) => ({
+  //         username: msg.from.username,
+  //         avatarURL: msg.from.avatarURL,
+  //         time: msg.createdAt,
+  //         text: msg.content,
+  //         type: msg.type,
+  //       }))
+  //     );
+  //   };
+  //   getChannelMessagesById(wid, cid);
+  // }, [cid]);
 
   useEffect(() => {
     const getChannelMembersById = async (wid, cid) => {
@@ -58,7 +59,12 @@ const ChannelContainer = ({ userProfile }) => {
       });
     });
 
+    socket.on("newMember", () => {
+      getChannelMembersById(wid, cid);
+    });
+
     return () => {
+      socket.off("newMember");
       socket.off("onlineState");
     };
   }, [cid]);
@@ -69,8 +75,8 @@ const ChannelContainer = ({ userProfile }) => {
         <div className={`h-full ${showMembers ? "w-3/4" : "w-full"}`}>
           <Conversation
             currChannel={currChannel}
-            messages={messages}
-            updateMessages={updateMessages}
+            // messages={messages}
+            // updateMessages={updateMessages}
             showMembers={showMembers}
             setShowMembers={setShowMembers}
             userProfile={userProfile}
