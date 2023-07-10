@@ -2,26 +2,63 @@ import { useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Avatar from "@mui/material/Avatar";
 import dayjs from "dayjs";
+import axios from "axios";
+import { socket } from "../socket";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import toastConfig from "../utils/toastConfig";
 
+const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
-const ChatBody = ({ messages, fetchChannelMessages, hasMore }) => {
+const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHasMore }) => {
   const { wid, cid } = useParams();
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const fetchChannelMessages = async (wid, cid) => {
+    try {
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, {
+        params: { paging },
+      });
+      updateMessages((prev) => [
+        ...prev,
+        ...data.messages.map((msg) => ({
+          username: msg.from.username,
+          avatarURL: msg.from.avatarURL,
+          time: msg.createdAt,
+          text: msg.content,
+          type: msg.type,
+        })),
+      ]);
+
+      if (data.nextPaging) {
+        setPaging(data.nextPaging);
+      } else {
+        setHasMore(false);
+      }
+
+      console.log("paging", paging, "hasMore", hasMore);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage, toastConfig);
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    socket.on("message", (data) => {
+      console.log("message", data);
+      updateMessages((prev) => [data.message, ...prev]);
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    });
+    return () => {
+      socket.off("message");
+    };
+  }, []);
   return (
     <>
       <div
         id="message-container"
-        className="w-full h-full flex-grow flex flex-col-reverse px-3 py-5 overflow-y-scroll bg-dark-gray-background scrollbar-chatbody">
+        className="w-full h-full flex-grow flex flex-col-reverse px-3 overflow-y-scroll bg-dark-gray-background scrollbar-chatbody">
         <div ref={messagesEndRef} />
         <InfiniteScroll
           dataLength={messages.length}

@@ -325,7 +325,6 @@ body {
 /*  */
 .channel-preview__item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   font-family: Helvetica Neue, sans-serif;
   font-size: 14px;

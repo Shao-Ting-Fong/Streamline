@@ -19,8 +19,6 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
   const [workspaceMembers, setWorkspaceMembers] = useState([]);
   const navigate = useNavigate();
 
-  // const [invitedUsers, setInvitedUsers] = useState([]);
-
   useEffect(() => {
     const getWorkspaceMembers = async () => {
       const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/members`);

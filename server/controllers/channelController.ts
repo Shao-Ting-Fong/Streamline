@@ -6,7 +6,7 @@ import verifyJWT from "../utils/verifyJWT.js";
 import { sendingMessages } from "../models/messages.js";
 import { RequestWithWid } from "../routes/chat/chatRoutes.js";
 
-const MSG_LIMIT = 10;
+const MSG_LIMIT = 15;
 
 export const getUserChannels = async (req: RequestWithWid, res: Response) => {
   try {
