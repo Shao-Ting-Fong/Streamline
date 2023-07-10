@@ -70,6 +70,7 @@ export const getChannelMembersById = async (req: Request, res: Response) => {
     if (!foundChannels) throw new ExpressError("Channel not found", 404);
     const membersState = await Promise.all(
       foundChannels.members.map(async (member) => {
+        // @ts-ignore
         const { _id, username, avatarURL } = member;
         const onlineState = (await redis.get(`online:${member._id}`)) ?? "0";
         return { _id, username, avatarURL, online: onlineState };
