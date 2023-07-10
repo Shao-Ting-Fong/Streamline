@@ -26,6 +26,13 @@ const chatroom = function () {
         connections.emit("onlineState", { userId, state: "1" });
       });
 
+      socket.on("offline", async ({ userId }: { userId: string }) => {
+        console.log(`socket: ${socket.id} has left userId:${userId}`);
+        await redis.del(`online:${userId}`);
+        console.log("Remove onlineState", userId);
+        connections.emit("onlineState", { userId, state: "0" });
+      });
+
       socket.on("disconnect", async () => {
         const userId = await redis.get(socket.id);
         console.log(`socket: ${socket.id} has left userId:${userId}`);
