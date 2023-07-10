@@ -1,5 +1,6 @@
 import { Socket, Server } from "socket.io";
 import { redis } from "../models/redis.js";
+import { EXPIRE_TIME } from "../utils/signJWT.js";
 
 const chatroom = function () {
   // @ts-ignore
@@ -18,15 +19,18 @@ const chatroom = function () {
 
       socket.on("online", async ({ userId }: { userId: string }) => {
         console.log(`socket: ${socket.id} has joined userId:${userId}`);
-        await redis.set(`online:${userId}`, 1, "EX", 3600);
+        await redis.set(`online:${userId}`, 1, "EX", EXPIRE_TIME);
+        await redis.set(socket.id, userId, "EX", EXPIRE_TIME);
         socket.join(`userId:${userId}`);
         console.log("Add onlineState", userId);
         connections.emit("onlineState", { userId, state: "1" });
       });
 
-      socket.on("offline", async ({ userId }: { userId: string }) => {
+      socket.on("disconnect", async () => {
+        const userId = await redis.get(socket.id);
         console.log(`socket: ${socket.id} has left userId:${userId}`);
         await redis.del(`online:${userId}`);
+        await redis.del(socket.id);
         console.log("Remove onlineState", userId);
         connections.emit("onlineState", { userId, state: "0" });
       });
@@ -34,10 +38,6 @@ const chatroom = function () {
       socket.on("leaveRoom", ({ roomId }: { roomId: string }) => {
         console.log(`socket: ${socket.id} has left roomId:${roomId}`);
         socket.leave(`roomId:${roomId}`);
-      });
-
-      socket.on("hello", () => {
-        console.log("hello from socket");
       });
     });
   };

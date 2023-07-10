@@ -38,24 +38,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const cleanup = () => {
-      socket.emit("hello");
-      console.log("cleanup");
-      console.log(userProfile._id);
-      if (userProfile._id) {
-        console.log("before emit offline");
-        socket.emit("offline", { userId: userProfile._id });
-        console.log("after emit offline");
-      }
-    };
-    window.addEventListener("beforeunload", cleanup);
-
-    return () => {
-      window.removeEventListener("beforeunload", cleanup);
-    };
-  }, [authToken, userProfile]);
-
-  useEffect(() => {
     const getUserProfile = async () => {
       if (authToken) {
         const { data } = await axios.get(`${API_ROUTE}/auth/profile`, {

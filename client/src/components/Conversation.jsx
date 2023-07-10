@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { BiSolidVideo } from "react-icons/bi";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { IoIosAddCircle, IoMdSend, IoIosCloseCircle } from "react-icons/io";
-import { socket } from "../socket";
 import Cookies from "universal-cookie";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -41,16 +40,6 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
     setPaging(1);
     getChannelMessagesById(wid, cid);
   }, [cid]);
-
-  // useEffect(() => {
-  //   socket.on("message", (data) => {
-  //     console.log("message", data);
-  //     updateMessages((prev) => [data.message, ...prev]);
-  //   });
-  //   return () => {
-  //     socket.off("message");
-  //   };
-  // }, []);
 
   const handlePreview = (e) => {
     const file = e.target.files[0];

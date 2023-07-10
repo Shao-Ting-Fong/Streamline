@@ -42,7 +42,7 @@ export const signup = async (req: Request, res: Response) => {
       provider: "native",
     });
 
-    await newUser.save();
+    // await newUser.save();
     const token = await signJWT(newUser._id);
     res.status(200).json({
       data: {
