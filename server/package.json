@@ -1,5 +1,5 @@
 {
-  "name": "slackalendar",
+  "name": "streamline",
   "version": "1.0.0",
   "engines": {
     "node": ">=8.3.0"
@@ -12,7 +12,6 @@
     "build": "npx tsc --build --verbose",
     "start": "node dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"node --watch dist/index.js\"",
-    "watch": "watchify public/js/videoChat.js -o public/js/bundle.js -v",
     "tailwind": "npx tailwindcss -i ./src/input.css -o ./public/css/index.css --watch"
   },
   "keywords": [],
@@ -60,7 +59,6 @@
     "multer-s3": "^3.0.1",
     "nanoid": "^4.0.2",
     "socket.io": "^4.6.2",
-    "watchify": "^4.0.0",
     "zod": "^3.21.4"
   }
 }
