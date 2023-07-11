@@ -64,7 +64,6 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
       }
 
       if (currentPage === "invite") {
-        console.log(evt.target);
         const inviteURL = evt.target.invitation.value;
 
         const { data } = await axios.get(inviteURL, {

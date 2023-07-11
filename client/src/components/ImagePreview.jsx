@@ -1,12 +1,8 @@
-import React from "react";
-
 const ImagePreview = ({ imagePreviewUrl, setImagePreviewUrl, setIsPreview }) => {
   const handleClose = () => {
     setIsPreview(false);
     setImagePreviewUrl("");
   };
-
-  console.log(imagePreviewUrl);
   return (
     <>
       <div
