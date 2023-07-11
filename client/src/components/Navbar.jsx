@@ -20,7 +20,7 @@ const Navbar = ({ userProfile, setUserProfile }) => {
   return (
     <nav className="h-[56px] w-full bg-dark-color-blue-header flex items-center px-28">
       <a href="/">
-        <h1 className="text-white text-2xl font-bold">Slack Clone</h1>
+        <h1 className="text-white text-2xl font-bold">Streamline</h1>
       </a>
       <div className="ml-auto flex">
         <div className=" p-1">

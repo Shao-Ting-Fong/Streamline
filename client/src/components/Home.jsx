@@ -44,7 +44,7 @@ const Home = ({ userProfile, setUserProfile }) => {
         <Navbar userProfile={userProfile} setUserProfile={setUserProfile} />
         <main className="w-full h-full relative">
           <header className="absolute top-[25%] left-[8%] w-[500px] ">
-            <h1 className="text-light-color-blue text-[64px] font-bold leading-tight">Slack Clone</h1>
+            <h1 className="text-light-color-blue text-[64px] font-bold leading-tight">Streamline</h1>
             <h2 className="text-white text-[64px] font-bold leading-tight">Chat. Connect. Collaborate.</h2>
             <h2 className="text-light-color-gray mt-2 ml-1">
               The all-in-one chat app for seamless team communication, collaboration, and video meetings.
