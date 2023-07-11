@@ -15,3 +15,4 @@ export { default as MemberList } from "./MemberList";
 export { default as Navbar } from "./Navbar";
 export { default as Footer } from "./Footer";
 export { default as NotFound } from "./NotFound";
+export { default as ImagePreview } from "./ImagePreview";

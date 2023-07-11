@@ -343,9 +343,6 @@ const VideoChat = ({ setStreaming }) => {
       <div id="main_videos" className="grow relative bg-black justify-center items-center">
         <div className="w-full h-full flex justify-center items-center flex-wrap overflow-y-scroll scrollbar-videochat">
           <Video mediaSrc={localStream} className="video" />
-          <Video mediaSrc={localStream} className="video" />
-          <Video mediaSrc={localStream} className="video" />
-          <Video mediaSrc={localStream} className="video" />
 
           {Object.keys(remoteStreams).map((key) =>
             remoteStreams[key].kind === "audio" ? (

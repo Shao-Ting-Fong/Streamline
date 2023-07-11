@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ImagePreview } from "./";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Avatar from "@mui/material/Avatar";
 import dayjs from "dayjs";
@@ -13,7 +14,14 @@ const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
 const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHasMore, userProfile }) => {
   const { wid, cid } = useParams();
+  const [isPreview, setIsPreview] = useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const messagesEndRef = useRef(null);
+
+  const handlePreview = (imgUrl) => {
+    setIsPreview(true);
+    setImagePreviewUrl(imgUrl);
+  };
 
   const fetchChannelMessages = async (wid, cid) => {
     try {
@@ -78,12 +86,21 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
                     <span className="text-secondary text-sm font-normal">{dayjs(msg.time).format("HH:mm a")}</span>
                   </p>
                   {msg.type === "text" && <p className="break-all">{msg.text}</p>}
-                  {msg.type === "image" && <img src={msg.text} alt="" className="h-[200px] mt-2" />}
+                  {msg.type === "image" && (
+                    <img src={msg.text} alt="" className="h-[200px] mt-2" onClick={() => handlePreview(msg.text)} />
+                  )}
                 </div>
               </div>
             ))}
         </InfiniteScroll>
       </div>
+      {isPreview && (
+        <ImagePreview
+          imagePreviewUrl={imagePreviewUrl}
+          setImagePreviewUrl={setImagePreviewUrl}
+          setIsPreview={setIsPreview}
+        />
+      )}
     </>
   );
 };
