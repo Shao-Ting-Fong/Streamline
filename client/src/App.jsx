@@ -2,20 +2,12 @@ import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { Routes, Route } from "react-router-dom";
 import { socket } from "./socket";
-import axios from "axios";
-import Cookies from "universal-cookie";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 
 import { Sidebar, ChannelContainer, ChannelListContainer, Home, Auth, NotFound } from "./components";
 
-const cookies = new Cookies();
-
-const API_ROUTE = import.meta.env.VITE_API_ROUTE;
-
 function App() {
-  const authToken = cookies.get("jwtToken");
-  const authString = `Bearer ${authToken}`;
   const [userProfile, setUserProfile] = useState({});
   const [channelUnread, setChannelUnread] = useState({});
 
@@ -37,42 +29,6 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const getUserProfile = async () => {
-      if (authToken) {
-        const { data } = await axios.get(`${API_ROUTE}/auth/profile`, {
-          headers: {
-            Authorization: authString,
-          },
-        });
-
-        socket.emit("online", { userId: data._id });
-
-        socket.on("notification", async ({ to }) => {
-          console.log(`Get Unread meassage to ${to}`);
-          const { data } = await axios.get(`${API_ROUTE}/chat/channel/${to}`);
-
-          setChannelUnread((status) => {
-            status[to] = {
-              workspaceId: data.workspaceId,
-              unread: true,
-            };
-            return { ...status };
-          });
-        });
-        setUserProfile(data);
-      }
-    };
-
-    getUserProfile();
-
-    return () => {
-      socket.off("notification");
-    };
-  }, [authToken]);
-
-  console.log(userProfile._id);
-
   return (
     <>
       <ToastContainer />
@@ -83,7 +39,12 @@ function App() {
           <Route
             path="workspace"
             element={
-              <Sidebar userProfile={userProfile} setUserProfile={setUserProfile} channelUnread={channelUnread} />
+              <Sidebar
+                userProfile={userProfile}
+                setUserProfile={setUserProfile}
+                channelUnread={channelUnread}
+                setChannelUnread={setChannelUnread}
+              />
             }>
             <Route
               path=":wid/channel"

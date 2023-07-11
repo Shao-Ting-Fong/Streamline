@@ -39,8 +39,6 @@ const Auth = ({ userProfile, setUserProfile }) => {
 
       const { access_token, access_expired } = data.data;
 
-      console.log(data.data);
-
       cookies.set("jwtToken", access_token, {
         // ...COOKIE_OPTIONS,
         maxAge: access_expired,

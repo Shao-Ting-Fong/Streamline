@@ -6,10 +6,15 @@ import Cookies from "universal-cookie";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { ChatBody, VideoChat } from "./";
+import Loading from "../assets/Loading";
+import { toast } from "react-toastify";
+import toastConfig from "../utils/toastConfig";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const cookies = new Cookies();
+
+const MAX_IMG_SIZE = 5 * 1000 * 1000;
 
 const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, members }) => {
   const { wid, cid } = useParams();
@@ -19,6 +24,8 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
   const [hasMore, setHasMore] = useState(true);
   const [messages, updateMessages] = useState([]);
   const [isStreaming, setStreaming] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [fileDataURL, setFileDataURL] = useState(null);
   const imageRef = useRef();
 
@@ -45,6 +52,11 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
     const file = e.target.files[0];
 
     if (file) {
+      if (file.size > MAX_IMG_SIZE) {
+        toast.error("Image size should be less than 5MB!", toastConfig);
+        cancelUpload();
+        return;
+      }
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (e) => {
@@ -53,7 +65,7 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
     }
   };
 
-  const cancelUpload = (e) => {
+  const cancelUpload = () => {
     imageRef.current.value = null;
     setFileDataURL(null);
   };
@@ -65,20 +77,38 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
     const message = evt.target.message.value;
     const file = evt.target.file.files[0];
 
-    if (message || file) {
-      formData.append("message", evt.target.message.value);
-      formData.append("file", evt.target.file.files[0]);
-      formData.append("from", token);
-      formData.append("to", JSON.stringify({ workspace: wid, type: "team", id: currChannel._id }));
-      const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, formData);
-      // console.log("Send Message", data);
-      // updateMessages((prev) => [...prev, data.msg]);
-      setNewMsg("");
-      evt.target.reset();
-      setFileDataURL(null);
-    } else {
+    if (!message && !file) {
       console.log("Don't send empty message!");
+      return;
     }
+
+    if (message) {
+      updateMessages((prev) => [
+        {
+          username: userProfile.username,
+          avatarURL: userProfile.avatarURL,
+          time: Date.now(),
+          text: message,
+          type: "text",
+        },
+        ...prev,
+      ]);
+    }
+
+    setIsDisabled(true);
+    setIsLoading(true);
+
+    formData.append("message", evt.target.message.value);
+    formData.append("file", evt.target.file.files[0]);
+    formData.append("from", token);
+    formData.append("to", JSON.stringify({ workspace: wid, type: "team", id: currChannel._id }));
+    await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, formData);
+
+    setNewMsg("");
+    evt.target.reset();
+    setFileDataURL(null);
+    setIsDisabled(false);
+    setIsLoading(false);
   };
 
   const channelTitle =
@@ -90,9 +120,9 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
 
   return (
     <>
-      <div className="h-screen">
+      <div className="h-screen max-w-full">
         <div className={`w-full ${isStreaming ? "h-1/2" : "h-0 translate-y-0"} ease-in-out duration-500`}>
-          {isStreaming && <VideoChat setStreaming={setStreaming} userProfile={userProfile} />}
+          {isStreaming && <VideoChat setStreaming={setStreaming} />}
         </div>
 
         <div className={`${isStreaming ? "h-1/2" : "h-full"} w-auto flex flex-col`}>
@@ -126,21 +156,27 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
             setPaging={setPaging}
             hasMore={hasMore}
             setHasMore={setHasMore}
+            userProfile={userProfile}
           />
           <form method="post" encType="multipart/form-data" onSubmit={sendMessage}>
             <div
               className={`h-[210px] w-full bg-dark-gray-background border-t border-dark-gray-navbar flex items-center px-3 shrink-0 ${
                 !fileDataURL && "hidden"
               }`}>
-              <div className="rounded-lg relative p-2">
+              <div className="rounded-lg relative">
                 <label htmlFor="reset">
                   <IoIosCloseCircle
-                    className="absolute right-0 top-0 text-xl translate-x-1/2 -translate-y-1/2 cursor-pointer fill-light-color-blue-background hover:fill-white"
+                    className="absolute -right-1 -top-1 text-xl translate-x-1/2 -translate-y-1/2 cursor-pointer fill-light-color-blue-background hover:fill-white"
                     onClick={cancelUpload}
                   />
                 </label>
 
                 <img src={fileDataURL} alt="File Preview" className="h-40 " />
+                {isLoading && (
+                  <div className="h-full w-full absolute top-0 left-0 z-10 bg-black opacity-50 flex justify-center items-center">
+                    <Loading />
+                  </div>
+                )}
               </div>
             </div>
             <div
@@ -166,7 +202,7 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
                   value={newMsg}
                   onChange={(e) => setNewMsg(e.target.value)}
                 />
-                <button className="ml-3">
+                <button className="ml-3" disabled={isDisabled}>
                   <IoMdSend className="text-2xl inline-block align-bottom fill-light-color-blue-background hover:fill-white" />
                 </button>
               </div>

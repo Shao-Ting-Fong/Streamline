@@ -160,7 +160,6 @@ const videoChat = function () {
           { roomName, workspace, token }: { roomName: string; workspace: Types.ObjectId; token: string },
           callback: Function
         ) => {
-          console.log(roomName);
           const createRoom = async (socketId: string) => {
             let router1;
             let currentPeers: string[] = [];

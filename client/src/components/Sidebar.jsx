@@ -16,13 +16,48 @@ const cookies = new Cookies();
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
-const Sidebar = ({ userProfile, setUserProfile, channelUnread }) => {
+const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread }) => {
   const authToken = cookies.get("jwtToken");
   const authString = `Bearer ${authToken}`;
   const navigate = useNavigate();
   const { wid } = useParams();
   const [workspaces, setWorkspaces] = useState([]);
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
+
+  useEffect(() => {
+    const getUserProfile = async () => {
+      if (authToken) {
+        const { data } = await axios.get(`${API_ROUTE}/auth/profile`, {
+          headers: {
+            Authorization: authString,
+          },
+        });
+
+        socket.emit("online", { userId: data._id });
+
+        socket.on("notification", async ({ to }) => {
+          console.log(`Get Unread meassage to ${to}`);
+          const { data } = await axios.get(`${API_ROUTE}/chat/channel/${to}`);
+
+          setChannelUnread((status) => {
+            status[to] = {
+              workspaceId: data.workspaceId,
+              unread: true,
+            };
+            return { ...status };
+          });
+        });
+
+        setUserProfile(data);
+      }
+    };
+
+    getUserProfile();
+
+    return () => {
+      socket.off("notification");
+    };
+  }, [authToken]);
 
   useEffect(() => {
     const getWorkspaces = async () => {

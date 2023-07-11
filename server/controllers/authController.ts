@@ -6,20 +6,9 @@ import { nanoid } from "nanoid";
 import verifyJWT from "../utils/verifyJWT.js";
 import ExpressError from "../utils/ExpressError.js";
 import { User } from "../models/index.js";
-import fs from "fs";
 import { uploadImageToS3 } from "../models/s3bucket.js";
 
 const saltRounds = 10;
-
-export async function downloadFile(fileUrl: string, outputLocationPath: string): Promise<any> {
-  const writer = fs.createWriteStream(outputLocationPath);
-
-  const response = await axios.get(fileUrl, {
-    responseType: "stream",
-  });
-
-  await response.data.pipe(writer);
-}
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -42,7 +31,7 @@ export const signup = async (req: Request, res: Response) => {
       provider: "native",
     });
 
-    // await newUser.save();
+    await newUser.save();
     const token = await signJWT(newUser._id);
     res.status(200).json({
       data: {

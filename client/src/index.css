@@ -7,13 +7,17 @@
     @apply bg-dark-gray-sidebar;
   }
 
+  .scrollbar-videochat::-webkit-scrollbar {
+    @apply bg-black;
+  }
+
   .scrollbar-chatbody::-webkit-scrollbar {
     @apply bg-dark-gray-background;
   }
 }
 
 video {
-  @apply max-h-[300px] max-w-[400px] object-cover m-2;
+  @apply h-[200px] w-[300px] max-h-[300px] max-w-[400px] object-cover m-2;
 }
 
 .main_controls_btn {

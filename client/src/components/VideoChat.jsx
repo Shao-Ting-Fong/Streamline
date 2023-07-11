@@ -277,7 +277,6 @@ const VideoChat = ({ setStreaming }) => {
     };
 
     const streamSuccess = (stream) => {
-      console.log("Set Stream");
       setLocalStream(stream);
       onClose = () => {
         stream.getTracks().forEach((track) => track.stop());
@@ -293,7 +292,7 @@ const VideoChat = ({ setStreaming }) => {
       });
     };
 
-    videoSocket.on("connection-success", ({ socketId }) => {
+    videoSocket.on("connection-success", () => {
       navigator.mediaDevices
         .getUserMedia({
           audio: true,
@@ -342,7 +341,10 @@ const VideoChat = ({ setStreaming }) => {
   return (
     <main className="h-full w-full flex">
       <div id="main_videos" className="grow relative bg-black justify-center items-center">
-        <div className="w-full h-full flex justify-center items-center">
+        <div className="w-full h-full flex justify-center items-center flex-wrap overflow-y-scroll scrollbar-videochat">
+          <Video mediaSrc={localStream} className="video" />
+          <Video mediaSrc={localStream} className="video" />
+          <Video mediaSrc={localStream} className="video" />
           <Video mediaSrc={localStream} className="video" />
 
           {Object.keys(remoteStreams).map((key) =>

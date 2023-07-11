@@ -11,7 +11,7 @@ import toastConfig from "../utils/toastConfig";
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 
-const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHasMore }) => {
+const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHasMore, userProfile }) => {
   const { wid, cid } = useParams();
   const messagesEndRef = useRef(null);
 
@@ -36,8 +36,6 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
       } else {
         setHasMore(false);
       }
-
-      console.log("paging", paging, "hasMore", hasMore);
     } catch (error) {
       const errorMessage = error.response ? error.response.data.errors : error.message;
       toast.error(errorMessage, toastConfig);
@@ -46,14 +44,15 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
 
   useEffect(() => {
     socket.on("message", (data) => {
-      console.log("message", data);
-      updateMessages((prev) => [data.message, ...prev]);
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      if (data.message.username !== userProfile.username || data.message.type !== "text") {
+        updateMessages((prev) => [data.message, ...prev]);
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
     });
     return () => {
       socket.off("message");
     };
-  }, []);
+  }, [userProfile]);
   return (
     <>
       <div
