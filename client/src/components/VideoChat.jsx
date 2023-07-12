@@ -345,7 +345,6 @@ const VideoChat = ({ setStreaming }) => {
 
   const handleCloseCall = () => {
     setStreaming(false);
-    // setVideoNotification(false);
   };
 
   return (

@@ -4,9 +4,9 @@ import { sendingMessages } from "../models/messages.js";
 import { Types } from "mongoose";
 
 const HOST_IP = process.env.HOST_IP ?? "127.0.0.1";
-const MAX_PEERS_LIMIT = Number(process.env.MAX_PEERS_LIMIT) ?? 7;
+const MAX_PEERS_LIMIT = Number(process.env.MAX_PEERS_LIMIT) ?? 10;
 const rtcMinPort: number = Number(process.env.MEDIASOUP_RTCMINPORT) ?? 2000;
-const rtcMaxPort: number = Number(process.env.MEDIASOUP_RTCMAXPORT) ?? 2100;
+const rtcMaxPort: number = Number(process.env.MEDIASOUP_RTCMAXPORT) ?? 2201;
 
 const videoChat = function () {
   // @ts-ignore
@@ -187,9 +187,9 @@ const videoChat = function () {
               );
             }
 
-            if (currentPeers.length > MAX_PEERS_LIMIT) {
-              throw new Error("Too many online video meeting users. Please try again later.");
-            }
+            // if (currentPeers.length > MAX_PEERS_LIMIT) {
+            //   throw new Error("Too many online video meeting users. Please try again later.");
+            // }
 
             console.log(`Router ID: ${router1.id}`, currentPeers.length);
 
@@ -204,6 +204,10 @@ const videoChat = function () {
           try {
             // create Router if it does not exist
             const router1 = await createRoom(socket.id);
+
+            if (Object.keys(peers).length > MAX_PEERS_LIMIT) {
+              throw new Error("Too many online video meeting users. Please try again later.");
+            }
 
             peers[socket.id] = {
               socket,
