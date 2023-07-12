@@ -87,7 +87,12 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
                   </p>
                   {["text", "system"].includes(msg.type) && <p className="break-all">{msg.text}</p>}
                   {msg.type === "image" && (
-                    <img src={msg.text} alt="" className="h-[200px] mt-2" onClick={() => handlePreview(msg.text)} />
+                    <img
+                      src={msg.text}
+                      alt=""
+                      className="h-[200px] mt-2 cursor-pointer"
+                      onClick={() => handlePreview(msg.text)}
+                    />
                   )}
                 </div>
               </div>
