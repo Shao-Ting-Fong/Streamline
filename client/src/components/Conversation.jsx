@@ -76,6 +76,7 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
 
   const sendMessage = async (evt) => {
     evt.preventDefault();
+    setNewMsg("");
 
     const formData = new FormData();
     const message = evt.target.message.value;
@@ -108,7 +109,6 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
     formData.append("to", JSON.stringify({ workspace: wid, type: "team", id: currChannel._id }));
     await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, formData);
 
-    setNewMsg("");
     evt.target.reset();
     setFileDataURL(null);
     setIsDisabled(false);
