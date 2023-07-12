@@ -6,10 +6,10 @@ import dayjs from "dayjs";
 import { Types } from "mongoose";
 import ExpressError from "../utils/ExpressError.js";
 
-interface insertData {
+interface InsertData {
   from: string;
   content: string;
-  type: "text" | "image";
+  type: "text" | "image" | "system";
 }
 
 export const sendingMessages = async (
@@ -17,7 +17,8 @@ export const sendingMessages = async (
   from: string,
   to: MessageTo,
   message: string | undefined,
-  location: string | undefined
+  location: string | undefined,
+  messageType: InsertData["type"] = "text"
 ): Promise<Types.ObjectId> => {
   const connections = io.of("/chatroom");
   const { userId } = await verifyJWT(from);
@@ -27,9 +28,9 @@ export const sendingMessages = async (
   const foundChannel = await findOrAddChannel(userId, to);
   if (!foundChannel) throw new ExpressError("Channel not found", 404);
 
-  const insertData: insertData[] = [];
+  const insertData: InsertData[] = [];
 
-  if (message) insertData.push({ from: userId, content: message, type: "text" });
+  if (message) insertData.push({ from: userId, content: message, type: messageType });
 
   if (location) insertData.push({ from: userId, content: location, type: "image" });
 

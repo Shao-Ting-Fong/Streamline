@@ -4,11 +4,13 @@ import { BsFillPeopleFill } from "react-icons/bs";
 import { IoIosAddCircle, IoMdSend, IoIosCloseCircle } from "react-icons/io";
 import Cookies from "universal-cookie";
 import axios from "axios";
+import { socket } from "../socket";
 import { useParams } from "react-router-dom";
 import { ChatBody, VideoChat } from "./";
 import Loading from "../assets/Loading";
 import { toast } from "react-toastify";
 import toastConfig from "../utils/toastConfig";
+import { Tooltip } from "@mui/material";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
@@ -27,7 +29,24 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fileDataURL, setFileDataURL] = useState(null);
+  // const [hasVideoNotification, setVideoNotification] = useState(false);
   const imageRef = useRef();
+
+  // useEffect(() => {
+  //   socket.on("newVideoMeeting", () => {
+  //     setVideoNotification(true);
+  //   });
+
+  //   socket.on("endVideoMeeting", ({ roomName }) => {
+  //     if (currChannel._id === roomName) {
+  //       setVideoNotification(false);
+  //     }
+  //   });
+
+  //   return () => {
+  //     socket.off("newVideoMeeting");
+  //   };
+  // }, []);
 
   useEffect(() => {
     const getChannelMessagesById = async (wid, cid) => {
@@ -47,6 +66,11 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
     setPaging(1);
     getChannelMessagesById(wid, cid);
   }, [cid]);
+
+  const handleVideoButtonClicked = () => {
+    setStreaming((prev) => !prev);
+    // setVideoNotification(false);
+  };
 
   const handlePreview = (e) => {
     const file = e.target.files[0];
@@ -133,13 +157,19 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
               {currChannel.category === "direct" ? channelTitle : currChannel.title}
             </h3>
             <div className="ml-auto">
-              <button onClick={() => setStreaming((prev) => !prev)}>
+              {/* <Tooltip
+                title={<h1 className="text-[16px]">Join video meeting</h1>}
+                placement="bottom-end"
+                arrow
+                open={hasVideoNotification}> */}
+              <button onClick={handleVideoButtonClicked}>
                 <BiSolidVideo
                   className={`text-2xl inline-block align-bottom ${
                     isStreaming ? "fill-light-color-azure" : "fill-light-color-blue-background"
-                  }`}
+                  } `}
                 />
               </button>
+              {/* </Tooltip> */}
               <button className="ml-4" onClick={() => setShowMembers((prev) => !prev)}>
                 <BsFillPeopleFill
                   className={`text-2xl inline-block align-bottom ${

@@ -85,7 +85,7 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
                     {msg.username}{" "}
                     <span className="text-secondary text-sm font-normal">{dayjs(msg.time).format("HH:mm a")}</span>
                   </p>
-                  {msg.type === "text" && <p className="break-all">{msg.text}</p>}
+                  {["text", "system"].includes(msg.type) && <p className="break-all">{msg.text}</p>}
                   {msg.type === "image" && (
                     <img src={msg.text} alt="" className="h-[200px] mt-2" onClick={() => handlePreview(msg.text)} />
                   )}

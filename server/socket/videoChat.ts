@@ -3,7 +3,8 @@ import mediasoup, { types as mediasoupTypes } from "mediasoup";
 import { sendingMessages } from "../models/messages.js";
 import { Types } from "mongoose";
 
-const HOST_IP = process.env.HOST_IP || "127.0.0.1";
+const HOST_IP = process.env.HOST_IP ?? "127.0.0.1";
+const MAX_PEERS_LIMIT = Number(process.env.MAX_PEERS_LIMIT) ?? 7;
 const rtcMinPort: number = Number(process.env.MEDIASOUP_RTCMINPORT) ?? 2000;
 const rtcMaxPort: number = Number(process.env.MEDIASOUP_RTCMAXPORT) ?? 2100;
 
@@ -13,6 +14,7 @@ const videoChat = function () {
 
   _self.init = async function (io: Server) {
     const videoConnection = io.of("/mediasoup");
+    // const chatConnection = io.of("/chatroom");
 
     const createWorker = async () => {
       const worker = await mediasoup.createWorker({
@@ -141,13 +143,18 @@ const videoChat = function () {
 
           const { roomName } = peers[socket.id];
           delete peers[socket.id];
-          delete rooms[roomName];
+
+          if (rooms[roomName].peers?.length === 1) {
+            delete rooms[roomName];
+            // chatConnection.emit("endVideoMeeting", { roomName });
+          } else {
+            rooms[roomName] = {
+              router: rooms[roomName].router,
+              peers: rooms[roomName].peers?.filter((socketId) => socketId !== socket.id),
+            };
+          }
 
           // remove socket from room
-          // rooms[roomName] = {
-          //   router: rooms[roomName].router,
-          //   peers: rooms[roomName].peers?.filter((socketId) => socketId !== socket.id),
-          // };
         } catch (err) {
           console.log("Disconnect Error.");
           console.log(err);
@@ -168,14 +175,20 @@ const videoChat = function () {
               currentPeers = rooms[roomName].peers || [];
             } else {
               router1 = await worker.createRouter({ mediaCodecs });
+              // chatConnection.emit("newVideoMeeting");
               const message = "I've launched a video meeting, click the video button to join in!";
               await sendingMessages(
                 io,
                 token,
                 { workspace, type: undefined, id: roomName as unknown as Types.ObjectId },
                 message,
-                undefined
+                undefined,
+                "system"
               );
+            }
+
+            if (currentPeers.length > MAX_PEERS_LIMIT) {
+              throw new Error("Too many online video meeting users. Please try again later.");
             }
 
             console.log(`Router ID: ${router1.id}`, currentPeers.length);
@@ -188,27 +201,34 @@ const videoChat = function () {
             return router1;
           };
 
-          // create Router if it does not exist
-          // const router1 = rooms[roomName] && rooms[roomName].get('data').router || await createRoom(roomName, socket.id)
-          const router1 = await createRoom(socket.id);
+          try {
+            // create Router if it does not exist
+            const router1 = await createRoom(socket.id);
 
-          peers[socket.id] = {
-            socket,
-            roomName, // Name for the Router this Peer joined
-            transports: [],
-            producers: [],
-            consumers: [],
-            peerDetails: {
-              name: "",
-              isAdmin: false, // Is this Peer the Admin?
-            },
-          };
+            peers[socket.id] = {
+              socket,
+              roomName, // Name for the Router this Peer joined
+              transports: [],
+              producers: [],
+              consumers: [],
+              peerDetails: {
+                name: "",
+                isAdmin: false, // Is this Peer the Admin?
+              },
+            };
 
-          // get Router RTP Capabilities
-          const { rtpCapabilities } = router1;
+            // get Router RTP Capabilities
+            const { rtpCapabilities } = router1;
 
-          // call callback from the client and send back the rtpCapabilities
-          callback({ rtpCapabilities });
+            // call callback from the client and send back the rtpCapabilities
+            callback({ rtpCapabilities });
+          } catch (error) {
+            if (error instanceof Error) {
+              callback({ error: error.message });
+              return;
+            }
+            console.log("joinRoom failed");
+          }
         }
       );
 

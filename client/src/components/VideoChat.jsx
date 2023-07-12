@@ -288,6 +288,11 @@ const VideoChat = ({ setStreaming }) => {
       // joinRoom()
       videoSocket.emit("joinRoom", { roomName: cid, workspace: wid, token: authToken }, (data) => {
         // createDevice()
+        if (data.error) {
+          toast.error(data.error, toastConfig);
+          setStreaming(false);
+          return;
+        }
         createDevice(data);
       });
     };
@@ -301,6 +306,7 @@ const VideoChat = ({ setStreaming }) => {
         .then(streamSuccess)
         .catch((error) => {
           toast.error(error.message, toastConfig);
+          // setStreaming(false);
         });
     });
 
@@ -323,7 +329,6 @@ const VideoChat = ({ setStreaming }) => {
       videoSocket.off("connection-success");
       videoSocket.off("producer-closed");
       videoSocket.disconnect();
-      console.log("First useEffect cleanup");
       if (onClose) onClose();
     };
   }, []);
@@ -336,6 +341,11 @@ const VideoChat = ({ setStreaming }) => {
   const toggleVideo = () => {
     localStream.getVideoTracks()[0].enabled = isStopPlaying;
     setStopPlaying((prev) => !prev);
+  };
+
+  const handleCloseCall = () => {
+    setStreaming(false);
+    // setVideoNotification(false);
   };
 
   return (
@@ -365,7 +375,7 @@ const VideoChat = ({ setStreaming }) => {
               </div>
             )}
             <div className="main_controls_btn  bg-[#EB534B]">
-              <CallEndIcon fontSize="large" onClick={() => setStreaming(false)} />
+              <CallEndIcon fontSize="large" onClick={handleCloseCall} />
             </div>
 
             {isStopPlaying ? (
