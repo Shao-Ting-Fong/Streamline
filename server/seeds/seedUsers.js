@@ -8,14 +8,13 @@ import * as thumbs from "@dicebear/thumbs";
 
 const __dirname = path.resolve();
 dotenv.config({ path: path.join(__dirname, "/../.env") });
-// import Workspace from "../dist/models/workspace.js";
-// import Channel from "../dist/models/channel.js";
-// import User from "../dist/models/user.js";cd
 
 const names = [
   "Irene",
   "Tom",
   "linhuhu",
+  "Howard",
+  "Jackie",
   "Daisy",
   "Deborah",
   "Isabel",
@@ -66,8 +65,8 @@ const names = [
   "Antonio",
 ];
 
-// const dbUrl = process.env.DB_URL;
-const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
+const dbUrl = process.env.DB_URL;
+// const dbUrl = "mongodb://127.0.0.1:27017/slackalendar";
 console.log(dbUrl);
 try {
   const result = await mongoose.connect(dbUrl, {
