@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import { MessageTo, findOrAddChannel } from "./channels.js";
 import dayjs from "dayjs";
 import { Types } from "mongoose";
-import ExpressError from "../utils/ExpressError.js";
+import { ExpressError } from "../utils/errorHandler.js";
 
 interface InsertData {
   from: string;
@@ -47,8 +47,6 @@ export const sendingMessages = async (
   );
 
   await foundChannel.save();
-
-  // ! Bug to Fix: Time recorded in DB may be slightly different.
 
   foundChannel.members.forEach((member) => {
     connections.to(`userId:${member}`).emit("notification", { to: foundChannel._id });

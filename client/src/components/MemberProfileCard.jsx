@@ -2,26 +2,37 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import { toast } from "react-toastify";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
 const cookies = new Cookies();
 
 const MemberProfileCard = ({ member, setMemberClicked }) => {
+  const authToken = cookies.get("jwtToken");
+  const authString = `Bearer ${authToken}`;
   const navigate = useNavigate();
   const { wid, cid } = useParams();
   const [newMsg, setNewMsg] = useState("");
-  const token = cookies.get("jwtToken");
 
   const handleSubmit = async (evt) => {
-    evt.preventDefault();
-    const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, {
-      from: token,
-      to: JSON.stringify({ workspace: wid, type: "direct", id: member._id }),
-      message: newMsg,
-    });
-    setMemberClicked({ anchorEl: null, member: null });
-    navigate(`/workspace/${wid}/channel/${data.to}/room`);
+    try {
+      evt.preventDefault();
+      const { data } = await axios.post(
+        `${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`,
+        {
+          from: authToken,
+          to: JSON.stringify({ workspace: wid, type: "direct", id: member._id }),
+          message: newMsg,
+        },
+        { headers: { Authorization: authString } }
+      );
+      setMemberClicked({ anchorEl: null, member: null });
+      navigate(`/workspace/${wid}/channel/${data.to}/room`);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage);
+    }
   };
 
   return (

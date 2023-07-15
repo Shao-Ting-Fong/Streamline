@@ -8,7 +8,6 @@ import { useParams } from "react-router-dom";
 import { ChatBody, VideoChat } from "./";
 import Loading from "../assets/Loading";
 import { toast } from "react-toastify";
-import toastConfig from "../utils/toastConfig";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
@@ -19,6 +18,7 @@ const MAX_IMG_SIZE = 5 * 1000 * 1000;
 const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, members }) => {
   const { wid, cid } = useParams();
   const token = cookies.get("jwtToken");
+  const authString = `Bearer ${token}`;
   const [newMsg, setNewMsg] = useState("");
   const [paging, setPaging] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -31,7 +31,9 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
 
   useEffect(() => {
     const getChannelMessagesById = async (wid, cid) => {
-      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`);
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, {
+        headers: { Authorization: authString },
+      });
       updateMessages(
         data.messages.map((msg) => ({
           username: msg.from.username,
@@ -42,11 +44,15 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
         }))
       );
     };
-
-    setHasMore(true);
-    setPaging(1);
-    getChannelMessagesById(wid, cid);
-  }, [cid]);
+    try {
+      setHasMore(true);
+      setPaging(1);
+      getChannelMessagesById(wid, cid);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage);
+    }
+  }, [cid, token]);
 
   const handleVideoButtonClicked = () => {
     setStreaming((prev) => !prev);
@@ -57,7 +63,7 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
 
     if (file) {
       if (file.size > MAX_IMG_SIZE) {
-        toast.error("Image size should be less than 5MB!", toastConfig);
+        toast.error("Image size should be less than 5MB!");
         cancelUpload();
         return;
       }
@@ -75,44 +81,51 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
   };
 
   const sendMessage = async (evt) => {
-    evt.preventDefault();
-    setNewMsg("");
+    try {
+      evt.preventDefault();
+      setNewMsg("");
 
-    const formData = new FormData();
-    const message = evt.target.message.value;
-    const file = evt.target.file.files[0];
+      const formData = new FormData();
+      const message = evt.target.message.value.trim();
+      const file = evt.target.file.files[0];
 
-    if (!message && !file) {
-      console.log("Don't send empty message!");
-      return;
+      if (!message && !file) {
+        console.log("Don't send empty message!");
+        return;
+      }
+
+      if (message) {
+        updateMessages((prev) => [
+          {
+            username: userProfile.username,
+            avatarURL: userProfile.avatarURL,
+            time: Date.now(),
+            text: message,
+            type: "text",
+          },
+          ...prev,
+        ]);
+      }
+
+      setIsDisabled(true);
+      setIsLoading(true);
+
+      formData.append("message", evt.target.message.value);
+      formData.append("file", evt.target.file.files[0]);
+      formData.append("from", token);
+      formData.append("to", JSON.stringify({ workspace: wid, type: "team", id: currChannel._id }));
+      await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, formData, {
+        headers: { Authorization: authString },
+      });
+
+      evt.target.reset();
+      setFileDataURL(null);
+      setIsDisabled(false);
+      setIsLoading(false);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage);
     }
-
-    if (message) {
-      updateMessages((prev) => [
-        {
-          username: userProfile.username,
-          avatarURL: userProfile.avatarURL,
-          time: Date.now(),
-          text: message,
-          type: "text",
-        },
-        ...prev,
-      ]);
-    }
-
-    setIsDisabled(true);
-    setIsLoading(true);
-
-    formData.append("message", evt.target.message.value);
-    formData.append("file", evt.target.file.files[0]);
-    formData.append("from", token);
-    formData.append("to", JSON.stringify({ workspace: wid, type: "team", id: currChannel._id }));
-    await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, formData);
-
-    evt.target.reset();
-    setFileDataURL(null);
-    setIsDisabled(false);
-    setIsLoading(false);
   };
 
   const channelTitle =

@@ -1,57 +1,78 @@
 import axios from "axios";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Switch from "@mui/material/Switch";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
+// import Button from "@mui/material/Button";
+// import TextField from "@mui/material/TextField";
+// import Switch from "@mui/material/Switch";
+// import Dialog from "@mui/material/Dialog";
+// import DialogActions from "@mui/material/DialogActions";
+// import DialogContent from "@mui/material/DialogContent";
+// import DialogTitle from "@mui/material/DialogTitle";
+import { Button, TextField, Switch, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BiLockAlt } from "react-icons/bi";
 import { socket } from "../socket";
+import Cookies from "universal-cookie";
+import { toast } from "react-toastify";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
+const cookies = new Cookies();
 
 const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, setTeamChannels }) => {
+  const authToken = cookies.get("jwtToken");
+  const authString = `Bearer ${authToken}`;
   const { wid } = useParams();
   const [workspaceMembers, setWorkspaceMembers] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const getWorkspaceMembers = async () => {
-      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/members`);
+      const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/members`, {
+        headers: { Authorization: authString },
+      });
       setWorkspaceMembers(data);
     };
-
-    getWorkspaceMembers();
-    socket.on("newMember", () => {
+    try {
       getWorkspaceMembers();
-    });
+      socket.on("newMember", () => {
+        getWorkspaceMembers();
+      });
+    } catch (error) {
+      console.log("CreateChannel Caught error.");
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      toast.error(errorMessage);
+    }
 
     return () => {
       socket.off("newMember");
     };
-  }, [wid]);
+  }, [wid, authToken]);
 
   const handleClose = () => {
     setIsCreatingChannel(false);
   };
 
   const handleSubmit = async (evt) => {
-    evt.preventDefault();
-    const formData = new FormData(evt.target);
+    try {
+      evt.preventDefault();
+      const formData = new FormData(evt.target);
 
-    const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/new`, formData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+      const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/new`, formData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authString,
+        },
+      });
 
-    setIsCreatingChannel(false);
-    setTeamChannels((prev) => [...prev, data]);
-    navigate(`/workspace/${wid}/channel/${data._id}/room`);
+      setIsCreatingChannel(false);
+      setTeamChannels((prev) => [...prev, data]);
+      navigate(`/workspace/${wid}/channel/${data._id}/room`);
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.errors : error.message;
+      console.log(errorMessage);
+      toast.error(errorMessage);
+      console.error(error);
+    }
   };
 
   return (
@@ -69,7 +90,6 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
             fullWidth
             variant="standard"
             name="channelName"
-            required
           />
           <div className="w-full flex items-center mt-8">
             <label htmlFor="privateChannel">
@@ -82,7 +102,8 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
                 <p className="text-sm mt-2">Only the invited members can view this channel.</p>
               </div>
             </label>
-            <Switch className="ml-auto" id="privateChannel" name="isPrivate" />
+            <input type="hidden" value="false" name="isPrivate"></input>
+            <Switch className="ml-auto" id="privateChannel" name="isPrivate" value="true" />
           </div>
 
           <h3 className="mt-8 text-xl">Invite Members</h3>

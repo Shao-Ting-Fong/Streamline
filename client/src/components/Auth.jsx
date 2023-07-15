@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import toastConfig from "../utils/toastConfig";
 import Cookies from "universal-cookie";
 import axios from "axios";
 import { Navbar, Footer } from "./";
@@ -55,22 +54,22 @@ const Auth = ({ userProfile, setUserProfile }) => {
         });
 
         navigate(`/workspace/${data.workspaceId}/channel`);
-        toast.success("Workspace joined in successfully!", toastConfig);
+        toast.success("Workspace joined in successfully!");
         return;
       }
 
       if (data.data.user.workspaces.length > 0) {
         navigate(`/workspace/${data.data.user.workspaces[0]}/channel`);
-        toast.success(`Welcome! ${data.data.user.username}`, toastConfig);
+        toast.success(`Welcome! ${data.data.user.username}`);
         return;
       }
 
       navigate("/workspace");
-      toast.success(`Welcome! ${data.data.user.username}`, toastConfig);
+      toast.success(`Welcome! ${data.data.user.username}`);
     } catch (error) {
       const errorMessage = error.response ? error.response.data.errors : error.message;
 
-      toast.error(errorMessage, toastConfig);
+      toast.error(errorMessage);
     }
   };
 

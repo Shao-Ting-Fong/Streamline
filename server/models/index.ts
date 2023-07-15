@@ -1,23 +1,11 @@
 import { Schema, Types, model } from "mongoose";
 
-// interface IWorkspaceMember {
-//   userIds: Types.ObjectId[];
-//   role: string;
-//   power: Number;
-// }
-
 interface IWorkspace {
   _id: Types.ObjectId;
   title: string;
   ownerId: Types.ObjectId;
   avatarURL: string;
 }
-
-// const WorkspaceMembersSchema = new Schema<IWorkspaceMember>({
-//   userIds: { type: [Schema.Types.ObjectId], ref: "User", required: true },
-//   role: { type: String, default: "member", required: true },
-//   power: { type: Number, default: 1, required: true },
-// });
 
 const WorkspaceSchema = new Schema<IWorkspace>({
   title: { type: String, required: true },
@@ -59,12 +47,6 @@ interface IMessage {
   content: string;
   type: "text" | "image" | "system";
 }
-
-// interface IChannelMember {
-//   userId: Types.ObjectId;
-//   role: string;
-//   power: Number;
-// }
 
 interface IChannel {
   _id: Types.ObjectId;

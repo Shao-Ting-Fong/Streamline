@@ -3,7 +3,6 @@ import Tooltip from "@mui/material/Tooltip";
 import { BadgeAvatar } from "./";
 import { socket } from "../socket";
 import { toast } from "react-toastify";
-import toastConfig from "../utils/toastConfig";
 import { FiLogOut } from "react-icons/fi";
 import { AiOutlinePlus } from "react-icons/ai";
 import Cookies from "universal-cookie";
@@ -26,29 +25,42 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
 
   useEffect(() => {
     const getUserProfile = async () => {
-      if (authToken) {
-        const { data } = await axios.get(`${API_ROUTE}/auth/profile`, {
-          headers: {
-            Authorization: authString,
-          },
-        });
-
-        socket.emit("online", { userId: data._id });
-
-        socket.on("notification", async ({ to }) => {
-          console.log(`Get Unread meassage to ${to}`);
-          const { data } = await axios.get(`${API_ROUTE}/chat/channel/${to}`);
-
-          setChannelUnread((status) => {
-            status[to] = {
-              workspaceId: data.workspaceId,
-              unread: true,
-            };
-            return { ...status };
+      try {
+        if (authToken) {
+          const { data } = await axios.get(`${API_ROUTE}/auth/profile`, {
+            headers: {
+              Authorization: authString,
+            },
           });
-        });
 
-        setUserProfile(data);
+          socket.emit("online", { userId: data._id });
+
+          socket.on("notification", async ({ to }) => {
+            console.log(`Get Unread meassage to ${to}`);
+            const { data } = await axios.get(`${API_ROUTE}/chat/channel/${to}`, {
+              headers: {
+                Authorization: authString,
+              },
+            });
+
+            setChannelUnread((status) => {
+              status[to] = {
+                workspaceId: data.workspaceId,
+                unread: true,
+              };
+              return { ...status };
+            });
+          });
+
+          setUserProfile(data);
+        }
+      } catch (error) {
+        const errorMessage = error.response ? error.response.data.errors : error.message;
+        toast.error(errorMessage);
+        if (error.response.status === 404) {
+          cookies.remove("jwtToken", { path: "/" });
+          return navigate("/auth");
+        }
       }
     };
 
@@ -62,7 +74,10 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
   useEffect(() => {
     const getWorkspaces = async () => {
       try {
-        if (!authToken) navigate("/auth");
+        if (!authToken) {
+          toast.error("Log in to continue.");
+          return navigate("/auth");
+        }
         const { data } = await axios.get(`${API_ROUTE}/chat/workspace`, {
           headers: {
             Authorization: authString,
@@ -71,7 +86,11 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
         setWorkspaces(data);
       } catch (error) {
         const errorMessage = error.response ? error.response.data.errors : error.message;
-        toast.error(errorMessage, toastConfig);
+        toast.error(errorMessage);
+        if (error.response.status === 404) {
+          cookies.remove("jwtToken", { path: "/" });
+          return navigate("/auth");
+        }
       }
     };
 
@@ -86,7 +105,7 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
     cookies.remove("jwtToken", { path: "/" });
     socket.emit("offline", { userId: userProfile._id });
     setUserProfile({});
-    toast.success("Bye~👋", toastConfig);
+    toast.success("Bye~👋");
     navigate("/");
   };
 
@@ -99,26 +118,27 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
   return (
     <>
       <div className="channel-list__sidebar">
-        {workspaces.map((workspace) => (
-          <Link to={`${workspace._id}/channel`} key={workspace._id}>
-            <div className="channel-list__sidebar__icon">
-              <Tooltip
-                key={workspace._id}
-                title={<h1 className="text-sm">{workspace.title}</h1>}
-                placement="right"
-                arrow>
-                <div className="icon__inner">
-                  <BadgeAvatar
-                    imgUrl={IMG_ROUTE + workspace.avatarURL}
-                    position={{ vertical: "top", horizontal: "right" }}
-                    showState={hasUnread(workspace._id, wid)}
-                    stateColor={"#CC3333"}
-                  />
-                </div>
-              </Tooltip>
-            </div>
-          </Link>
-        ))}
+        {workspaces.length > 0 &&
+          workspaces.map((workspace) => (
+            <Link to={`${workspace._id}/channel`} key={workspace._id}>
+              <div className="channel-list__sidebar__icon">
+                <Tooltip
+                  key={workspace._id}
+                  title={<h1 className="text-sm">{workspace.title}</h1>}
+                  placement="right"
+                  arrow>
+                  <div className="icon__inner">
+                    <BadgeAvatar
+                      imgUrl={IMG_ROUTE + workspace.avatarURL}
+                      position={{ vertical: "top", horizontal: "right" }}
+                      showState={hasUnread(workspace._id, wid)}
+                      stateColor={"#CC3333"}
+                    />
+                  </div>
+                </Tooltip>
+              </div>
+            </Link>
+          ))}
         <div className="channel-list__sidebar__icon" onClick={handleClickOpen}>
           <Tooltip title={<h1 className="text-sm">Add Workspace</h1>} placement="right" arrow>
             <div className="icon__inner">

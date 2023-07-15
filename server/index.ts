@@ -6,12 +6,14 @@ import mongoose from "mongoose";
 import "dotenv/config";
 import { Server } from "socket.io";
 import express, { Request, Response, NextFunction } from "express";
+import { errorHandler } from "./utils/errorHandler.js";
 
 import videoRouter from "./routes/videoRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import chatRouter from "./routes/chat/chatRoutes.js";
 import videoChat from "./socket/videoChat.js";
 import chatroom from "./socket/chatroom.js";
+import authenticate from "./middleware/authenticate.js";
 
 const dbUrl =
   process.env.NODE_ENV === "production" ? process.env.DB_URL ?? "" : "mongodb://127.0.0.1:27017/slackalendar";
@@ -35,13 +37,10 @@ const io = new Server(httpServer, {
     origin: "*",
   },
 });
-// const videoConnection = io.of("/mediasoup");
-// const chatConnection = io.of("/chatroom");
 
 videoChat.init(io);
 chatroom.init(io);
 
-app.set("view engine", "ejs");
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
@@ -56,11 +55,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use("/video", videoRouter);
 app.use("/auth", authRouter);
-app.use("/chat", chatRouter);
+
+app.use("/chat", authenticate, chatRouter);
 
 app.get("*", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
+
+app.use(errorHandler);
 
 httpServer.listen(3000, () => {
   console.log("listening on port: 3000");

@@ -2,6 +2,7 @@ export { default as Home } from "./Home";
 export { default as Auth } from "./Auth";
 export { default as ChannelContainer } from "./ChannelContainer";
 export { default as ChannelListContainer } from "./ChannelListContainer";
+export { default as CompanyHeader } from "./CompanyHeader";
 export { default as TeamChannelList } from "./TeamChannelList";
 export { default as TeamChannelPreview } from "./TeamChannelPreview";
 export { default as DirectMessagePreview } from "./DirectMessagePreview";

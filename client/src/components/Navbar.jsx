@@ -1,7 +1,7 @@
 import { BiLogoGithub, BiLogoLinkedinSquare } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../socket";
-
+import { Link } from "react-router-dom";
 import Cookies from "universal-cookie";
 
 const cookies = new Cookies();
@@ -14,14 +14,15 @@ const Navbar = ({ userProfile, setUserProfile }) => {
     cookies.remove("jwtToken", { path: "/" });
     socket.emit("offline", { userId: userProfile._id });
     setUserProfile({});
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (
     <nav className="h-[56px] w-full bg-dark-color-blue-header flex items-center px-28">
-      <a href="/">
+      <Link to="/">
         <h1 className="text-white text-2xl font-bold">Streamline</h1>
-      </a>
+      </Link>
+
       <div className="ml-auto flex">
         <div className=" p-1">
           <a href="https://www.linkedin.com/in/shaotingfong">

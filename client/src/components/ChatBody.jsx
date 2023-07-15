@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { ImagePreview } from "./";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Cookies from "universal-cookie";
 import Avatar from "@mui/material/Avatar";
 import dayjs from "dayjs";
 import axios from "axios";
 import { socket } from "../socket";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import toastConfig from "../utils/toastConfig";
 
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 const IMG_ROUTE = import.meta.env.VITE_IMG_ROUTE;
+const cookies = new Cookies();
 
 const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHasMore, userProfile }) => {
+  const authToken = cookies.get("jwtToken");
+  const authString = `Bearer ${authToken}`;
   const { wid, cid } = useParams();
   const [isPreview, setIsPreview] = useState(false);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
@@ -27,6 +30,7 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
     try {
       const { data } = await axios.get(`${API_ROUTE}/chat/workspace/${wid}/channel/${cid}/msg`, {
         params: { paging },
+        headers: { Authorization: authString },
       });
       updateMessages((prev) => [
         ...prev,
@@ -46,7 +50,7 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
       }
     } catch (error) {
       const errorMessage = error.response ? error.response.data.errors : error.message;
-      toast.error(errorMessage, toastConfig);
+      toast.error(errorMessage);
     }
   };
 

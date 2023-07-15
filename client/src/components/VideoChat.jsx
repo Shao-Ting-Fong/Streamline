@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import toastConfig from "../utils/toastConfig";
 import * as mediasoupClient from "mediasoup-client";
 import Cookies from "universal-cookie";
 
@@ -98,7 +97,7 @@ const VideoChat = ({ setStreaming }) => {
         async ({ params }) => {
           if (params.error) {
             console.log("Cannot Consume.");
-            toast.error("Oops! Something went wrong:(", toastConfig);
+            toast.error("Oops! Something went wrong:(");
             return;
           }
 
@@ -172,7 +171,7 @@ const VideoChat = ({ setStreaming }) => {
       await videoSocket.emit("createWebRtcTransport", { consumer: true }, ({ params }) => {
         if (params.error) {
           console.log(params.error);
-          toast.error("Oops! Something went wrong:(", toastConfig);
+          toast.error("Oops! Something went wrong:(");
           return;
         }
         let consumerTransport;
@@ -180,7 +179,7 @@ const VideoChat = ({ setStreaming }) => {
           consumerTransport = device.current.createRecvTransport(params);
         } catch (error) {
           console.log(error);
-          toast.error("Oops! Something went wrong:(", toastConfig);
+          toast.error("Oops! Something went wrong:(");
           return;
         }
 
@@ -217,7 +216,7 @@ const VideoChat = ({ setStreaming }) => {
       videoSocket.emit("createWebRtcTransport", { consumer: false }, ({ params }) => {
         if (params.error) {
           console.log(params.error);
-          toast.error("Oops! Something went wrong:(", toastConfig);
+          toast.error("Oops! Something went wrong:(");
           return;
         }
 
@@ -272,7 +271,7 @@ const VideoChat = ({ setStreaming }) => {
         createSendTransport();
       } catch (error) {
         console.log(error);
-        if (error.name === "UnsupportedError") toast.error("Browser not Supported.", toastConfig);
+        if (error.name === "UnsupportedError") toast.error("Browser not Supported.");
       }
     };
 
@@ -289,7 +288,7 @@ const VideoChat = ({ setStreaming }) => {
       videoSocket.emit("joinRoom", { roomName: cid, workspace: wid, token: authToken }, (data) => {
         // createDevice()
         if (data.error) {
-          toast.error(data.error, toastConfig);
+          toast.error(data.error);
           setStreaming(false);
           return;
         }
@@ -305,7 +304,7 @@ const VideoChat = ({ setStreaming }) => {
         })
         .then(streamSuccess)
         .catch((error) => {
-          toast.error(error.message, toastConfig);
+          toast.error(error.message);
           // setStreaming(false);
         });
     });

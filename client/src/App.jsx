@@ -31,7 +31,18 @@ function App() {
 
   return (
     <>
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <div className="flex w-screen flex-1 h-full bg-dark-gray-background shadow-black shadow">
         <Routes>
           <Route path="/" element={<Home userProfile={userProfile} setUserProfile={setUserProfile} />} />

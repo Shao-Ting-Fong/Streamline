@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import toastConfig from "../utils/toastConfig";
 import axios from "axios";
 import Button from "@mui/material/Button";
 import Cookies from "universal-cookie";
@@ -81,7 +80,7 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
       navigate(`/workspace/${workspaceId}/channel`);
     } catch (error) {
       const errorMessage = error.response ? error.response.data.errors : error.message;
-      toast.error(errorMessage, toastConfig);
+      toast.error(errorMessage);
     }
   };
 
