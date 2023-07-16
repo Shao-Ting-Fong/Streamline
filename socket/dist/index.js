@@ -2,6 +2,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import { publisher, subscriber } from "./redis.js";
+import "dotenv/config";
 const EXPIRE_TIME = 60 * 60 * 60;
 const app = express();
 const server = http.createServer(app);
