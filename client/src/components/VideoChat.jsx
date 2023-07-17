@@ -61,7 +61,7 @@ let params = {
   },
 };
 
-const VideoChat = ({ setStreaming }) => {
+const VideoChat = ({ setStreaming, userProfile }) => {
   const [videoSocket] = useState(() => {
     return io(`${API_ROUTE}/mediasoup`);
   });
@@ -78,6 +78,7 @@ const VideoChat = ({ setStreaming }) => {
   const { wid, cid } = useParams();
   const [localStream, setLocalStream] = useState();
   const [remoteStreams, setRemoteStreams] = useState({});
+  const [trackState, setTrackState] = useState({});
   const [isMute, setMute] = useState(false);
   const [isStopPlaying, setStopPlaying] = useState(false);
 
@@ -128,6 +129,11 @@ const VideoChat = ({ setStreaming }) => {
             return { ...streams };
           });
 
+          setTrackState((streams) => {
+            streams[remoteProducerId] = true;
+            return { ...streams };
+          });
+
           videoSocket.emit("consumer-resume", {
             serverConsumerId: params.serverConsumerId,
           });
@@ -168,7 +174,7 @@ const VideoChat = ({ setStreaming }) => {
       if (consumingTransports.includes(remoteProducerId)) return;
       consumingTransports.push(remoteProducerId);
 
-      await videoSocket.emit("createWebRtcTransport", { consumer: true }, ({ params }) => {
+      await videoSocket.emit("createWebRtcTransport", { isConsumer: true }, ({ params }) => {
         if (params.error) {
           console.log(params.error);
           toast.error("Oops! Something went wrong:(");
@@ -213,7 +219,7 @@ const VideoChat = ({ setStreaming }) => {
     };
 
     const createSendTransport = () => {
-      videoSocket.emit("createWebRtcTransport", { consumer: false }, ({ params }) => {
+      videoSocket.emit("createWebRtcTransport", { isConsumer: false }, ({ params }) => {
         if (params.error) {
           console.log(params.error);
           toast.error("Oops! Something went wrong:(");
@@ -286,7 +292,6 @@ const VideoChat = ({ setStreaming }) => {
 
       // joinRoom()
       videoSocket.emit("joinRoom", { roomName: cid, workspace: wid, token: authToken }, (data) => {
-        // createDevice()
         if (data.error) {
           toast.error(data.error);
           setStreaming(false);
@@ -322,6 +327,11 @@ const VideoChat = ({ setStreaming }) => {
         delete streams[remoteProducerId];
         return { ...streams };
       });
+
+      setTrackState((streams) => {
+        delete streams[remoteProducerId];
+        return { ...streams };
+      });
     });
 
     return () => {
@@ -332,13 +342,38 @@ const VideoChat = ({ setStreaming }) => {
     };
   }, []);
 
+  useEffect(() => {
+    videoSocket.on("updateTrack", ({ remoteProducerId, state }) => {
+      setTrackState((streams) => {
+        streams[remoteProducerId] = state;
+        return { ...streams };
+      });
+    });
+
+    return () => {
+      videoSocket.off("updateTrack");
+    };
+  }, []);
+
   const toggleAudio = () => {
     localStream.getAudioTracks()[0].enabled = isMute;
+    videoSocket.emit("trackState", {
+      remoteProducerId: audioProducer.current.id,
+      roomName: cid,
+      kind: "audio",
+      state: isMute,
+    });
     setMute((prev) => !prev);
   };
 
   const toggleVideo = () => {
     localStream.getVideoTracks()[0].enabled = isStopPlaying;
+    videoSocket.emit("trackState", {
+      remoteProducerId: videoProducer.current.id,
+      roomName: cid,
+      kind: "video",
+      state: isStopPlaying,
+    });
     setStopPlaying((prev) => !prev);
   };
 
@@ -358,16 +393,29 @@ const VideoChat = ({ setStreaming }) => {
             ) : (
               <Video mediaSrc={localStream} />
             )}
-            {isMute && <MicOffIcon fontSize="small" className="absolute bottom-0 left-0 text-[#EB534B]" />}
+            {/* {isMute && <MicOffIcon fontSize="small" className="absolute bottom-0 right-0 text-[#EB534B]" />}
+            <div className="absolute bottom-0 left-0 text-base px-2 bg-black text-white opacity-70">
+              {userProfile.username}
+            </div> */}
           </div>
 
-          {Object.keys(remoteStreams).map((key) =>
-            remoteStreams[key].kind === "audio" ? (
-              <Audio mediaSrc={remoteStreams[key].src} key={key} />
-            ) : (
-              <Video mediaSrc={remoteStreams[key].src} key={key} />
-            )
-          )}
+          {Object.keys(remoteStreams).map((key) => {
+            if (remoteStreams[key].kind === "audio") {
+              return <Audio mediaSrc={remoteStreams[key].src} />;
+            } else {
+              return (
+                <div className="relative h-[200px] w-[300px] max-h-[300px] max-w-[400px] object-cover m-2" key={key}>
+                  {trackState[key] ? (
+                    <Video mediaSrc={remoteStreams[key].src} />
+                  ) : (
+                    <div className="w-full h-full bg-dark-gray-background text-white flex justify-center items-center opacity-50">
+                      <VideocamOffIcon fontSize="large" />
+                    </div>
+                  )}
+                </div>
+              );
+            }
+          })}
         </div>
 
         <div id="main_controls" className="absolute right-0 top-1/2 -translate-y-1/2  bg-transparent text-white">

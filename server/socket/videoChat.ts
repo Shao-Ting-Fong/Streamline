@@ -52,7 +52,7 @@ const videoChat = function () {
       socketId: string;
       roomName: string;
       transport: mediasoupTypes.WebRtcTransport;
-      consumer: mediasoupTypes.Consumer;
+      isConsumer: boolean;
       close: () => void;
     }
 
@@ -143,6 +143,7 @@ const videoChat = function () {
 
           const { roomName } = peers[socket.id];
           delete peers[socket.id];
+          socket.leave(`videoRoom:${roomName}`);
 
           if (rooms[roomName].peers?.length === 1) {
             delete rooms[roomName];
@@ -175,7 +176,6 @@ const videoChat = function () {
               currentPeers = rooms[roomName].peers || [];
             } else {
               router1 = await worker.createRouter({ mediaCodecs });
-              // chatConnection.emit("newVideoMeeting");
               const message = "I've launched a video meeting, click the video button to join in!";
               await sendingMessages(
                 io,
@@ -186,10 +186,6 @@ const videoChat = function () {
                 "system"
               );
             }
-
-            // if (currentPeers.length > MAX_PEERS_LIMIT) {
-            //   throw new Error("Too many online video meeting users. Please try again later.");
-            // }
 
             console.log(`Router ID: ${router1.id}`, currentPeers.length);
 
@@ -204,6 +200,7 @@ const videoChat = function () {
           try {
             // create Router if it does not exist
             const router1 = await createRoom(socket.id);
+            socket.join(`videoRoom:${roomName}`);
 
             if (Object.keys(peers).length > MAX_PEERS_LIMIT) {
               throw new Error("Too many online video meeting users. Please try again later.");
@@ -274,16 +271,12 @@ const videoChat = function () {
           createTransport();
         });
 
-      const addTransport = (
-        transport: mediasoupTypes.WebRtcTransport,
-        roomName: string,
-        consumer: mediasoupTypes.Consumer
-      ) => {
+      const addTransport = (transport: mediasoupTypes.WebRtcTransport, roomName: string, isConsumer: boolean) => {
         transports.push({
           socketId: socket.id,
           transport,
           roomName,
-          consumer,
+          isConsumer,
           close: () => {
             transport.close();
           },
@@ -297,36 +290,33 @@ const videoChat = function () {
 
       // Client emits a request to create server side Transport
       // We need to differentiate between the producer and consumer transports
-      socket.on(
-        "createWebRtcTransport",
-        async ({ consumer }: { consumer: mediasoupTypes.Consumer }, callback: Function) => {
-          // get Room Name from Peer's properties
-          const { roomName } = peers[socket.id];
-          console.log("roomName", roomName);
+      socket.on("createWebRtcTransport", async ({ isConsumer }: { isConsumer: boolean }, callback: Function) => {
+        // get Room Name from Peer's properties
+        const { roomName } = peers[socket.id];
+        console.log("roomName", roomName);
 
-          // get Router (Room) object this peer is in based on RoomName
-          const { router: mediasoupRouter } = rooms[roomName];
+        // get Router (Room) object this peer is in based on RoomName
+        const { router: mediasoupRouter } = rooms[roomName];
 
-          createWebRtcTransport(mediasoupRouter).then(
-            (transport) => {
-              callback({
-                params: {
-                  id: transport.id,
-                  iceParameters: transport.iceParameters,
-                  iceCandidates: transport.iceCandidates,
-                  dtlsParameters: transport.dtlsParameters,
-                },
-              });
+        createWebRtcTransport(mediasoupRouter).then(
+          (transport) => {
+            callback({
+              params: {
+                id: transport.id,
+                iceParameters: transport.iceParameters,
+                iceCandidates: transport.iceCandidates,
+                dtlsParameters: transport.dtlsParameters,
+              },
+            });
 
-              // add transport to Peer's properties
-              addTransport(transport, roomName, consumer);
-            },
-            (error) => {
-              console.log(error);
-            }
-          );
-        }
-      );
+            // add transport to Peer's properties
+            addTransport(transport, roomName, isConsumer);
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+      });
 
       const addProducer = (producer: mediasoupTypes.Producer, roomName: string) => {
         producers.push({
@@ -377,7 +367,7 @@ const videoChat = function () {
 
       const getTransport = (socketId: string) => {
         const [producerTransport] = transports.filter(
-          (transport) => transport.socketId === socketId && !transport.consumer
+          (transport) => transport.socketId === socketId && !transport.isConsumer
         );
         return producerTransport.transport;
       };
@@ -447,7 +437,7 @@ const videoChat = function () {
         }) => {
           // console.log(`DTLS PARAMS: ${dtlsParameters}`);
           const consumerTransport = transports.find(
-            (transportData) => transportData.consumer && transportData.transport.id === serverConsumerTransportId
+            (transportData) => transportData.isConsumer && transportData.transport.id === serverConsumerTransportId
           )?.transport;
           await consumerTransport?.connect({ dtlsParameters });
         }
@@ -471,7 +461,7 @@ const videoChat = function () {
             const { roomName } = peers[socket.id];
             const { router: mediasoupRouter } = rooms[roomName];
             const consumerTransport = transports.find(
-              (transportData) => transportData.consumer && transportData.transport.id === serverConsumerTransportId
+              (transportData) => transportData.isConsumer && transportData.transport.id === serverConsumerTransportId
             )?.transport;
 
             if (!consumerTransport) {
@@ -537,6 +527,24 @@ const videoChat = function () {
         const consumer = findConsumer?.consumer;
         await consumer?.resume();
       });
+
+      socket.on(
+        "trackState",
+        ({
+          remoteProducerId,
+          roomName,
+          kind,
+          state,
+        }: {
+          remoteProducerId: string;
+          roomName: string;
+          kind: "audio" | "video";
+          state: boolean;
+        }) => {
+          console.log(`Producer ${remoteProducerId} has changed ${kind} state to ${state}`);
+          socket.to(`videoRoom:${roomName}`).emit("updateTrack", { remoteProducerId, state });
+        }
+      );
     });
   };
 };

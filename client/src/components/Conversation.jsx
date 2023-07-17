@@ -139,7 +139,7 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
     <>
       <div className="h-screen max-w-full">
         <div className={`w-full ${isStreaming ? "h-1/2" : "h-0 translate-y-0"} ease-in-out duration-500`}>
-          {isStreaming && <VideoChat setStreaming={setStreaming} />}
+          {isStreaming && <VideoChat setStreaming={setStreaming} userProfile={userProfile} />}
         </div>
 
         <div className={`${isStreaming ? "h-1/2" : "h-full"} w-auto flex flex-col`}>
