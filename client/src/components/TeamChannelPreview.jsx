@@ -21,7 +21,6 @@ const TeamChannelPreview = ({ channel, channelUnread, setChannelUnread }) => {
   };
 
   const onUnread = (channelId) => {
-    // if(cid === channelId) markAsRead(channelId)
     return channelUnread[channelId]?.unread && cid !== channelId;
   };
 

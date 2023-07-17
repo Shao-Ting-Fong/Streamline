@@ -41,7 +41,7 @@ const ChannelListContainer = ({ channelUnread, setChannelUnread, userProfile }) 
     };
 
     getChannels(wid);
-  }, [wid]);
+  }, [wid, channelUnread]);
 
   return (
     <>

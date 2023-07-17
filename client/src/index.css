@@ -17,7 +17,7 @@
 }
 
 video {
-  @apply h-[200px] w-[300px] max-h-[300px] max-w-[400px] object-cover m-2;
+  @apply h-[200px] w-[300px] max-h-[300px] max-w-[400px] object-cover;
 }
 
 .main_controls_btn {

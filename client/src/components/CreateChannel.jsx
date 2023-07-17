@@ -57,6 +57,10 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
       evt.preventDefault();
       const formData = new FormData(evt.target);
 
+      if (!evt.target.isPrivate.checked) {
+        formData.set("isPrivate", "false");
+      }
+
       const { data } = await axios.post(`${API_ROUTE}/chat/workspace/${wid}/channel/new`, formData, {
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +73,6 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
       navigate(`/workspace/${wid}/channel/${data._id}/room`);
     } catch (error) {
       const errorMessage = error.response ? error.response.data.errors : error.message;
-      console.log(errorMessage);
       toast.error(errorMessage);
       console.error(error);
     }
@@ -102,7 +105,6 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
                 <p className="text-sm mt-2">Only the invited members can view this channel.</p>
               </div>
             </label>
-            <input type="hidden" value="false" name="isPrivate"></input>
             <Switch className="ml-auto" id="privateChannel" name="isPrivate" value="true" />
           </div>
 

@@ -23,7 +23,7 @@ function Video({ mediaSrc }) {
     }
   }, [mediaSrc]);
 
-  return <video autoPlay className="video" ref={ref}></video>;
+  return <video autoPlay ref={ref}></video>;
 }
 
 function Audio({ mediaSrc }) {
@@ -350,13 +350,22 @@ const VideoChat = ({ setStreaming }) => {
     <main className="h-full w-full flex">
       <div id="main_videos" className="grow relative bg-black justify-center items-center">
         <div className="w-full h-full flex justify-center items-center flex-wrap overflow-y-scroll scrollbar-videochat">
-          <Video mediaSrc={localStream} className="video" />
+          <div className="relative h-[200px] w-[300px] max-h-[300px] max-w-[400px] object-cover m-2">
+            {isStopPlaying ? (
+              <div className="w-full h-full bg-dark-gray-background text-white flex justify-center items-center opacity-50">
+                <VideocamOffIcon fontSize="large" />
+              </div>
+            ) : (
+              <Video mediaSrc={localStream} />
+            )}
+            {isMute && <MicOffIcon fontSize="small" className="absolute bottom-0 left-0 text-[#EB534B]" />}
+          </div>
 
           {Object.keys(remoteStreams).map((key) =>
             remoteStreams[key].kind === "audio" ? (
               <Audio mediaSrc={remoteStreams[key].src} key={key} />
             ) : (
-              <Video mediaSrc={remoteStreams[key].src} key={key} className="video" />
+              <Video mediaSrc={remoteStreams[key].src} key={key} />
             )
           )}
         </div>
