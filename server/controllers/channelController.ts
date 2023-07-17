@@ -21,18 +21,14 @@ export const getUserChannels = async (req: Request, res: Response) => {
 
 export const getChannelInfoById = async (req: Request, res: Response) => {
   const { cid } = req.params;
-  console.log("getChannelInfoById");
 
   const foundChannels = await Channel.findById(cid).select("_id workspaceId title category");
-  // .populate("messages.from", "username avatarURL")
-  // .populate("members", "username avatarURL");
   if (!foundChannels) throw new ExpressError("Channel not found", 404);
   res.status(200).json(foundChannels);
 };
 
 export const getChannelMembersById = async (req: Request, res: Response) => {
   const { cid } = req.params;
-  console.log("getChannelMembersById");
 
   const foundChannels = await Channel.findById(cid)
     .select("_id members")
@@ -54,7 +50,6 @@ export const getChannelMembersById = async (req: Request, res: Response) => {
 export const getChannelMessagesById = async (req: Request, res: Response) => {
   const { cid } = req.params;
   const paging = Number(req.query.paging) || 0;
-  console.log("getChannelMessagesById");
 
   const foundChannels = await Channel.findById(cid)
     .select({ _id: 1, messages: { $slice: [paging * MSG_LIMIT, MSG_LIMIT + 1] } })
@@ -70,22 +65,19 @@ export const getChannelMessagesById = async (req: Request, res: Response) => {
 
 export const getWorkspaceByChannelId = async (req: Request, res: Response) => {
   const { cid } = req.params;
-  console.log("getWorkspaceByChannelId");
   const foundChannels = await Channel.findById(cid);
   res.status(200).json(foundChannels);
 };
 
 export const addMessage = async (req: Request, res: Response) => {
-  console.log("addMessage");
   const { from, message } = req.body;
   const to = JSON.parse(req.body.to);
   // @ts-ignore
   const location = req.file?.location;
-  const { io } = res.locals;
 
   if (!message && !location) throw new ExpressError("Invalid message.", 400);
 
-  const channelId = await sendingMessages(io, from, to, message, location);
+  const channelId = await sendingMessages(from, to, message, location);
 
   res.status(200).json({ to: channelId });
 };

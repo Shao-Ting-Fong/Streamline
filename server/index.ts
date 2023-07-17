@@ -12,7 +12,6 @@ import videoRouter from "./routes/videoRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import chatRouter from "./routes/chat/chatRoutes.js";
 import videoChat from "./socket/videoChat.js";
-import chatroom from "./socket/chatroom.js";
 import authenticate from "./middleware/authenticate.js";
 
 const dbUrl =
@@ -39,7 +38,6 @@ const io = new Server(httpServer, {
 });
 
 videoChat.init(io);
-chatroom.init(io);
 
 app.use(cors());
 app.use(cookieParser());
@@ -48,10 +46,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.locals.io = io;
-  next();
-});
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//   res.locals.io = io;
+//   next();
+// });
 
 app.use("/video", videoRouter);
 app.use("/auth", authRouter);

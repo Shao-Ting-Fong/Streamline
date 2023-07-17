@@ -56,6 +56,7 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
 
   useEffect(() => {
     socket.on("message", (data) => {
+      console.log("message", data);
       if (data.message.username !== userProfile.username || data.message.type !== "text") {
         updateMessages((prev) => [data.message, ...prev]);
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

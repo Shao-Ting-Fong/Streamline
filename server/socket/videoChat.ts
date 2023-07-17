@@ -147,7 +147,6 @@ const videoChat = function () {
 
           if (rooms[roomName].peers?.length === 1) {
             delete rooms[roomName];
-            // chatConnection.emit("endVideoMeeting", { roomName });
           } else {
             rooms[roomName] = {
               router: rooms[roomName].router,
@@ -178,7 +177,6 @@ const videoChat = function () {
               router1 = await worker.createRouter({ mediaCodecs });
               const message = "I've launched a video meeting, click the video button to join in!";
               await sendingMessages(
-                io,
                 token,
                 { workspace, type: undefined, id: roomName as unknown as Types.ObjectId },
                 message,
