@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ExpressError } from "../utils/errorHandler.js";
 import { User, Channel, Workspace } from "../models/index.js";
 import { Types } from "mongoose";
+import { redis } from "../models/redis.js";
 
 export const getWorkspacesByUserId = async (req: Request, res: Response) => {
   const { userId } = res.locals;
@@ -20,7 +21,7 @@ export const getWorkspaceMembers = async (req: Request, res: Response) => {
 };
 
 export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
-  const { io, userId } = res.locals;
+  const { userId } = res.locals;
   const { wid } = req.params as { wid: unknown } as { wid: Types.ObjectId };
   const foundUser = await User.findById(userId);
   const foundWorkspace = await Workspace.findById(wid);
@@ -47,7 +48,8 @@ export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
     { runValidators: true }
   );
 
-  io.of("/chatroom").emit("newMember");
+  redis.publish("message.newMember", JSON.stringify({ event: "newMember" }));
+  // io.of("/chatroom").emit("newMember");
 
   res.status(200).json({ workspaceId: wid });
 };

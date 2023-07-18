@@ -76,6 +76,11 @@ subscriber.on("pmessage", (pattern, channel, message) => {
     return;
   }
 
+  if (event === "newMember") {
+    connections.emit("newMember");
+    return;
+  }
+
   console.log(`Unknown event. Received ${message} from ${channel}`);
 });
 server.listen(3002, () => {

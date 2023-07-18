@@ -109,9 +109,9 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
     navigate("/");
   };
 
-  const hasUnread = (workspaceId, currWorksapce) => {
+  const hasUnread = (workspaceId, currWorkspace) => {
     return Object.values(channelUnread).some(
-      (ele) => ele.workspaceId !== currWorksapce && ele.workspaceId === workspaceId && ele.unread
+      (ele) => ele.workspaceId !== currWorkspace && ele.workspaceId === workspaceId && ele.unread
     );
   };
 

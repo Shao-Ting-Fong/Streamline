@@ -31,7 +31,7 @@ router.get(
   param("wid").custom((value) => mongoose.isValidObjectId(value)),
   handleResult,
   authenticate,
-  authorization,
+  // authorization,
   catchAsync(joinWorkspaceByUrl)
 );
 
