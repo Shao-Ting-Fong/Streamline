@@ -63,6 +63,11 @@ subscriber.on("pmessage", (pattern, channel, message) => {
         connections.to(`roomId:${channelId}`).emit("message", response);
         return;
     }
+    if (event === "newMember") {
+        console.log("new memer event.");
+        connections.emit("newMember");
+        return;
+    }
     console.log(`Unknown event. Received ${message} from ${channel}`);
 });
 server.listen(3002, () => {

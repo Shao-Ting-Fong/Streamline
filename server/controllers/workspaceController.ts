@@ -49,7 +49,6 @@ export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
   );
 
   redis.publish("message.newMember", JSON.stringify({ event: "newMember" }));
-  // io.of("/chatroom").emit("newMember");
 
   res.status(200).json({ workspaceId: wid });
 };
