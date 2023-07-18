@@ -17,7 +17,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: streamline
     container_name: streamline
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
     ports:
       - "80:3000"
       - "2000-2201:2000-2201"
@@ -29,7 +34,12 @@ services:
     build:
       context: ./socket
       dockerfile: Dockerfile
+    image: socket
     container_name: socket
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
     ports:
       - "3002:3002"
     networks:
