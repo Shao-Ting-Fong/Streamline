@@ -51,7 +51,6 @@ export const sendingMessages = async (
       "message.user-notification",
       JSON.stringify({ event: "notification", userId: member, channelId: foundChannel._id })
     );
-    // connections.to(`userId:${member}`).emit("notification", { to: foundChannel._id });
   });
 
   insertData.forEach((data) => {
@@ -66,7 +65,6 @@ export const sendingMessages = async (
       },
     };
     redis.publish("message.room-message", JSON.stringify({ event: "message", channelId: foundChannel._id, response }));
-    // connections.to(`roomId:${foundChannel._id}`).emit("message", response);
   });
 
   return foundChannel._id;

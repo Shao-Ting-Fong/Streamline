@@ -5,13 +5,13 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import "dotenv/config";
 import { Server } from "socket.io";
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import { errorHandler } from "./utils/errorHandler.js";
 
 import videoRouter from "./routes/videoRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import chatRouter from "./routes/chat/chatRoutes.js";
-import videoChat from "./socket/videoChat.js";
+import videoChat from "./utils/videoChat.js";
 import authenticate from "./middleware/authenticate.js";
 
 const dbUrl =
@@ -37,7 +37,7 @@ const io = new Server(httpServer, {
   },
 });
 
-videoChat.init(io);
+videoChat(io);
 
 app.use(cors());
 app.use(cookieParser());
@@ -45,11 +45,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "../client/dist")));
-
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   res.locals.io = io;
-//   next();
-// });
 
 app.use("/video", videoRouter);
 app.use("/auth", authRouter);

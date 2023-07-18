@@ -61,7 +61,7 @@ let params = {
   },
 };
 
-const VideoChat = ({ setStreaming, userProfile }) => {
+const VideoChat = ({ setStreaming }) => {
   const [videoSocket] = useState(() => {
     return io(`${API_ROUTE}/mediasoup`);
   });
@@ -78,7 +78,6 @@ const VideoChat = ({ setStreaming, userProfile }) => {
   const { wid, cid } = useParams();
   const [localStream, setLocalStream] = useState();
   const [remoteStreams, setRemoteStreams] = useState({});
-  const [trackState, setTrackState] = useState({});
   const [isMute, setMute] = useState(false);
   const [isStopPlaying, setStopPlaying] = useState(false);
 
@@ -125,12 +124,9 @@ const VideoChat = ({ setStreaming, userProfile }) => {
             streams[remoteProducerId] = {
               src: new MediaStream([track]),
               kind: params.kind,
+              socketId: params.socketId,
+              enabled: true,
             };
-            return { ...streams };
-          });
-
-          setTrackState((streams) => {
-            streams[remoteProducerId] = true;
             return { ...streams };
           });
 
@@ -327,11 +323,6 @@ const VideoChat = ({ setStreaming, userProfile }) => {
         delete streams[remoteProducerId];
         return { ...streams };
       });
-
-      setTrackState((streams) => {
-        delete streams[remoteProducerId];
-        return { ...streams };
-      });
     });
 
     return () => {
@@ -344,8 +335,8 @@ const VideoChat = ({ setStreaming, userProfile }) => {
 
   useEffect(() => {
     videoSocket.on("updateTrack", ({ remoteProducerId, state }) => {
-      setTrackState((streams) => {
-        streams[remoteProducerId] = state;
+      setRemoteStreams((streams) => {
+        streams[remoteProducerId].enabled = state;
         return { ...streams };
       });
     });
@@ -381,6 +372,15 @@ const VideoChat = ({ setStreaming, userProfile }) => {
     setStreaming(false);
   };
 
+  const findAudioState = (obj, videoSocketId) => {
+    for (const key of Object.keys(obj)) {
+      const { kind, socketId, enabled } = obj[key];
+      console.log(kind, socketId, enabled);
+      if (kind === "audio" && socketId === videoSocketId) return enabled;
+    }
+    return false;
+  };
+
   return (
     <main className="h-full w-full flex">
       <div id="main_videos" className="grow relative bg-black justify-center items-center">
@@ -393,25 +393,27 @@ const VideoChat = ({ setStreaming, userProfile }) => {
             ) : (
               <Video mediaSrc={localStream} />
             )}
-            {/* {isMute && <MicOffIcon fontSize="small" className="absolute bottom-0 right-0 text-[#EB534B]" />}
-            <div className="absolute bottom-0 left-0 text-base px-2 bg-black text-white opacity-70">
+            {isMute && <MicOffIcon fontSize="small" className="absolute bottom-0 right-0 text-[#EB534B]" />}
+            {/* <div className="absolute bottom-0 left-0 text-base px-2 bg-black text-white opacity-70">
               {userProfile.username}
             </div> */}
           </div>
 
           {Object.keys(remoteStreams).map((key) => {
             if (remoteStreams[key].kind === "audio") {
-              return <Audio mediaSrc={remoteStreams[key].src} />;
+              return <Audio mediaSrc={remoteStreams[key].src} key={key} />;
             } else {
+              const audioState = findAudioState(remoteStreams, remoteStreams[key].socketId);
               return (
                 <div className="relative h-[200px] w-[300px] max-h-[300px] max-w-[400px] object-cover m-2" key={key}>
-                  {trackState[key] ? (
+                  {remoteStreams[key].enabled ? (
                     <Video mediaSrc={remoteStreams[key].src} />
                   ) : (
                     <div className="w-full h-full bg-dark-gray-background text-white flex justify-center items-center opacity-50">
                       <VideocamOffIcon fontSize="large" />
                     </div>
                   )}
+                  {!audioState && <MicOffIcon fontSize="small" className="absolute bottom-0 right-0 text-[#EB534B]" />}
                 </div>
               );
             }
