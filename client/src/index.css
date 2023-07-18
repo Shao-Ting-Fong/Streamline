@@ -3,16 +3,8 @@
 @tailwind utilities;
 
 @layer utilities {
-  .scrollbar-members::-webkit-scrollbar {
-    @apply bg-dark-gray-sidebar;
-  }
-
-  .scrollbar-videochat::-webkit-scrollbar {
-    @apply bg-black;
-  }
-
-  .scrollbar-chatbody::-webkit-scrollbar {
-    @apply bg-dark-gray-background;
+  .scrollbar::-webkit-scrollbar {
+    @apply hidden;
   }
 }
 

@@ -213,8 +213,6 @@ body {
 
 .channel-list__container {
   display: flex;
-  /* height: 800px; */
-  /* width: 20%; */
   height: 100%;
   box-shadow: inset 1px 0px 0px rgba(0, 0, 0, 0.1);
 }
@@ -247,6 +245,8 @@ body {
   flex-direction: column;
   background: var(--dark-gray-sidebar);
   width: 260px;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 .icon__inner {

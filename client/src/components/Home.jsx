@@ -15,16 +15,6 @@ const Home = ({ userProfile, setUserProfile }) => {
   const authToken = cookies.get("jwtToken");
   const authString = `Bearer ${authToken}`;
 
-  // const handleGoWorkspaceClick = () => {
-  //   try {
-  //     if (!authToken) {
-  //       toast.error("Log in to continue.");
-  //       navigate("/auth");
-  //       return;
-  //     }
-  //   } catch (error) {}
-  // };
-
   const handleSubmit = async (evt) => {
     try {
       evt.preventDefault();

@@ -1,15 +1,17 @@
 import axios from "axios";
-// import Button from "@mui/material/Button";
-// import TextField from "@mui/material/TextField";
-// import Switch from "@mui/material/Switch";
-// import Dialog from "@mui/material/Dialog";
-// import DialogActions from "@mui/material/DialogActions";
-// import DialogContent from "@mui/material/DialogContent";
-// import DialogTitle from "@mui/material/DialogTitle";
-import { Button, TextField, Switch, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Switch,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  InputAdornment,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { BiLockAlt } from "react-icons/bi";
+import { BiLockAlt, BiSearch } from "react-icons/bi";
 import { socket } from "../socket";
 import Cookies from "universal-cookie";
 import { toast } from "react-toastify";
@@ -23,6 +25,7 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
   const authString = `Bearer ${authToken}`;
   const { wid } = useParams();
   const [workspaceMembers, setWorkspaceMembers] = useState([]);
+  const [searchPattern, setSearchPattern] = useState(new RegExp());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +53,11 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
 
   const handleClose = () => {
     setIsCreatingChannel(false);
+  };
+
+  const handleSearch = (evt) => {
+    console.log(evt.target.value);
+    setSearchPattern(new RegExp(`^${evt.target.value}`, "i"));
   };
 
   const handleSubmit = async (evt) => {
@@ -108,27 +116,45 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
             <Switch className="ml-auto" id="privateChannel" name="isPrivate" value="true" />
           </div>
 
-          <h3 className="mt-8 text-xl">Invite Members</h3>
+          <h3 className="mt-8 mb-2 text-xl">Invite Members</h3>
+          <TextField
+            margin="dense"
+            id="search"
+            label="Search Member"
+            type="text"
+            fullWidth
+            variant="standard"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="start">
+                  <BiSearch fontSize="large" />
+                </InputAdornment>
+              ),
+            }}
+            onChange={handleSearch}
+          />
           <div className="h-full mt-4">
-            {workspaceMembers.map((member) => (
-              <div
-                className={`flex items-center px-3 py-2 hover:bg-light-color-purple ${
-                  member._id === userProfile._id ? "hidden" : ""
-                }`}
-                key={member._id}>
-                <img className="h-10" src={IMG_ROUTE + member.avatarURL} alt="" />
-                <label htmlFor={member._id} className="ml-6">
-                  {member.username}
-                </label>
-                <input
-                  className=" ml-auto w-4 h-4"
-                  type="checkbox"
-                  defaultChecked={member._id === userProfile._id}
-                  name={member._id}
-                  id={member._id}
-                />
-              </div>
-            ))}
+            {workspaceMembers
+              // .filter((member) => member.username.match(searchPattern))
+              .map((member) => (
+                <div
+                  className={`flex items-center px-3 py-2 hover:bg-light-color-purple ${
+                    member._id === userProfile._id || !member.username.match(searchPattern) ? "hidden" : ""
+                  }`}
+                  key={member._id}>
+                  <img className="h-10" src={IMG_ROUTE + member.avatarURL} alt="" />
+                  <label htmlFor={member._id} className="ml-6">
+                    {member.username}
+                  </label>
+                  <input
+                    className=" ml-auto w-4 h-4"
+                    type="checkbox"
+                    defaultChecked={member._id === userProfile._id}
+                    name={member._id}
+                    id={member._id}
+                  />
+                </div>
+              ))}
           </div>
         </form>
       </DialogContent>

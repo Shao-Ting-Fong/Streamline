@@ -70,7 +70,7 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
     <>
       <div
         id="message-container"
-        className="w-full h-full flex-grow flex flex-col-reverse px-3 overflow-y-scroll bg-dark-gray-background scrollbar-chatbody">
+        className="w-full h-full flex-grow flex flex-col-reverse px-3 overflow-y-scroll bg-dark-gray-background scrollbar">
         <div ref={messagesEndRef} />
         <InfiniteScroll
           dataLength={messages.length}

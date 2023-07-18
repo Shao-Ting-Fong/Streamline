@@ -45,8 +45,8 @@ const ChannelListContainer = ({ channelUnread, setChannelUnread, userProfile }) 
 
   return (
     <>
-      <div className="channel-list__container">
-        <div className="channel-list__list__wrapper">
+      <div className="channel-list__container scrollbar">
+        <div className="channel-list__list__wrapper scrollbar">
           <CompanyHeader wid={wid} workspaceTitle={workspaceTitle} />
           <div className="mt-4">
             <TeamChannelList type="team" userProfile={userProfile} setTeamChannels={setTeamChannels} />

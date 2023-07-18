@@ -384,7 +384,7 @@ const VideoChat = ({ setStreaming }) => {
   return (
     <main className="h-full w-full flex">
       <div id="main_videos" className="grow relative bg-black justify-center items-center">
-        <div className="w-full h-full flex justify-center items-center flex-wrap overflow-y-scroll scrollbar-videochat">
+        <div className="w-full h-full flex justify-center items-center flex-wrap overflow-y-scroll scrollbar">
           <div className="relative h-[200px] w-[300px] max-h-[300px] max-w-[400px] object-cover m-2">
             {isStopPlaying ? (
               <div className="w-full h-full bg-dark-gray-background text-white flex justify-center items-center opacity-50">

@@ -17,7 +17,7 @@ const CompanyHeader = ({ wid, workspaceTitle }) => {
   };
 
   return (
-    <div className="h-[50px] border-b border-dark-gray-navbar flex items-center pl-4">
+    <div className="h-[50px] border-b border-dark-gray-navbar bg-dark-gray-sidebar flex items-center pl-4 shrink-0 sticky top-0 z-10">
       <p className="text-xl font-bold text-white truncate">{workspaceTitle}</p>
       <Tooltip title={<h1 className="text-sm">{isCopied ? "Copied!" : "Invitation Link"}</h1>} placement="right" arrow>
         <div className="ml-auto mr-3">

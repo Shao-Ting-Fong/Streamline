@@ -30,7 +30,7 @@ const MemberList = ({ members, userProfile }) => {
           style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
           <h3 className="text-lg text-white">Members</h3>
         </div>
-        <div className="h-full overflow-y-scroll scrollbar-members bg-dark-gray-sidebar text-white">
+        <div className="h-full overflow-y-scroll scrollbar bg-dark-gray-sidebar text-white">
           {members
             .filter((member) => member.online === "1" && member._id !== userProfile._id)
             .map((member) => (

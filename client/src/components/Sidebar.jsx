@@ -118,27 +118,29 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
   return (
     <>
       <div className="channel-list__sidebar">
-        {workspaces.length > 0 &&
-          workspaces.map((workspace) => (
-            <Link to={`${workspace._id}/channel`} key={workspace._id}>
-              <div className="channel-list__sidebar__icon">
-                <Tooltip
-                  key={workspace._id}
-                  title={<h1 className="text-sm">{workspace.title}</h1>}
-                  placement="right"
-                  arrow>
-                  <div className="icon__inner">
-                    <BadgeAvatar
-                      imgUrl={IMG_ROUTE + workspace.avatarURL}
-                      position={{ vertical: "top", horizontal: "right" }}
-                      showState={hasUnread(workspace._id, wid)}
-                      stateColor={"#CC3333"}
-                    />
-                  </div>
-                </Tooltip>
-              </div>
-            </Link>
-          ))}
+        <div className="overflow-y-scroll scrollbar">
+          {workspaces.length > 0 &&
+            workspaces.map((workspace) => (
+              <Link to={`${workspace._id}/channel`} key={workspace._id}>
+                <div className="channel-list__sidebar__icon">
+                  <Tooltip
+                    key={workspace._id}
+                    title={<h1 className="text-sm">{workspace.title}</h1>}
+                    placement="right"
+                    arrow>
+                    <div className="icon__inner">
+                      <BadgeAvatar
+                        imgUrl={IMG_ROUTE + workspace.avatarURL}
+                        position={{ vertical: "top", horizontal: "right" }}
+                        showState={hasUnread(workspace._id, wid)}
+                        stateColor={"#CC3333"}
+                      />
+                    </div>
+                  </Tooltip>
+                </div>
+              </Link>
+            ))}
+        </div>
         <div className="channel-list__sidebar__icon" onClick={handleClickOpen}>
           <Tooltip title={<h1 className="text-sm">Add Workspace</h1>} placement="right" arrow>
             <div className="icon__inner">
