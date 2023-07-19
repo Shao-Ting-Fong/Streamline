@@ -73,7 +73,10 @@ const Home = ({ userProfile, setUserProfile }) => {
               </Link>
             </p>
           </header>
-          <img className="z-10 absolute left-1/2 top-[10%] w-1/2 shadow-2xl" src={MainPage} alt="" />
+          {/* <div className=""></div> */}
+          <div className="z-10 absolute left-[47%] top-[10%] w-[53%] shadow-2xl">
+            <img className="w-full" src={MainPage} alt="" />
+          </div>
         </main>
         <Footer />
       </div>
