@@ -83,22 +83,28 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
           scrollableTarget="message-container">
           {messages.length > 0 &&
             messages.map((msg, idx) => (
-              <div className="w-full flex items-start" key={idx}>
+              <div className="w-full flex items-start " key={idx}>
                 <Avatar src={IMG_ROUTE + msg.avatarURL} />
-                <div className="w-full px-4 py-2 mx-3 mb-3 bg-light-color-blue-background rounded-md" key={idx}>
-                  <p className="text-md font-bold opacity-70 mb-2">
-                    {msg.username}{" "}
-                    <span className="text-secondary text-sm font-normal">{dayjs(msg.time).format("HH:mm a")}</span>
-                  </p>
-                  {["text", "system"].includes(msg.type) && <p className="break-all">{msg.text}</p>}
-                  {msg.type === "image" && (
-                    <img
-                      src={msg.text}
-                      alt=""
-                      className="h-[200px] mt-2 cursor-pointer"
-                      onClick={() => handlePreview(msg.text)}
-                    />
-                  )}
+                <div className="w-full px-1 pb-2 mx-3 mb-3" key={idx}>
+                  <p className="text-md font-bold mb-2 text-white">{msg.username} </p>
+                  <div className="flex items-end">
+                    {["text", "system"].includes(msg.type) && (
+                      <p className="max-w-[80%] bg-light-color-blue-background break-all text-black rounded-md px-3 py-2">
+                        {msg.text}
+                      </p>
+                    )}
+                    {msg.type === "image" && (
+                      <img
+                        src={msg.text}
+                        alt=""
+                        className="h-[200px] mt-1 cursor-pointer"
+                        onClick={() => handlePreview(msg.text)}
+                      />
+                    )}
+                    <span className="ml-2 -mb-1 text-sm font-normal text-white opacity-70">
+                      {dayjs(msg.time).format("HH:mm a")}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
