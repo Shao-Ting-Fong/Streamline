@@ -214,7 +214,8 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
                 </label>
 
                 <input
-                  className="bg-transparent w-full h-1/2 ml-4 focus:outline-none text-white focus:bg-transparent"
+                  className="bg-transparent w-full h-1/2 ml-4 focus:outline-none text-white"
+                  autoComplete="off"
                   name="message"
                   value={newMsg}
                   placeholder="Say Something..."
