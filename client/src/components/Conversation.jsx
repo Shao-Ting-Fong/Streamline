@@ -177,7 +177,7 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
           />
           <form method="post" encType="multipart/form-data" onSubmit={sendMessage}>
             <div
-              className={`h-[210px] w-full bg-dark-gray-background border-t border-dark-gray-navbar flex items-center px-3 shrink-0 ${
+              className={`h-[210px] w-full bg-dark-gray-background border-t border-dark-gray-navbar flex items-center px-5 shrink-0 ${
                 !fileDataURL && "hidden"
               }`}>
               <div className="rounded-lg relative">
@@ -197,9 +197,9 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
               </div>
             </div>
             <div
-              className="h-[62px] w-full bg-dark-gray-background flex items-center shrink-0"
+              className=" w-full bg-dark-gray-background flex items-center shrink-0"
               style={{ boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)" }}>
-              <div className="w-full h-full flex items-center mx-3">
+              <div className="w-full h-[50px] flex items-center m-5 px-3 bg-gray-500 bg-opacity-40 rounded-md">
                 <input
                   className="hidden"
                   type="file"
@@ -214,9 +214,10 @@ const Conversation = ({ currChannel, showMembers, setShowMembers, userProfile, m
                 </label>
 
                 <input
-                  className="bg-light-color-blue-background w-full h-1/2 ml-3 ps-5 rounded-full focus:outline-none"
+                  className="bg-transparent w-full h-1/2 ml-4 focus:outline-none text-white focus:bg-transparent"
                   name="message"
                   value={newMsg}
+                  placeholder="Say Something..."
                   onChange={(e) => setNewMsg(e.target.value)}
                 />
                 <button className="ml-3" disabled={isDisabled}>
