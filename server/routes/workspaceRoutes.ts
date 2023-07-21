@@ -5,13 +5,13 @@ import {
   getWorkspaceMembers,
   joinWorkspaceByUrl,
   createWorkspace,
-} from "../../controllers/workspaceController.js";
-import { uploadWorkspaceImageToS3 } from "../../middleware/upload.js";
-import catchAsync from "../../utils/catchAsync.js";
-import authenticate from "../../middleware/authenticate.js";
-import authorization from "../../middleware/authorization.js";
+} from "../controllers/workspaceController.js";
+import { uploadWorkspaceImageToS3 } from "../middleware/upload.js";
+import catchAsync from "../utils/catchAsync.js";
+import authenticate from "../middleware/authenticate.js";
+import authorization from "../middleware/authorization.js";
 import mongoose from "mongoose";
-import { handleResult } from "../../middleware/validator.js";
+import { handleResult } from "../middleware/validator.js";
 
 const router = Router();
 

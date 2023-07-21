@@ -15,7 +15,6 @@ export const findOrAddChannel = async (userId: string, to: MessageTo) => {
       $and: [{ category: "direct" }, { workspaceId: workspace }, { members: userId }, { members: id }],
     });
     if (!foundChannel) {
-      // create new channel
       const newChannel = new Channel({
         workspaceId: workspace,
         title: "???",

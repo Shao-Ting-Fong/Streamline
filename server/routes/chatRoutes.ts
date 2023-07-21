@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
 import { param, body } from "express-validator";
 import mongoose from "mongoose";
 import workspaceRoutes from "./workspaceRoutes.js";
@@ -10,13 +10,18 @@ import {
   getChannelMessagesById,
   getWorkspaceByChannelId,
   createNewChannel,
-} from "../../controllers/channelController.js";
-import { uploadMessagesToS3 } from "../../middleware/upload.js";
-import catchAsync from "../../utils/catchAsync.js";
-import { handleResult } from "../../middleware/validator.js";
-import authorization from "../../middleware/authorization.js";
+} from "../controllers/channelController.js";
+import { uploadMessagesToS3 } from "../middleware/upload.js";
+import catchAsync from "../utils/catchAsync.js";
+import { handleResult } from "../middleware/validator.js";
+import authorization from "../middleware/authorization.js";
 
 const router = Router();
+
+const urlValidation = [
+  param("wid").custom((value) => mongoose.isValidObjectId(value)),
+  param("cid").custom((value) => mongoose.isValidObjectId(value)),
+];
 
 router.use("/workspace", workspaceRoutes);
 
@@ -27,19 +32,11 @@ router.get(
   catchAsync(getUserChannels)
 );
 
-router.post(
-  "/workspace/:wid/channel/new",
-  param("wid").custom((value) => mongoose.isValidObjectId(value)),
-  body("channelName").exists().trim().notEmpty().isLength({ max: 30 }),
-  body("isPrivate").exists().isIn(["true", "false"]),
-  handleResult,
-  catchAsync(createNewChannel)
-);
+router.post("/workspace/:wid/channel/new", urlValidation, handleResult, catchAsync(createNewChannel));
 
 router.get(
   "/workspace/:wid/channel/:cid/info",
-  param("wid").custom((value) => mongoose.isValidObjectId(value)),
-  param("cid").custom((value) => mongoose.isValidObjectId(value)),
+  urlValidation,
   handleResult,
   authorization,
   catchAsync(getChannelInfoById)
@@ -47,8 +44,7 @@ router.get(
 
 router.get(
   "/workspace/:wid/channel/:cid/members",
-  param("wid").custom((value) => mongoose.isValidObjectId(value)),
-  param("cid").custom((value) => mongoose.isValidObjectId(value)),
+  urlValidation,
   handleResult,
   authorization,
   catchAsync(getChannelMembersById)
@@ -56,8 +52,7 @@ router.get(
 
 router.get(
   "/workspace/:wid/channel/:cid/msg",
-  param("wid").custom((value) => mongoose.isValidObjectId(value)),
-  param("cid").custom((value) => mongoose.isValidObjectId(value)),
+  urlValidation,
   handleResult,
   authorization,
   catchAsync(getChannelMessagesById)
@@ -65,8 +60,7 @@ router.get(
 
 router.post(
   "/workspace/:wid/channel/:cid/msg",
-  param("wid").custom((value) => mongoose.isValidObjectId(value)),
-  param("cid").custom((value) => mongoose.isValidObjectId(value)),
+  urlValidation,
   uploadMessagesToS3.single("file"),
   body("from").exists().isJWT(),
   body("to").exists().isJSON(),

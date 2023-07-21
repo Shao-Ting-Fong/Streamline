@@ -45,21 +45,6 @@ export const uploadMessagesToS3 = multer({
   limits: { fileSize: MAX_FILE_SIZE },
 });
 
-// const avatarsMulterS3Config = multerS3({
-//   s3: s3Config,
-//   bucket: process.env.BUCKET_NAME ?? "",
-//   acl: "public-read",
-//   key: function (req, file, cb) {
-//     cb(null, "uploads/avatars/" + nanoid() + path.extname(file.originalname));
-//   },
-// });
-
-// export const uploadAvatarsToS3 = multer({
-//   storage: avatarsMulterS3Config,
-//   fileFilter,
-//   limits: { fileSize: MAX_FILE_SIZE },
-// });
-
 const workspaceMulterS3Config = multerS3({
   s3: s3Config,
   bucket: process.env.BUCKET_NAME ?? "",

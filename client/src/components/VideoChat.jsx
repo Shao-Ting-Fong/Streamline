@@ -86,132 +86,41 @@ const VideoChat = ({ setStreaming }) => {
     let consumingTransports = [];
     let onClose;
 
-    const connectRecvTransport = async (consumerTransport, remoteProducerId, serverConsumerTransportId) => {
-      await videoSocket.emit(
-        "consume",
-        {
-          rtpCapabilities: device.current.rtpCapabilities,
-          remoteProducerId,
-          serverConsumerTransportId,
-        },
-        async ({ params }) => {
-          if (params.error) {
-            console.log("Cannot Consume.");
-            toast.error("Oops! Something went wrong:(");
-            return;
+    const streamSuccess = async (stream) => {
+      setLocalStream(stream);
+      onClose = () => {
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      audioParams.current.track = stream.getAudioTracks()[0];
+      videoParams.current.track = stream.getVideoTracks()[0];
+
+      const data = await new Promise((resolve, reject) => {
+        videoSocket.emit("joinRoom", { roomName: cid, workspace: wid, token: authToken }, (data) => {
+          if (data.error) {
+            toast.error(data.error);
+            setStreaming(false);
+            reject(data.error);
           }
 
-          const consumer = await consumerTransport.consume({
-            id: params.id,
-            producerId: params.producerId,
-            kind: params.kind,
-            rtpParameters: params.rtpParameters,
-          });
-
-          consumerTransports = [
-            ...consumerTransports,
-            {
-              consumerTransport,
-              serverConsumerTransportId: params.id,
-              producerId: remoteProducerId,
-              consumer,
-            },
-          ];
-
-          const { track } = consumer;
-
-          setRemoteStreams((streams) => {
-            streams[remoteProducerId] = {
-              src: new MediaStream([track]),
-              kind: params.kind,
-              socketId: params.socketId,
-              enabled: true,
-            };
-            return { ...streams };
-          });
-
-          videoSocket.emit("consumer-resume", {
-            serverConsumerId: params.serverConsumerId,
-          });
-        }
-      );
-    };
-
-    const connectSendTransport = async () => {
-      audioProducer.current = await producerTransport.current.produce(audioParams.current);
-      videoProducer.current = await producerTransport.current.produce(videoParams.current);
-
-      audioProducer.current.on("trackended", () => {
-        console.log("audio track ended");
-
-        // close audio track
-      });
-
-      audioProducer.current.on("transportclose", () => {
-        console.log("audio transport ended");
-
-        // close audio track
-      });
-
-      videoProducer.current.on("trackended", () => {
-        console.log("video track ended");
-
-        // close video track
-      });
-
-      videoProducer.current.on("transportclose", () => {
-        console.log("video transport ended");
-
-        // close video track
-      });
-    };
-
-    const signalNewConsumerTransport = async (remoteProducerId) => {
-      if (consumingTransports.includes(remoteProducerId)) return;
-      consumingTransports.push(remoteProducerId);
-
-      await videoSocket.emit("createWebRtcTransport", { isConsumer: true }, ({ params }) => {
-        if (params.error) {
-          console.log(params.error);
-          toast.error("Oops! Something went wrong:(");
-          return;
-        }
-        let consumerTransport;
-        try {
-          consumerTransport = device.current.createRecvTransport(params);
-        } catch (error) {
-          console.log(error);
-          toast.error("Oops! Something went wrong:(");
-          return;
-        }
-
-        consumerTransport.on("connect", async ({ dtlsParameters }, callback, errback) => {
-          try {
-            await videoSocket.emit("transport-recv-connect", {
-              dtlsParameters,
-              serverConsumerTransportId: params.id,
-            });
-
-            // Tell the transport that parameters were transmitted.
-            callback();
-          } catch (error) {
-            // Tell the transport that something was wrong
-            errback(error);
-          }
+          resolve(data);
         });
-
-        connectRecvTransport(consumerTransport, remoteProducerId, params.id);
       });
+      // createDevice;
+      return data;
     };
 
-    // server informs the client of a new producer just joined
-    videoSocket.on("new-producer", ({ producerId }) => signalNewConsumerTransport(producerId));
+    const createDevice = async (data) => {
+      try {
+        device.current = new mediasoupClient.Device();
 
-    const getProducers = () => {
-      videoSocket.emit("getProducers", (producerIds) => {
-        // for each of the producer create a consumer
-        producerIds.forEach(signalNewConsumerTransport);
-      });
+        await device.current.load({
+          routerRtpCapabilities: data.rtpCapabilities,
+        });
+      } catch (error) {
+        console.log(error);
+        if (error.name === "UnsupportedError") toast.error("Browser not Supported.");
+      }
     };
 
     const createSendTransport = () => {
@@ -261,53 +170,142 @@ const VideoChat = ({ setStreaming }) => {
       });
     };
 
-    const createDevice = async (data) => {
-      try {
-        device.current = new mediasoupClient.Device();
+    const connectSendTransport = async () => {
+      audioProducer.current = await producerTransport.current.produce(audioParams.current);
+      videoProducer.current = await producerTransport.current.produce(videoParams.current);
 
-        await device.current.load({
-          routerRtpCapabilities: data.rtpCapabilities,
-        });
+      audioProducer.current.on("trackended", () => {
+        console.log("audio track ended");
 
-        // createSendTransport
-        createSendTransport();
-      } catch (error) {
-        console.log(error);
-        if (error.name === "UnsupportedError") toast.error("Browser not Supported.");
-      }
-    };
+        // close audio track
+      });
 
-    const streamSuccess = (stream) => {
-      setLocalStream(stream);
-      onClose = () => {
-        stream.getTracks().forEach((track) => track.stop());
-      };
+      audioProducer.current.on("transportclose", () => {
+        console.log("audio transport ended");
 
-      audioParams.current.track = stream.getAudioTracks()[0];
-      videoParams.current.track = stream.getVideoTracks()[0];
+        // close audio track
+      });
 
-      // joinRoom()
-      videoSocket.emit("joinRoom", { roomName: cid, workspace: wid, token: authToken }, (data) => {
-        if (data.error) {
-          toast.error(data.error);
-          setStreaming(false);
-          return;
-        }
-        createDevice(data);
+      videoProducer.current.on("trackended", () => {
+        console.log("video track ended");
+
+        // close video track
+      });
+
+      videoProducer.current.on("transportclose", () => {
+        console.log("video transport ended");
+
+        // close video track
       });
     };
 
-    videoSocket.on("connection-success", () => {
-      navigator.mediaDevices
-        .getUserMedia({
+    const signalNewConsumerTransport = (remoteProducerId) => {
+      if (consumingTransports.includes(remoteProducerId)) return;
+      consumingTransports.push(remoteProducerId);
+
+      videoSocket.emit("createWebRtcTransport", { isConsumer: true }, ({ params }) => {
+        try {
+          if (params.error) throw new Error(params.error);
+          const consumerTransport = device.current.createRecvTransport(params);
+          consumerTransport.on("connect", async ({ dtlsParameters }, callback, errback) => {
+            try {
+              videoSocket.emit("transport-recv-connect", {
+                dtlsParameters,
+                serverConsumerTransportId: params.id,
+              });
+
+              // Tell the transport that parameters were transmitted.
+              callback();
+            } catch (error) {
+              // Tell the transport that something was wrong
+              errback(error);
+            }
+          });
+
+          connectRecvTransport(consumerTransport, remoteProducerId, params.id);
+        } catch (error) {
+          console.log(error);
+          toast.error("Oops! Something went wrong:(");
+          return;
+        }
+      });
+    };
+
+    const connectRecvTransport = (consumerTransport, remoteProducerId, serverConsumerTransportId) => {
+      videoSocket.emit(
+        "consume",
+        {
+          rtpCapabilities: device.current.rtpCapabilities,
+          remoteProducerId,
+          serverConsumerTransportId,
+        },
+        async ({ params }) => {
+          if (params.error) {
+            toast.error(params.error.message);
+            return;
+          }
+          const consumer = await consumerTransport.consume({
+            id: params.id,
+            producerId: params.producerId,
+            kind: params.kind,
+            rtpParameters: params.rtpParameters,
+          });
+
+          consumerTransports = [
+            ...consumerTransports,
+            {
+              consumerTransport,
+              serverConsumerTransportId: params.id,
+              producerId: remoteProducerId,
+              consumer,
+            },
+          ];
+
+          const { track } = consumer;
+
+          setRemoteStreams((streams) => {
+            streams[remoteProducerId] = {
+              src: new MediaStream([track]),
+              kind: params.kind,
+              socketId: params.socketId,
+              enabled: true,
+            };
+            return { ...streams };
+          });
+
+          videoSocket.emit("consumer-resume", {
+            serverConsumerId: params.serverConsumerId,
+          });
+        }
+      );
+    };
+
+    // server informs the client of a new producer just joined
+    videoSocket.on("new-producer", ({ producerId }) => signalNewConsumerTransport(producerId));
+
+    const getProducers = () => {
+      videoSocket.emit("getProducers", (producerIds) => {
+        // for each of the producer create a consumer
+        producerIds.forEach(signalNewConsumerTransport);
+      });
+    };
+
+    videoSocket.on("connection-success", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: true,
-        })
-        .then(streamSuccess)
-        .catch((error) => {
-          toast.error(error.message);
-          // setStreaming(false);
         });
+        const deviceData = await streamSuccess(stream);
+        await createDevice(deviceData);
+        createSendTransport();
+      } catch (error) {
+        if (error.name === "UnsupportedError") {
+          toast.error("Browser not Supported.");
+          return;
+        }
+        toast.error(error.message);
+      }
     });
 
     videoSocket.on("producer-closed", ({ remoteProducerId }) => {
@@ -375,7 +373,6 @@ const VideoChat = ({ setStreaming }) => {
   const findAudioState = (obj, videoSocketId) => {
     for (const key of Object.keys(obj)) {
       const { kind, socketId, enabled } = obj[key];
-      console.log(kind, socketId, enabled);
       if (kind === "audio" && socketId === videoSocketId) return enabled;
     }
     return false;

@@ -43,7 +43,6 @@ const UserSchema = new Schema<IUser>(
 interface IMessage {
   _id: Types.ObjectId;
   from: Types.ObjectId; //userId
-  // to: Types.ObjectId; //roomId
   content: string;
   type: "text" | "image" | "system";
 }
@@ -65,12 +64,6 @@ const messageSchema = new Schema<IMessage>(
   },
   { timestamps: true }
 );
-
-// const channelMemberSchema = new Schema<IChannelMember>({
-//   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-//   role: { type: String, default: "member", required: true },
-//   power: { type: Number, default: 1, required: true },
-// });
 
 const channelSchema = new Schema<IChannel>({
   workspaceId: {

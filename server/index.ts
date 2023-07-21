@@ -10,7 +10,7 @@ import { errorHandler } from "./utils/errorHandler.js";
 
 import videoRouter from "./routes/videoRoutes.js";
 import authRouter from "./routes/authRoutes.js";
-import chatRouter from "./routes/chat/chatRoutes.js";
+import chatRouter from "./routes/chatRoutes.js";
 import videoChat from "./utils/videoChat.js";
 import authenticate from "./middleware/authenticate.js";
 
