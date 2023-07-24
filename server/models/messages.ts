@@ -1,7 +1,7 @@
 import { User } from "./index.js";
 import verifyJWT from "../utils/verifyJWT.js";
 import { MessageTo, findOrAddChannel } from "./channels.js";
-import { redis } from "../models/redis.js";
+import { publisher } from "../models/redis.js";
 import dayjs from "dayjs";
 import { Types } from "mongoose";
 import { ExpressError } from "../utils/errorHandler.js";
@@ -12,13 +12,21 @@ interface InsertData {
   type: "text" | "image" | "system";
 }
 
-export const sendingMessages = async (
-  from: string,
-  to: MessageTo,
-  message: string | undefined,
-  location: string | undefined,
-  messageType: InsertData["type"] = "text"
-): Promise<Types.ObjectId> => {
+interface sendingMessagesInput {
+  from: string;
+  to: MessageTo;
+  message: string | undefined;
+  location: string | undefined;
+  messageType?: InsertData["type"];
+}
+
+export const sendingMessages = async ({
+  from,
+  to,
+  message,
+  location,
+  messageType = "text",
+}: sendingMessagesInput): Promise<Types.ObjectId> => {
   const { userId } = await verifyJWT(from);
   const foundUser = await User.findById(userId);
   const CURR_TIME = dayjs();
@@ -47,7 +55,7 @@ export const sendingMessages = async (
   await foundChannel.save();
 
   foundChannel.members.forEach((member) => {
-    redis.publish(
+    publisher.publish(
       "message.user-notification",
       JSON.stringify({ event: "notification", userId: member, channelId: foundChannel._id })
     );
@@ -64,7 +72,10 @@ export const sendingMessages = async (
         type: data.type,
       },
     };
-    redis.publish("message.room-message", JSON.stringify({ event: "message", channelId: foundChannel._id, response }));
+    publisher.publish(
+      "message.room-message",
+      JSON.stringify({ event: "message", channelId: foundChannel._id, response })
+    );
   });
 
   return foundChannel._id;

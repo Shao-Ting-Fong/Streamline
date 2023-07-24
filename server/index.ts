@@ -37,7 +37,7 @@ const io = new Server(httpServer, {
   },
 });
 
-videoChat(io);
+// videoChat(io);
 
 app.use(cors());
 app.use(cookieParser());

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ExpressError } from "../utils/errorHandler.js";
 import { User, Channel, Workspace } from "../models/index.js";
 import { Types } from "mongoose";
-import { redis } from "../models/redis.js";
+import { publisher } from "../models/redis.js";
 
 export const getWorkspacesByUserId = async (req: Request, res: Response) => {
   const { userId } = res.locals;
@@ -48,7 +48,7 @@ export const joinWorkspaceByUrl = async (req: Request, res: Response) => {
     { runValidators: true }
   );
 
-  redis.publish("message.newMember", JSON.stringify({ event: "newMember" }));
+  publisher.publish("message.newMember", JSON.stringify({ event: "newMember" }));
 
   res.status(200).json({ workspaceId: wid });
 };

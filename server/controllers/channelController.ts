@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { redis } from "../models/redis.js";
+import { publisher } from "../models/redis.js";
 import { ExpressError } from "../utils/errorHandler.js";
 import { Channel } from "../models/index.js";
 import { sendingMessages } from "../models/messages.js";
@@ -40,7 +40,7 @@ export const getChannelMembersById = async (req: Request, res: Response) => {
     foundChannels.members.map(async (member) => {
       // @ts-ignore
       const { _id, username, avatarURL } = member;
-      const onlineState = (await redis.get(`online:${member._id}`)) ?? "0";
+      const onlineState = (await publisher.get(`online:${member._id}`)) ?? "0";
       return { _id, username, avatarURL, online: onlineState };
     })
   );
@@ -77,7 +77,7 @@ export const addMessage = async (req: Request, res: Response) => {
 
   if (!message && !location) throw new ExpressError("Invalid message.", 400);
 
-  const channelId = await sendingMessages(from, to, message, location);
+  const channelId = await sendingMessages({ from, to, message, location });
 
   res.status(200).json({ to: channelId });
 };

@@ -11,7 +11,7 @@ import MicOffIcon from "@mui/icons-material/MicOff";
 import VideocamOffIcon from "@mui/icons-material/VideocamOff";
 import CallEndIcon from "@mui/icons-material/CallEnd";
 
-const API_ROUTE = import.meta.env.VITE_API_ROUTE;
+const SOCKET_ROUTE = import.meta.env.VITE_SOCKET_ROUTE;
 
 const cookies = new Cookies();
 
@@ -63,7 +63,7 @@ let params = {
 
 const VideoChat = ({ setStreaming }) => {
   const [videoSocket] = useState(() => {
-    return io(`${API_ROUTE}/mediasoup`);
+    return io(`${SOCKET_ROUTE}/mediasoup`);
   });
 
   const authToken = cookies.get("jwtToken");
