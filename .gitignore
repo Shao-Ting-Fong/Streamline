@@ -2,6 +2,7 @@ server/dist/
 socket/dist/
 avatar/
 node_modules/
+coverage/
 .vscode/
 server/src/
 
