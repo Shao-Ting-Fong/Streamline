@@ -32,7 +32,12 @@ router.get(
   catchAsync(getUserChannels)
 );
 
-router.post("/workspace/:wid/channel/new", urlValidation, handleResult, catchAsync(createNewChannel));
+router.post(
+  "/workspace/:wid/channel/new",
+  param("wid").custom((value) => mongoose.isValidObjectId(value)),
+  handleResult,
+  catchAsync(createNewChannel)
+);
 
 router.get(
   "/workspace/:wid/channel/:cid/info",

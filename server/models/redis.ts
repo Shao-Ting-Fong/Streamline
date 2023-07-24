@@ -29,6 +29,4 @@ subscriber.on("pmessage", (pattern, channel, message) => {
     sendingMessages(messageInput);
     return;
   }
-
-  console.log(`Unknown event. Received ${message} from ${channel}`);
 });
