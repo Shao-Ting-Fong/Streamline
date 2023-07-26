@@ -91,7 +91,7 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
       <DialogTitle>Create New Channel</DialogTitle>
 
       <DialogContent>
-        <form id="createChannel" method="post" onSubmit={handleSubmit}>
+        <form id="createChannel" method="post" onSubmit={handleSubmit} autoComplete="off">
           <TextField
             autoFocus
             margin="dense"

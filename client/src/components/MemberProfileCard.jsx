@@ -51,7 +51,7 @@ const MemberProfileCard = ({ member, setMemberClicked }) => {
             <p className="text-xs text-secondary  my-2 pb-2 border-b border-secondary">{member._id}</p>
             <p className="text-sm">Joined on</p>
             <p className="text-xs mt-2">2023-06-30</p>
-            <form className="w-full mt-auto mb-1" onSubmit={handleSubmit}>
+            <form className="w-full mt-auto mb-1" onSubmit={handleSubmit} autoComplete="off">
               <input
                 className="text-xs pl-2 h-10 border w-full focus:outline-none"
                 type="text"

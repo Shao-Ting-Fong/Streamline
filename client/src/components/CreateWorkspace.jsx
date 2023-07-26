@@ -120,7 +120,7 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
           </DialogTitle>
 
           <DialogContent>
-            <form id="createWorkspace" method="post" onSubmit={handleSubmit} className="w-full">
+            <form id="createWorkspace" method="post" onSubmit={handleSubmit} className="w-full" autoComplete="off">
               <div className="border h-[80px] w-[80px] rounded-full relative mx-auto p-2">
                 <label htmlFor="avatarInput" className="cursor-pointer">
                   <AiFillPlusCircle className="absolute right-0 top-0 text-xl" />
@@ -166,7 +166,12 @@ const CreateWorkspace = ({ isCreatingWorkspace, setIsCreatingWorkspace }) => {
           </DialogTitle>
           <DialogContent>
             <p>Paste the invitation link below.</p>
-            <form id="inviteWorkspace" method="post" onSubmit={handleSubmit} className="mt-4 w-full flex">
+            <form
+              id="inviteWorkspace"
+              method="post"
+              onSubmit={handleSubmit}
+              className="mt-4 w-full flex"
+              autoComplete="off">
               <TextField
                 autoFocus
                 margin="dense"

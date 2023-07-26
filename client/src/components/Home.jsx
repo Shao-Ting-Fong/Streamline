@@ -57,7 +57,7 @@ const Home = ({ userProfile, setUserProfile }) => {
             <h2 className="text-light-color-gray mt-2">
               The all-in-one chat app for seamless team communication, collaboration, and video meetings.
             </h2>
-            <form onSubmit={handleSubmit} className="mt-4 w-full flex">
+            <form onSubmit={handleSubmit} className="mt-4 w-full flex" autoComplete="off">
               <input
                 className="bg-transparent text-white border h-[48px] grow rounded-xl pl-4 focus:outline-none"
                 type="text"

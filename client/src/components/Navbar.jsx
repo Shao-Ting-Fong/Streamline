@@ -30,7 +30,7 @@ const Navbar = ({ userProfile, setUserProfile }) => {
           </a>
         </div>
         <div className=" p-1 ml-3">
-          <a href="https://github.com/Shao-Ting-Fong/SlackClone">
+          <a href="https://github.com/Shao-Ting-Fong/Streamline">
             <BiLogoGithub className="inline-block align-middle text-3xl text-light-color-gray" />
           </a>
         </div>
@@ -39,7 +39,6 @@ const Navbar = ({ userProfile, setUserProfile }) => {
             Logout
           </button>
         ) : (
-          // <Link to={`auth`}>
           <button
             className="text-lg text-light-color-gray ml-8"
             onClick={() => {
@@ -47,7 +46,6 @@ const Navbar = ({ userProfile, setUserProfile }) => {
             }}>
             Signup / Login
           </button>
-          // </Link>
         )}
       </div>
     </nav>
