@@ -25,8 +25,6 @@ services:
       - REDIS_HOST=redis
     ports:
       - "80:3000"
-      - "2000-2201:2000-2201"
-      - "2000-2201:2000-2201/udp"
     networks:
       - my-net
 
@@ -42,5 +40,7 @@ services:
       - REDIS_HOST=redis
     ports:
       - "3002:3002"
+      - "2000-2201:2000-2201"
+      - "2000-2201:2000-2201/udp"
     networks:
       - my-net
