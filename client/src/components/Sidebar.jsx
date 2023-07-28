@@ -36,7 +36,6 @@ const Sidebar = ({ userProfile, setUserProfile, channelUnread, setChannelUnread 
           socket.emit("online", { userId: data._id });
 
           socket.on("notification", async ({ to }) => {
-            console.log(`Get Unread meassage to ${to}`);
             const { data } = await axios.get(`${API_ROUTE}/chat/channel/${to}`, {
               headers: {
                 Authorization: authString,

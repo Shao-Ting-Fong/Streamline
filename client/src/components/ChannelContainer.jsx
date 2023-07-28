@@ -51,7 +51,6 @@ const ChannelContainer = ({ userProfile }) => {
     try {
       getChannelMembersById(wid, cid);
       socket.on("onlineState", ({ userId, state }) => {
-        console.log("Online state changed. userId:", userId);
         setMembers((prevMembers) => {
           const idxOfMember = prevMembers.findIndex((member) => member._id === userId);
           if (idxOfMember !== -1) {

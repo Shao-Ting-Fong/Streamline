@@ -33,7 +33,6 @@ const ChannelListContainer = ({ channelUnread, setChannelUnread, userProfile }) 
         setTeamChannels(data.filter((ele) => ele.category !== "direct"));
         setDirectMessages(data.filter((ele) => ele.category === "direct"));
       } catch (error) {
-        console.log("ChannelListContainer Caught error.");
         const errorMessage = error.response ? error.response.data.errors : error.message;
         toast.error(errorMessage);
         if (error.response.status === 403) navigate(-1);

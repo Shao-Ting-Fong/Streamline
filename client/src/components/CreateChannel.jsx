@@ -41,7 +41,6 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
         getWorkspaceMembers();
       });
     } catch (error) {
-      console.log("CreateChannel Caught error.");
       const errorMessage = error.response ? error.response.data.errors : error.message;
       toast.error(errorMessage);
     }
@@ -56,7 +55,6 @@ const CreateChannel = ({ isCreatingChannel, setIsCreatingChannel, userProfile, s
   };
 
   const handleSearch = (evt) => {
-    console.log(evt.target.value);
     setSearchPattern(new RegExp(`^${evt.target.value}`, "i"));
   };
 

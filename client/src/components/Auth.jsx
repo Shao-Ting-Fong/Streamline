@@ -7,14 +7,6 @@ import { Navbar, Footer } from "./";
 
 const cookies = new Cookies();
 
-const initialState = {
-  username: "",
-  password: "",
-  confirmPassword: "",
-  avatarURL: "",
-  email: "",
-};
-
 const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const Auth = ({ userProfile, setUserProfile }) => {
@@ -23,19 +15,15 @@ const Auth = ({ userProfile, setUserProfile }) => {
   const location = useLocation();
   const inviteURL = location?.state?.inviteURL;
 
-  const [form, setForm] = useState(initialState);
   const [isSignup, setIsSignup] = useState(false);
-
-  const handleChange = (evt) => {
-    setForm({ ...form, [evt.target.name]: evt.target.value });
-  };
 
   const handleSubmit = async (evt) => {
     try {
       evt.preventDefault();
-
-      const { data } = await axios.post(`${API_ROUTE}/auth/${isSignup ? "signup" : "login"}`, form);
-
+      const formData = new FormData(evt.target);
+      const { data } = await axios.post(`${API_ROUTE}/auth/${isSignup ? "signup" : "login"}`, formData, {
+        headers: { "Content-Type": "application/json" },
+      });
       const { access_token, access_expired } = data.data;
 
       cookies.set("jwtToken", access_token, {
@@ -85,7 +73,7 @@ const Auth = ({ userProfile, setUserProfile }) => {
 
       <div className="auth__form-container_fields-content">
         <p>{isSignup ? "Sign Up" : "Sign In"}</p>
-        <form onSubmit={handleSubmit}>
+        <form method="post" onSubmit={handleSubmit}>
           <div className="auth__form-container_fields-content_input">
             <label htmlFor="username">Username</label>
             <input
@@ -94,14 +82,13 @@ const Auth = ({ userProfile, setUserProfile }) => {
               placeholder="Username"
               key={isSignup ? "SignUpUsername" : "LogInUsername"}
               defaultValue={isSignup ? "" : "Demo1"}
-              onChange={handleChange}
               required
             />
           </div>
           {isSignup && (
             <div className="auth__form-container_fields-content_input">
               <label htmlFor="email">Email</label>
-              <input type="email" name="email" placeholder="abc@abc.com" onChange={handleChange} required />
+              <input type="email" name="email" placeholder="abc@abc.com" required />
             </div>
           )}
           <div className="auth__form-container_fields-content_input">
@@ -112,7 +99,6 @@ const Auth = ({ userProfile, setUserProfile }) => {
               placeholder="Password"
               key={isSignup ? "SignUpPassword" : "LogInPassword"}
               defaultValue={isSignup ? "" : "demo1"}
-              onChange={handleChange}
               required
             />
           </div>
