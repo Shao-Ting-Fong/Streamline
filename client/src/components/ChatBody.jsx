@@ -101,7 +101,7 @@ const ChatBody = ({ messages, updateMessages, paging, setPaging, hasMore, setHas
                       />
                     )}
                     <span className="ml-2 -mb-1 text-sm font-normal text-white opacity-70">
-                      {dayjs(msg.time).format("HH:mm a")}
+                      {dayjs(msg.time).format("MM/DD HH:mm a")}
                     </span>
                   </div>
                 </div>
